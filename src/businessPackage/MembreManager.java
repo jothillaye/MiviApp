@@ -20,7 +20,6 @@ public class MembreManager {
 	}
 	
 	public ArrayList<Membre> getMembre(String search) throws GetMembreException, NotIdentified {
-        System.out.println("ok 3");
 		return new AccessMembreDB().getMembre(search);
 	}
 }
