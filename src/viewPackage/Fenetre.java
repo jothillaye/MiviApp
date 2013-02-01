@@ -19,7 +19,7 @@ public class Fenetre extends JFrame	{
 	
 	// Panneaux accessibles
     private PanelAccueil panelAccueil;
-	private PanelNewMembre panelNewMembre;
+	private PanelMembre panelMembre;
     private PanelListMembres panelListMembres;
 	private PanelNewActivite panelNewActivite;
     private PanelListActivites panelListActivites;
@@ -45,7 +45,7 @@ public class Fenetre extends JFrame	{
 	public Fenetre(){
 		// Creation Fenetre
 		super("MiviApp");
-		setBounds(150,100,800,550); 
+		setBounds(150,100,1000,550); 
 		
 		// Ecoute Fenetre        
 		close = new CloseWindow();
@@ -170,8 +170,8 @@ public class Fenetre extends JFrame	{
             }            
             // Nouveau Membre
             else if(e.getSource() == itemNewMembre){	
-                panelNewMembre = new PanelNewMembre();
-                getCont().add(panelNewMembre, BorderLayout.CENTER);
+                panelMembre = new PanelMembre();
+                getCont().add(panelMembre, BorderLayout.CENTER);
             }
             // Liste des Membres
             else if(e.getSource() == itemListMembres){
