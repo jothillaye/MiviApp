@@ -38,7 +38,6 @@ public class AccessMembreDB {
 	// Obtention d'une liste de membre (sur base du nom)
 	public ArrayList<Membre> getMembre(String search) throws GetMembreException, NotIdentified {
 		try {
-            System.out.println("ok 4");
 			request = "select id, nom, prenom from Membre";	
 			if(search!=null){
 				request += " where nom like ? or prenom like ?;";
