@@ -35,7 +35,6 @@ public class ApplicationController {
     }
 	
     public ArrayList<Membre> getMembre(String search) throws GetMembreException, NotIdentified {
-        System.out.println("ok 2");
         return membreManager.getMembre(search);
 	}
 }
