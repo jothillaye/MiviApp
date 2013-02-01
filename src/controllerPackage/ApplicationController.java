@@ -3,38 +3,39 @@ package controllerPackage;
 import modelPackage.*;
 import businessPackage.*;
 import exceptionPackage.*;
-
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
+
 
 public class ApplicationController {	
-	private LoginManager _loginManager;	
+	private LoginManager loginManager;	
+    private MembreManager membreManager;
 
 	public ApplicationController(){	
-		_loginManager = new LoginManager( );
+		loginManager = new LoginManager();
+        membreManager = new MembreManager();        
 	}	
 	
 	// Login Managing	
 	public void Connection() throws NotIdentified {
-		_loginManager.Connection();
+		loginManager.Connection();
 	}
 	
 	public void Connection(String pw) throws IdentificationError {
-		_loginManager.Connection(pw);
+		loginManager.Connection(pw);
 	}
 
 	public void Disconnect() throws DisconnectException {
-		_loginManager.CloseConnection();
+		loginManager.CloseConnection();
 	}
 	
 	
-	// Client Managing	
-	//public void newCli(Client cli) throws NewCliException, NotIdentified {
-	//	cm.newCli(cli);
-	//}
-		
-	//public ArrayList<String>[] getCli(String nom) throws GetCliException, NotIdentified {
-	//	return cm.getCli(nom);
-	//}
+	// Membre Managing	
+    public void newMembre(Membre membre) throws NewMembreException, NotIdentified {
+        membreManager.newMembre(membre);
+    }
 	
+    public ArrayList<Membre> getMembre(String search) throws GetMembreException, NotIdentified {
+        System.out.println("ok 2");
+        return membreManager.getMembre(search);
+	}
 }
