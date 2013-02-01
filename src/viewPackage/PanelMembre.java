@@ -85,7 +85,6 @@ public class PanelMembre extends JPanel {
 
             listModelMembre = new DefaultListModel();
             try {        
-                System.out.println("ok 1");
                 arrayMembre = app.getMembre("");
                 for(Membre me : arrayMembre){
                     listModelMembre.addElement(me.getNom().toString()+", "+me.getPrenom().toString());
