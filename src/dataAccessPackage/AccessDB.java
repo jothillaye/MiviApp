@@ -24,10 +24,11 @@ public class AccessDB {
 				connexionUnique = DriverManager.getConnection("jdbc:odbc:mividb"," ", pass);
 			}
 			catch(SQLException e) {
+                
 				String msg = "Mot de passe entré incorrecte.";
 				if(pass.equals(""))
 					msg = "Vous devez entrer un password!";
-				throw new IdentificationError(msg);
+				throw new IdentificationError(e.getMessage());
 			} 
 			catch (ClassNotFoundException e) {	
 				throw new IdentificationError("Base de donnée introuvable.");
