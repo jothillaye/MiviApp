@@ -8,10 +8,10 @@ package exceptionPackage;
  *
  * @author Joachim
  */
-public class GetMembreException extends Exception {
+public class ListMembreException extends Exception {
     private String msg;
     
-    public GetMembreException(String msg) {
+    public ListMembreException(String msg) {
         this.msg = msg;
     }
 

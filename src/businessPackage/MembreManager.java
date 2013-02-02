@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import modelPackage.Membre;
 import dataAccessPackage.AccessMembreDB;
-import exceptionPackage.GetMembreException;
+import exceptionPackage.ListMembreException;
 import exceptionPackage.NewMembreException;
 import exceptionPackage.NotIdentified;
 
@@ -19,7 +19,11 @@ public class MembreManager {
         }
 	}
 	
-	public ArrayList<Membre> getMembre(String search) throws GetMembreException, NotIdentified {
-		return new AccessMembreDB().getMembre(search);
+	public ArrayList<Membre> listMembre(String search) throws ListMembreException, NotIdentified {
+		return new AccessMembreDB().listMembre(search);
 	}
+
+    public Membre getMembre(Integer id) throws ListMembreException, NotIdentified {
+        return new AccessMembreDB().getMembre(id);
+    }
 }

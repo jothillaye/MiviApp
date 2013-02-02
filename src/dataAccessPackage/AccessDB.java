@@ -3,6 +3,7 @@ package dataAccessPackage;
 import java.sql.*;
 
 import exceptionPackage.*;
+import java.util.Properties;
 
 public class AccessDB {
 	
@@ -19,9 +20,15 @@ public class AccessDB {
 	
 	public static Connection getInstance(String pass) throws IdentificationError {		
 		if (connexionUnique == null ) {
-			try	{
+            String dbUrl = "jdbc:odbc:mividb";
+			Properties props = new Properties();
+            props.put ("charSet", "ISO-8859-15");
+            props.put("user", " ");
+            props.put("password", pass);
+            
+            try	{
 				Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");		
-				connexionUnique = DriverManager.getConnection("jdbc:odbc:mividb"," ", pass);
+				connexionUnique = DriverManager.getConnection(dbUrl, props);
 			}
 			catch(SQLException e) {
                 

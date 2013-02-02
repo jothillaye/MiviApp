@@ -34,7 +34,11 @@ public class ApplicationController {
         membreManager.newMembre(membre);
     }
 	
-    public ArrayList<Membre> getMembre(String search) throws GetMembreException, NotIdentified {
-        return membreManager.getMembre(search);
+    public ArrayList<Membre> listMembre(String search) throws ListMembreException, NotIdentified {
+        return membreManager.listMembre(search);
 	}
+    
+    public Membre getMembre(Integer id) throws ListMembreException, NotIdentified {
+        return membreManager.getMembre(id);
+    }
 }
