@@ -1,9 +1,9 @@
 package controllerPackage;
 
-import modelPackage.*;
 import businessPackage.*;
 import exceptionPackage.*;
 import java.util.ArrayList;
+import modelPackage.*;
 
 
 public class ApplicationController {	
@@ -40,5 +40,13 @@ public class ApplicationController {
     
     public Membre getMembre(Integer id) throws ListMembreException, NotIdentified {
         return membreManager.getMembre(id);
+    }
+
+    public void modifyMembre(Membre membre) throws ModifyMembreException, NotIdentified {
+        membreManager.modifyMembre(membre);
+    }
+
+    public void deleteMembre(Integer idMembre) throws DeleteMembreException, NotIdentified {
+        membreManager.deleteMembre(idMembre);
     }
 }

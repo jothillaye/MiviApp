@@ -1,25 +1,35 @@
 package modelPackage;
 
-import java.text.DateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
-import static java.util.Calendar.DATE;
 import static java.util.Calendar.DAY_OF_MONTH;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
+import java.util.GregorianCalendar;
 
 public class Membre {
-    private Integer id, numero, codePostal, gsm, fixe, idContact, provenance;
-	private String nom, prenom, email, rue, ville, dayOfMonth, month;
+    private Integer id, codePostal, gsm, fixe, idContact, provenance;
+	private String nom, prenom, email, rue, numero, ville, dayOfMonth, month;
 	private GregorianCalendar dateNaiss;
     private Boolean assistant, animateur, clientME, ecarte;
     private Float soldeCrediteur;
 
-	public Membre(String nom, String prenom, GregorianCalendar dateNaiss) {
+	public Membre(String nom, String prenom, String email, GregorianCalendar dateNaiss, Integer gsm, Integer fixe, String rue, String numero, Integer codePostal, String ville, Integer provenance, Integer idContact, Boolean assistant, Boolean animateur, Boolean clientME, Boolean ecarte, Float soldeCrediteur) {
 		this.nom = nom;
 		this.prenom = prenom;
+        this.email = email;
 		this.dateNaiss = dateNaiss;		
+        this.gsm = gsm;
+        this.fixe = fixe;
+        this.rue = rue;
+        this.numero = numero;
+        this.codePostal = codePostal;
+        this.ville = ville;
+        this.provenance = provenance;
+        this.idContact = idContact;
+        this.assistant = assistant;
+        this.animateur = animateur;
+        this.clientME = clientME;
+        this.ecarte = ecarte;
+        this.soldeCrediteur = soldeCrediteur;
 	}
 	
 	// Constructeur pour lister les clients lors d'une requete sql
@@ -33,7 +43,7 @@ public class Membre {
     public GregorianCalendar getDateNaiss() { return dateNaiss;}
     public Integer getGsm() { return gsm;}
     public Integer getFixe() { return fixe;}
-    public Integer getNumero() { return numero;}
+    public String getNumero() { return numero;}
     public String getRue() { return rue;}
     public Integer getCodePostal() { return codePostal;}
     public String getVille() { return ville;}
@@ -70,7 +80,7 @@ public class Membre {
     public void setGsm(Integer gsm) { this.gsm = gsm;}
     public void setFixe(Integer fixe) { this.fixe = fixe;}
     public void setRue(String rue) { this.rue = rue;}
-    public void setNumero(Integer numero) { this.numero = numero;}
+    public void setNumero(String numero) { this.numero = numero;}
     public void setCodePostal(Integer codePostal) { this.codePostal = codePostal;}
     public void setVille(String ville) { this.ville = ville;}
     public void setProvenance(Integer provenance) { this.provenance = provenance;}

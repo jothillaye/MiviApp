@@ -5,13 +5,14 @@
 package viewPackage;
 
 import controllerPackage.ApplicationController;
+import exceptionPackage.DeleteMembreException;
 import exceptionPackage.ListMembreException;
+import exceptionPackage.ModifyMembreException;
 import exceptionPackage.NewMembreException;
 import exceptionPackage.NotIdentified;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -22,8 +23,6 @@ import java.awt.event.KeyListener;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -34,14 +33,16 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.MaskFormatter;
+import javax.swing.text.StyledDocument;
 import modelPackage.Membre;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
@@ -51,7 +52,8 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
  */
 public class PanelMembre extends JPanel {
     // Panels & Layout
-    private JPanel panelListMembre, panelInfoMembre, panelStatus, panelButtons;
+    private JPanel panelListMembre, panelRight, panelStatus, panelButtons, panelFicheMembre, panelHistory;
+    private JTabbedPane tabbedPane;
     private FlowLayout flowStatus, flowButtons;
     private GridBagConstraints c;
         
@@ -59,19 +61,17 @@ public class PanelMembre extends JPanel {
     private JList listMembre;
     private JScrollPane scrollPaneMembre;
     private DefaultListModel listModelMembre;
-	private JLabel title, labelNom, labelPrenom, labelRue, labelNumero, labelCodePostal, labelVille, labelFixe, labelGSM, labelEmail, labelDateNaiss, labelProvenance, labelContact;
-	private JTextField fieldNom, fieldPrenom, fieldRue, fieldNumero, fieldCodePostal, fieldVille, fieldFixe, fieldGSM, fieldEmail, fieldFilter;
+	private JTextField fieldId, fieldNom, fieldPrenom, fieldRue, fieldNumero, fieldCodePostal, fieldVille, fieldFixe, fieldGSM, fieldEmail, fieldFilter, fieldSolde;
     private JFormattedTextField fieldDate;
     private JCheckBox checkBoxClientME, checkBoxAssistant, checkBoxAnimateur, checkBoxEcarte;
     private JComboBox comboBoxProvenance, comboBoxContact;
-    private JButton buttonSubmit, buttonNewMembre, buttonHistory;	
-
-	// Variables temporaires
-	private String prenom, nom, rue, numero, ville, email;	
-	private Integer codePostal, contact, media, fixe, gsm;    
-    private Boolean clientME, assistant, animateur;
-    private GregorianCalendar dateNaiss;
-	private ArrayList<Membre> arrayMembre, arrayMembreComboBox;
+    private JButton buttonSubmit, buttonNewMembre, buttonModify, buttonDelete;	
+    private JTextPane textPaneHistory;
+    private StyledDocument docHistory;
+    
+    private QueryResult structMembre;
+	
+    private ArrayList<Membre> arrayMembre, arrayMembreComboBox;
 	
 	private PanelMembre panelMembre;	
     
@@ -80,7 +80,6 @@ public class PanelMembre extends JPanel {
 	public PanelMembre() {	
         this.setLayout(new BorderLayout());
         
-        // Gestion de l'affichage via GridBagLayout
         c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.LINE_START; // left alignement
         
@@ -94,7 +93,7 @@ public class PanelMembre extends JPanel {
                 @Override
                 public void valueChanged(ListSelectionEvent lse) {                                        
                     if(listMembre.getValueIsAdjusting()) {
-                        UpdateInfoMembre(listMembre.getSelectedIndex());
+                        UpdateMembre(listMembre.getSelectedIndex());
                     }
                 }
             });
@@ -108,53 +107,74 @@ public class PanelMembre extends JPanel {
             fieldFilter = new JTextField();
             fieldFilter.addKeyListener(new KeyListener() {
                 @Override
-                public void keyTyped(KeyEvent ke) {
-                    UpdateListMembre(fieldFilter.getText());
-                }
+                public void keyTyped(KeyEvent ke) {}
                 @Override
                 public void keyPressed(KeyEvent ke) {}
                 @Override
-                public void keyReleased(KeyEvent ke) {}
+                public void keyReleased(KeyEvent ke) {
+                    UpdateListMembre(fieldFilter.getText());
+                }
             });
+            
             panelListMembre.add(fieldFilter, BorderLayout.SOUTH);
         
         this.add(panelListMembre, BorderLayout.WEST);
         
-        // Panel contenant les champs éditables renseignants nom, prénom,...
-        panelInfoMembre = new JPanel();      
-        panelInfoMembre.setLayout(new GridBagLayout());
-        c.insets = new Insets(10,20,0,0);  
+            // Panel de droite contenant un JTabbedPane de panelFicheMembre et panelHistory
+            panelRight = new JPanel();
+            panelRight.setLayout(new BorderLayout());
 
-            // Titre 
-            title = new JLabel("Gestion des Membres");
-            title.setFont(new Font("Serif", Font.BOLD, 18));
-            c.gridx = 0; c.gridy = 0; 
-            c.gridwidth = 4;
-            panelInfoMembre.add(title, c);
+                panelFicheMembre = new PanelFicheMembre();      
+                panelHistory = new PanelHistory();
 
+                tabbedPane = new JTabbedPane(JTabbedPane.NORTH);    
+                tabbedPane.addTab("Fiche Membre", panelFicheMembre);
+                tabbedPane.addTab("History", panelHistory);
+
+            panelRight.add(tabbedPane, BorderLayout.CENTER); 
+        
+        this.add(panelRight, BorderLayout.CENTER);	
+	}
+    
+    private class PanelFicheMembre extends JPanel {
+        private JLabel labelNom, labelPrenom, labelRue, labelNumero, labelCodePostal, labelVille, labelFixe, labelGSM, labelEmail, labelDateNaiss, labelProvenance, labelContact;
+	
+        public PanelFicheMembre() {            
+            this.setLayout(new GridBagLayout());
+            c.insets = new Insets(10,20,0,0); 
+            
+            // ID du membre
+            fieldId = new JTextField();
+            fieldId.setVisible(false);
+            this.add(fieldId, c);	
+            
+            // Solde du membre (Détails dans le panel historique)
+            fieldSolde = new JTextField();
+            fieldSolde.setVisible(false);
+            this.add(fieldSolde, c);
+            
             // Nom (Field)
             labelNom = new JLabel("Nom : ");
-            c.gridx = 0; c.gridy++;             
-            c.gridwidth = 1; // reset wide
-            panelInfoMembre.add(labelNom, c);
+            c.gridx = 0; c.gridy = 0;      
+            this.add(labelNom, c);
 
             fieldNom = new JTextField(12);
             c.gridx = 1;
-            panelInfoMembre.add(fieldNom, c);	
-            
+            this.add(fieldNom, c);	
+
             // Prénom (Field)
             labelPrenom = new JLabel("Prénom : ");
             c.gridx = 2; 
-            panelInfoMembre.add(labelPrenom, c);
+            this.add(labelPrenom, c);
 
             fieldPrenom = new JTextField(12);
             c.gridx = 3; 
-            panelInfoMembre.add(fieldPrenom, c);
+            this.add(fieldPrenom, c);
 
             // Date Naiss
             labelDateNaiss = new JLabel("Date de naissance : ");
             c.gridx = 0; c.gridy++;
-            panelInfoMembre.add(labelDateNaiss, c);
+            this.add(labelDateNaiss, c);
 
             try {
                 fieldDate = new JFormattedTextField(new MaskFormatter("##'/##'/####"));
@@ -165,80 +185,80 @@ public class PanelMembre extends JPanel {
             fieldDate.setValue("01/01/1900");
             fieldDate.setColumns(8);
             c.gridx = 1; 
-            panelInfoMembre.add(fieldDate, c);
-            
+            this.add(fieldDate, c);
+
             // Rue (Field)
             labelRue = new JLabel("Rue : ");
             c.gridx = 0; c.gridy++; 
             c.insets = new Insets(40,20,0,0);
-            panelInfoMembre.add(labelRue, c);
+            this.add(labelRue, c);
 
             fieldRue = new JTextField(12);                
             c.gridx = 1;
-            panelInfoMembre.add(fieldRue, c);   
+            this.add(fieldRue, c);   
 
             // Numero (Field)
             labelNumero = new JLabel("Numero : ");
             c.gridx = 2; 
-            panelInfoMembre.add(labelNumero, c);
+            this.add(labelNumero, c);
 
             fieldNumero = new JTextField(6);                
             c.gridx = 3;
-            panelInfoMembre.add(fieldNumero, c);
+            this.add(fieldNumero, c);
 
             // CodePostal (Field)
             labelCodePostal = new JLabel("CodePostal : ");
             c.gridx = 0; c.gridy++; 
             c.insets = new Insets(10,20,0,0);
-            panelInfoMembre.add(labelCodePostal, c);
+            this.add(labelCodePostal, c);
 
             fieldCodePostal = new JTextField(6);                
             c.gridx = 1;
-            panelInfoMembre.add(fieldCodePostal, c);   
+            this.add(fieldCodePostal, c);   
 
             // Ville (Field)
             labelVille = new JLabel("Ville : ");
             c.gridx = 2; 
-            panelInfoMembre.add(labelVille, c);
+            this.add(labelVille, c);
 
             fieldVille = new JTextField(12);                
             c.gridx = 3;
-            panelInfoMembre.add(fieldVille, c);
+            this.add(fieldVille, c);
 
             // Fixe (Field)
             labelFixe = new JLabel("Téléphone Fixe : ");
             c.gridx = 0; c.gridy++; 
             c.insets = new Insets(40,20,0,0);
-            panelInfoMembre.add(labelFixe, c);
+            this.add(labelFixe, c);
 
             fieldFixe = new JTextField(12);
             c.gridx = 1;
-            panelInfoMembre.add(fieldFixe, c); 
+            this.add(fieldFixe, c); 
 
             // GSM (Field)
             labelGSM = new JLabel("GSM : ");
             c.gridx = 2; 
-            panelInfoMembre.add(labelGSM, c);
+            this.add(labelGSM, c);
 
             fieldGSM = new JTextField(12);
             c.gridx = 3;
-            panelInfoMembre.add(fieldGSM, c);         
+            this.add(fieldGSM, c);         
 
             // Email (Field)
             labelEmail = new JLabel("Email : ");
             c.gridx = 0; c.gridy++; 
             c.insets = new Insets(10,20,0,0);
-            panelInfoMembre.add(labelEmail, c);
+            this.add(labelEmail, c);
 
             fieldEmail = new JTextField(16);
             c.gridx = 1;
-            panelInfoMembre.add(fieldEmail, c);	 
+            this.add(fieldEmail, c);	 
 
             // Provenance (ComboBox)
             labelProvenance = new JLabel("Provenance : ");
             c.gridx = 0; c.gridy++; 
             c.insets = new Insets(40,20,0,0);
-            panelInfoMembre.add(labelProvenance, c);
+            this.add(labelProvenance, c);
 
             comboBoxProvenance = new JComboBox();
             comboBoxProvenance.addItem("Aucune");
@@ -246,16 +266,16 @@ public class PanelMembre extends JPanel {
             comboBoxProvenance.addItem("Conférence");
             comboBoxProvenance.addItem("Maison de l'Ecologie");
             c.gridx = 1;
-            panelInfoMembre.add(comboBoxProvenance, c);	 
+            this.add(comboBoxProvenance, c);	 
 
             // Contact (ComboBox auto-complete)
             labelContact = new JLabel("Contact : ");
             c.gridx = 2;
-            panelInfoMembre.add(labelContact, c);
+            this.add(labelContact, c);
 
             comboBoxContact = new JComboBox();
             c.gridx = 3;
-            panelInfoMembre.add(comboBoxContact, c);	 
+            this.add(comboBoxContact, c);	 
             try {            
                 arrayMembreComboBox = app.listMembre(null);
                 comboBoxContact.addItem(new QueryResult(0,"Aucun"));
@@ -264,19 +284,20 @@ public class PanelMembre extends JPanel {
                 }
             } 
             catch (ListMembreException ex) {
-                Logger.getLogger(PanelMembre.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
             } 
             catch (NotIdentified ex) {
-                Logger.getLogger(PanelMembre.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+                new LoginPopup();
             }
             AutoCompleteDecorator.decorate(comboBoxContact);
-            
+
             panelStatus = new JPanel();
             flowStatus = new FlowLayout();
             flowStatus.setAlignment(FlowLayout.CENTER);
             flowStatus.setHgap(50);
             panelStatus.setLayout(flowStatus);            
-                        
+
                 // Client Maison de l'Ecologie
                 checkBoxClientME = new JCheckBox("Client ME");
                 panelStatus.add(checkBoxClientME);
@@ -292,16 +313,26 @@ public class PanelMembre extends JPanel {
                 // Ecarte
                 checkBoxEcarte = new JCheckBox("Ecarte");
                 panelStatus.add(checkBoxEcarte); 
-            
+
             c.gridx = 0; c.gridy++; c.gridwidth = 4;
             c.insets = new Insets(15,20,0,0);
-            panelInfoMembre.add(panelStatus, c);           
+            this.add(panelStatus, c);           
 
             panelButtons = new JPanel();
             flowButtons = new FlowLayout();
             flowButtons.setAlignment(FlowLayout.LEFT);
             flowButtons.setHgap(2);
             panelButtons.setLayout(flowButtons);
+            
+                // Bouton Modify
+                buttonModify = new JButton("Modifier");
+                buttonModify.setVisible(false);
+                panelButtons.add(buttonModify);
+                
+                // Bouton Suprpesion
+                buttonDelete = new JButton("Supprimer");
+                buttonDelete.setVisible(false);
+                panelButtons.add(buttonDelete);
 
                 // Bouton Enregistrer
                 buttonSubmit = new JButton("Enregistrer");
@@ -311,29 +342,49 @@ public class PanelMembre extends JPanel {
                 buttonNewMembre = new JButton("Nouveau Membre");
                 panelButtons.add(buttonNewMembre);
                 
-                // Bouton Historique
-                buttonHistory = new JButton("History");
-                panelButtons.add(buttonHistory);
+                ActionManager AM = new ActionManager();
+                buttonSubmit.addActionListener(AM);
+                buttonNewMembre.addActionListener(AM);	
+                buttonModify.addActionListener(AM);	
+                buttonDelete.addActionListener(AM);	
 
             c.gridy++; c.gridx = 0; 
-            panelInfoMembre.add(panelButtons, c);
-
-        this.add(panelInfoMembre, BorderLayout.CENTER);
+            this.add(panelButtons, c);   
+        }
+    }
+    
+    private class PanelHistory extends JPanel {
+        private JLabel labelFormation;
+        
+        public PanelHistory() {
+            this.setLayout(new BorderLayout());
             
-		// Création de l'écouteur d'évenement
-		ActionManager AM = new ActionManager();
-		buttonSubmit.addActionListener(AM);
-		buttonNewMembre.addActionListener(AM);			
-		
-	}
+            labelFormation = new JLabel("Historique formation :");
+            this.add(labelFormation, BorderLayout.NORTH);
+            
+            textPaneHistory = new JTextPane();
+            textPaneHistory.setEditable(false);
+            this.add(textPaneHistory, BorderLayout.CENTER);
+        }
+    }
 	
-	// Vide et re-remplit la fenetre
 	private void reset() {
 		Fenetre.getCont().removeAll();
 		panelMembre = new PanelMembre();
 		Fenetre.getCont().add(panelMembre, BorderLayout.CENTER);
 		Fenetre.getCont().validate();		
-	}
+	}   
+    
+    private class QueryResult {  
+        int id;  
+        String desc;  
+        public QueryResult(int i, String d) {  
+            id = i;
+            desc = d;  
+        }          
+        @Override
+        public String toString(){return desc;}  
+    } 
     
     private void UpdateListMembre(String filter){
         listModelMembre.clear();
@@ -351,74 +402,104 @@ public class PanelMembre extends JPanel {
             new LoginPopup();
         }
         listMembre.validate();
-    }
+    }  
     
-    private class QueryResult {  
-        int id;  
-        String desc;  
-        public QueryResult(int i, String d) {  
-            id = i;
-            desc = d;  
-        }  
-        
-        @Override
-        public String toString(){return desc;}  
-    }   
-    
-    private void UpdateInfoMembre(Integer indexList) {
+    private void UpdateMembre(Integer indexList) {
         try {
-            QueryResult temp = (QueryResult)listModelMembre.getElementAt(indexList);  
-            Membre me = app.getMembre(temp.id);
-            fieldNom.setText(me.getNom());
-            fieldPrenom.setText(me.getPrenom());
-            fieldRue.setText(me.getRue());
-            fieldNumero.setText(me.getNumero().toString());
-            fieldCodePostal.setText(me.getCodePostal().toString());
-            fieldVille.setText(me.getVille());
-            if(me.getGsm()!=0) {
-                fieldGSM.setText(0+me.getGsm().toString());
-            }            
-            else {
-                fieldGSM.setText("");
-            }
-            if(me.getFixe()!=0) {
-                fieldFixe.setText(0+me.getFixe().toString());
-            }
-            else {
-                fieldFixe.setText("");
-            }           
-            fieldDate.setText(me.getFormatedDateNaiss());
-            fieldEmail.setText(me.getEmail());
-            comboBoxProvenance.setSelectedIndex(me.getProvenance());
-            comboBoxContact.setSelectedIndex(0);
-            for(Membre cMembre : arrayMembreComboBox){
-                if(cMembre.getId() == me.getIdContact()) {
-                    QueryResult qr = new QueryResult(me.getIdContact(), cMembre.getNom().toString().toUpperCase()+", "+cMembre.getPrenom().toString().toLowerCase()); 
-                    comboBoxContact.setSelectedItem(qr);
-                }
-            }
-            checkBoxAnimateur.setSelected(me.getAnimateur());
-            checkBoxAssistant.setSelected(me.getAssistant());
-            checkBoxClientME.setSelected(me.getClientME());
-            checkBoxEcarte.setSelected(me.getEcarte());
-        } 
+            structMembre = (QueryResult)listModelMembre.getElementAt(indexList);  
+            Membre me = app.getMembre(structMembre.id);
+            
+            UpdateInfoMembre(me);
+            UpdateHistoryMembre(me);
+        }    
         catch (ListMembreException ex) {
-            Logger.getLogger(PanelMembre.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
         } 
         catch (NotIdentified ex) {
-            Logger.getLogger(PanelMembre.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+            new LoginPopup();
+        }         
+    }
+    
+    private void UpdateInfoMembre(Membre me) {  
+        fieldId.setText(me.getId().toString());
+        fieldNom.setText(me.getNom());
+        fieldPrenom.setText(me.getPrenom());
+        fieldRue.setText(me.getRue());
+        fieldNumero.setText(me.getNumero());
+        if(me.getCodePostal() != 0) {
+            fieldCodePostal.setText(me.getCodePostal().toString());
+        }
+        else {
+            fieldCodePostal.setText("");
+        }
+        fieldVille.setText(me.getVille());
+        if(me.getGsm() != 0) {
+            fieldGSM.setText(0+me.getGsm().toString());
+        }            
+        else {
+            fieldGSM.setText("");
+        }
+        if(me.getFixe() != 0) {
+            fieldFixe.setText(0+me.getFixe().toString());
+        }
+        else {
+            fieldFixe.setText("");
+        }           
+        fieldDate.setText(me.getFormatedDateNaiss());
+        fieldEmail.setText(me.getEmail());
+        comboBoxProvenance.setSelectedIndex(me.getProvenance());
+        comboBoxContact.setSelectedIndex(0);
+        for(Membre cMembre : arrayMembreComboBox){
+            if(cMembre.getId() == me.getIdContact()) {
+                QueryResult qr = new QueryResult(me.getIdContact(), cMembre.getNom().toString().toUpperCase()+", "+cMembre.getPrenom().toString().toLowerCase()); 
+                comboBoxContact.setSelectedItem(qr);
+            }
+        }
+        checkBoxAnimateur.setSelected(me.getAnimateur());
+        checkBoxAssistant.setSelected(me.getAssistant());
+        checkBoxClientME.setSelected(me.getClientME());
+        checkBoxEcarte.setSelected(me.getEcarte());
+        if(me.getSoldeCrediteur() != 0) {
+            fieldSolde.setText(0+me.getFixe().toString());
+        }
+        else {
+            fieldSolde.setText("0");
+        }   
+        
+        if(buttonDelete.isVisible() == false) {
+            buttonDelete.setVisible(true);
+        }
+        if(buttonModify.isVisible() == false) {
+            buttonModify.setVisible(true);
+        }
+        if(buttonSubmit.isVisible() == true) {
+            buttonSubmit.setVisible(false);
         }
     }
     
-	// Action Manager
+    private void UpdateHistoryMembre(Membre me) {        
+        docHistory = new DefaultStyledDocument();
+        
+        // TODO : Describe methode
+        //ArrayList<Inscription> = app.getHistoryIns(me);
+    }
+    
 	private class ActionManager implements ActionListener { 
+        // Variables temporaires
+        String prenom, nom, rue, numero, ville, email, filter;	
+        Integer idMembre, idContact, codePostal, fixe, gsm, provenance, idMembreList, reply;    
+        Boolean clientME, assistant, animateur, ecarte;
+        GregorianCalendar dateNaiss;
+        Float solde;
+        
         @Override
 		public void actionPerformed(ActionEvent e) {
-			if(e.getSource() == buttonNewMembre){				
-                dateNaiss 	= new GregorianCalendar();
+            idMembreList = listMembre.getSelectedIndex();
+			if(e.getSource() == buttonNewMembre){		
                 reset();
 			}
-			else if(e.getSource() == buttonSubmit){
+			else if(e.getSource() == buttonSubmit || e.getSource() == buttonModify){
 				// Récupération des informations d'inscriptions
 				prenom 		= fieldPrenom.getText();				
 				nom 		= fieldNom.getText();
@@ -426,49 +507,101 @@ public class PanelMembre extends JPanel {
                 numero      = fieldNumero.getText();
                 ville       = fieldVille.getText();
                 email       = fieldEmail.getText();
-                media       = comboBoxProvenance.getSelectedIndex();
-                contact     = comboBoxContact.getSelectedIndex();
+                provenance  = comboBoxProvenance.getSelectedIndex();
+                structMembre= (QueryResult)comboBoxContact.getSelectedItem();
+                idContact   = structMembre.id;
                 clientME    = checkBoxClientME.isSelected();
                 assistant   = checkBoxAssistant.isSelected();
                 animateur   = checkBoxAnimateur.isSelected();
+                ecarte      = checkBoxEcarte.isSelected();
+                solde       = Float.parseFloat(fieldSolde.getText());
 				dateNaiss 	= new GregorianCalendar();
                 try {
                     if(fieldCodePostal.getText().isEmpty() == false) {
                         codePostal = Integer.parseInt(fieldCodePostal.getText());
-                    }                
+                    }
+                    else {
+                        codePostal = 0;
+                    }
                     if(fieldGSM.getText().isEmpty() == false) {
                         gsm = Integer.parseInt(fieldGSM.getText());
+                    }
+                    else {
+                        gsm = 0;
                     }
                     if(fieldFixe.getText().isEmpty() == false) {
                         fixe = Integer.parseInt(fieldFixe.getText());
                     }
+                    else {
+                        fixe = 0;
+                    }
+                    dateNaiss.set(Integer.parseInt(fieldDate.getText(6,4)), Integer.parseInt(fieldDate.getText(3,2)), Integer.parseInt(fieldDate.getText(0,2)));
+                    
+                    Membre membre = new Membre(nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, provenance, idContact, assistant, animateur, clientME, ecarte, solde);
+					
+                    if(e.getSource() == buttonSubmit) {
+                        reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment ajouter ce membre ?", "Insertion Membre", JOptionPane.YES_NO_OPTION);
+						if (reply == JOptionPane.YES_OPTION) {
+                            app.newMembre(membre);                        
+                            JOptionPane.showMessageDialog(null, "Ajout de "+prenom+" "+nom+" réussi", "Ajout Membre", JOptionPane.INFORMATION_MESSAGE);
+                        }                        
+                    }
+                    else if(e.getSource() == buttonModify) {
+                        idMembre = Integer.parseInt(fieldId.getText()); 
+                        membre.setId(idMembre);
+                        
+                        reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment modifier ce membre ?", "Modification Membre", JOptionPane.YES_NO_OPTION);
+						if (reply == JOptionPane.YES_OPTION) {
+                            app.modifyMembre(membre);
+                            JOptionPane.showMessageDialog(null, "Modification de "+prenom+" "+nom+" réussie", "Ajout Membre", JOptionPane.INFORMATION_MESSAGE);
+                        }
+					}
+                    filter = fieldFilter.getText();
+                    if(filter.isEmpty()) {
+                        filter = null;
+                    }
+                    UpdateListMembre(filter);
+                    UpdateInfoMembre(membre);
+                    
                 }
                 catch(NumberFormatException nfe) {
-                    JOptionPane.showMessageDialog(null, "N'inclure que des entiers positifs dans les champs suivants :\nCode Postal, GSM, Fixe", "Erreur champs numérique", JOptionPane.ERROR_MESSAGE);                    
+                    JOptionPane.showMessageDialog(null, "Erreur : n'inclure que des chiffres dans les champs suivants :\nCode Postal, GSM, Fixe", "Erreur champs numérique", JOptionPane.ERROR_MESSAGE);                    
                 }
-				try {                 
-                    dateNaiss.set(Integer.parseInt(fieldDate.getText(6,4)), Integer.parseInt(fieldDate.getText(3,2)), Integer.parseInt(fieldDate.getText(0,2)));
-                } 
                 catch (BadLocationException ex) {
-                    JOptionPane.showMessageDialog(null, "Erreur dans la date à corriger.", "Erreur date", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Erreur lors de l'insertion veuillez vérifier le contenu des champs et si le problème persiste contacter l'administrateur.", "Erreur insertion", JOptionPane.ERROR_MESSAGE);
                 }
                 catch(ArrayIndexOutOfBoundsException ex) {
-                    JOptionPane.showMessageDialog(null, "Erreur dans la date à corriger.", "Erreur date", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Erreur lors de l'insertion veuillez vérifier le contenu des champs et si le problème persiste contacter l'administrateur.", "Erreur insertion", JOptionPane.ERROR_MESSAGE);
                 }
-                try {
-					Membre membre = new Membre(nom, prenom, dateNaiss);
-					app.newMembre(membre);
-					JOptionPane.showMessageDialog(null, "Ajout du membre réussi", "Ajout Membre", JOptionPane.INFORMATION_MESSAGE);
-					reset();
-				} 
 				catch (NewMembreException ex) {
 					JOptionPane.showMessageDialog(null, ex, "Erreur ajout", JOptionPane.ERROR_MESSAGE);
+				} 
+                catch (ModifyMembreException ex) {
+					JOptionPane.showMessageDialog(null, ex, "Erreur modification", JOptionPane.ERROR_MESSAGE);
 				} 
 				catch (NotIdentified ex) {
 					JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
 					new LoginPopup();
 				}
-			}				
+			}
+            else if(e.getSource() == buttonDelete) {
+                idMembre = Integer.parseInt(fieldId.getText());
+                try {
+                    reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment supprimer ce membre ?", "Suppresion Membre", JOptionPane.YES_NO_OPTION);
+                    if (reply == JOptionPane.YES_OPTION) {                        
+                        app.deleteMembre(idMembre);
+                        JOptionPane.showMessageDialog(null, "Suppression réussie", "Suppression Membre", JOptionPane.INFORMATION_MESSAGE);
+                        reset();
+                    }
+                } 
+                catch (DeleteMembreException ex) {
+					JOptionPane.showMessageDialog(null, ex, "Erreur suppression", JOptionPane.ERROR_MESSAGE);
+				} 
+				catch (NotIdentified ex) {
+					JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+					new LoginPopup();
+				}               
+            }
 		}			
 	}
 }
