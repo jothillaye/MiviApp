@@ -9,10 +9,12 @@ import modelPackage.*;
 public class ApplicationController {	
 	private LoginManager loginManager;	
     private MembreManager membreManager;
+    private FormationManager formationManager;
 
 	public ApplicationController(){	
 		loginManager = new LoginManager();
         membreManager = new MembreManager();        
+        formationManager = new FormationManager();
 	}	
 	
 	// Login Managing	
@@ -48,5 +50,10 @@ public class ApplicationController {
 
     public void deleteMembre(Integer idMembre) throws DeleteMembreException, NotIdentified {
         membreManager.deleteMembre(idMembre);
+    }
+
+    // Formation Manager
+    public ArrayList<Formation> listForm() throws ListFormationException, NotIdentified {
+        return formationManager.listForm();
     }
 }

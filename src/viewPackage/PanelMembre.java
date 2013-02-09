@@ -499,10 +499,10 @@ public class PanelMembre extends JPanel {
 			if(e.getSource() == buttonNewMembre){		
                 reset();
 			}
-			else if(e.getSource() == buttonSubmit || e.getSource() == buttonModify){
-				// Récupération des informations d'inscriptions
-				prenom 		= fieldPrenom.getText();				
-				nom 		= fieldNom.getText();
+            else if(e.getSource() == buttonSubmit || e.getSource() == buttonModify){
+                // Récupération des informations d'inscriptions
+                prenom      = fieldPrenom.getText();				
+                nom         = fieldNom.getText();
                 rue         = fieldRue.getText();
                 numero      = fieldNumero.getText();
                 ville       = fieldVille.getText();
@@ -515,7 +515,7 @@ public class PanelMembre extends JPanel {
                 animateur   = checkBoxAnimateur.isSelected();
                 ecarte      = checkBoxEcarte.isSelected();
                 solde       = Float.parseFloat(fieldSolde.getText());
-				dateNaiss 	= new GregorianCalendar();
+                dateNaiss   = new GregorianCalendar();
                 try {
                     if(fieldCodePostal.getText().isEmpty() == false) {
                         codePostal = Integer.parseInt(fieldCodePostal.getText());
@@ -561,8 +561,7 @@ public class PanelMembre extends JPanel {
                         filter = null;
                     }
                     UpdateListMembre(filter);
-                    UpdateInfoMembre(membre);
-                    
+                    UpdateInfoMembre(membre);                    
                 }
                 catch(NumberFormatException nfe) {
                     JOptionPane.showMessageDialog(null, "Erreur : n'inclure que des chiffres dans les champs suivants :\nCode Postal, GSM, Fixe", "Erreur champs numérique", JOptionPane.ERROR_MESSAGE);                    
