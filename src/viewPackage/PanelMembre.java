@@ -20,10 +20,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -65,16 +67,15 @@ public class PanelMembre extends JPanel {
     private JFormattedTextField fieldDate;
     private JCheckBox checkBoxClientME, checkBoxAssistant, checkBoxAnimateur, checkBoxEcarte;
     private JComboBox comboBoxProvenance, comboBoxContact;
-    private JButton buttonSubmit, buttonNewMembre, buttonModify, buttonDelete;	
+    private JButton buttonInsert, buttonNewMembre, buttonModify, buttonDelete;	
     private JTextPane textPaneHistory;
     private StyledDocument docHistory;
     
-    private QueryResult structMembre;
-	
+    private QueryResult structMembre;	
     private ArrayList<Membre> arrayMembre, arrayMembreComboBox;
+    private URL iconURL;
 	
-	private PanelMembre panelMembre;	
-    
+	private PanelMembre panelMembre;	    
     private ApplicationController app = new ApplicationController();
 	
 	public PanelMembre() {	
@@ -280,7 +281,7 @@ public class PanelMembre extends JPanel {
                 arrayMembreComboBox = app.listMembre(null);
                 comboBoxContact.addItem(new QueryResult(0,"Aucun"));
                 for(Membre membre : arrayMembreComboBox) {
-                    comboBoxContact.addItem(new QueryResult(membre.getId(),membre.getNom().toString().toUpperCase()+", "+membre.getPrenom().toString().toLowerCase()));
+                    comboBoxContact.addItem(new QueryResult(membre.getIdMembre(),membre.getNom().toString().toUpperCase()+", "+membre.getPrenom().toString().toLowerCase()));
                 }
             } 
             catch (ListMembreException ex) {
@@ -288,7 +289,6 @@ public class PanelMembre extends JPanel {
             } 
             catch (NotIdentified ex) {
                 JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
-                new LoginPopup();
             }
             AutoCompleteDecorator.decorate(comboBoxContact);
 
@@ -321,33 +321,55 @@ public class PanelMembre extends JPanel {
             panelButtons = new JPanel();
             flowButtons = new FlowLayout();
             flowButtons.setAlignment(FlowLayout.LEFT);
-            flowButtons.setHgap(2);
+            flowButtons.setHgap(5);
             panelButtons.setLayout(flowButtons);
             
                 // Bouton Modify
                 buttonModify = new JButton("Modifier");
+                buttonModify.setContentAreaFilled(false);
                 buttonModify.setVisible(false);
                 panelButtons.add(buttonModify);
                 
                 // Bouton Suprpesion
                 buttonDelete = new JButton("Supprimer");
+                buttonDelete.setContentAreaFilled(false);
                 buttonDelete.setVisible(false);
                 panelButtons.add(buttonDelete);
 
-                // Bouton Enregistrer
-                buttonSubmit = new JButton("Enregistrer");
-                panelButtons.add(buttonSubmit);	
-
-                // Bouton Nouveau Membre
-                buttonNewMembre = new JButton("Nouveau Membre");
+                // Bouton Vider les champs (Nouveau Membre)
+                buttonNewMembre = new JButton("Nouveau membre");
+                buttonNewMembre.setContentAreaFilled(false);
+                buttonNewMembre.setVisible(false);
                 panelButtons.add(buttonNewMembre);
                 
+                // Bouton Enregistrer
+                buttonInsert = new JButton("Insérer");
+                buttonInsert.setContentAreaFilled(false);
+                panelButtons.add(buttonInsert);	
+                
                 ActionManager AM = new ActionManager();
-                buttonSubmit.addActionListener(AM);
+                buttonInsert.addActionListener(AM);
                 buttonNewMembre.addActionListener(AM);	
                 buttonModify.addActionListener(AM);	
                 buttonDelete.addActionListener(AM);	
+            
+                try {
+                    iconURL = this.getClass().getResource("/viewPackage/resources/images/validate.png");
+                    buttonModify.setIcon(new ImageIcon(iconURL));
 
+                    iconURL = this.getClass().getResource("/viewPackage/resources/images/delete.png");
+                    buttonDelete.setIcon(new ImageIcon(iconURL));
+
+                    iconURL = this.getClass().getResource("/viewPackage/resources/images/newMembre.png");
+                    buttonNewMembre.setIcon(new ImageIcon(iconURL));
+
+                    iconURL = this.getClass().getResource("/viewPackage/resources/images/add.png");
+                    buttonInsert.setIcon(new ImageIcon(iconURL));
+                }
+                catch(NullPointerException ex) {
+                    JOptionPane.showMessageDialog(null, "Erreur lors de la récupération des icônes.\nVeuillez contacter l'administrateur", "Erreur de récupération des icônes", JOptionPane.ERROR_MESSAGE);
+                } 
+                
             c.gridy++; c.gridx = 0; 
             this.add(panelButtons, c);   
         }
@@ -391,7 +413,7 @@ public class PanelMembre extends JPanel {
         try {        
             arrayMembre = app.listMembre(filter);
             for(Membre me : arrayMembre){
-                listModelMembre.addElement(new QueryResult(me.getId(),me.getNom().toString().toUpperCase()+", "+me.getPrenom().toString().toLowerCase()));
+                listModelMembre.addElement(new QueryResult(me.getIdMembre(),me.getNom().toString().toUpperCase()+", "+me.getPrenom().toString().toLowerCase()));
             }        
         } 
         catch (ListMembreException ex) {
@@ -399,7 +421,6 @@ public class PanelMembre extends JPanel {
         } 
         catch (NotIdentified ex) {
             JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
-            new LoginPopup();
         }
         listMembre.validate();
     }  
@@ -417,12 +438,11 @@ public class PanelMembre extends JPanel {
         } 
         catch (NotIdentified ex) {
             JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
-            new LoginPopup();
         }         
     }
     
     private void UpdateInfoMembre(Membre me) {  
-        fieldId.setText(me.getId().toString());
+        fieldId.setText(me.getIdMembre().toString());
         fieldNom.setText(me.getNom());
         fieldPrenom.setText(me.getPrenom());
         fieldRue.setText(me.getRue());
@@ -451,7 +471,7 @@ public class PanelMembre extends JPanel {
         comboBoxProvenance.setSelectedIndex(me.getProvenance());
         comboBoxContact.setSelectedIndex(0);
         for(Membre cMembre : arrayMembreComboBox){
-            if(cMembre.getId() == me.getIdContact()) {
+            if(cMembre.getIdMembre() == me.getIdContact()) {
                 QueryResult qr = new QueryResult(me.getIdContact(), cMembre.getNom().toString().toUpperCase()+", "+cMembre.getPrenom().toString().toLowerCase()); 
                 comboBoxContact.setSelectedItem(qr);
             }
@@ -460,21 +480,27 @@ public class PanelMembre extends JPanel {
         checkBoxAssistant.setSelected(me.getAssistant());
         checkBoxClientME.setSelected(me.getClientME());
         checkBoxEcarte.setSelected(me.getEcarte());
-        if(me.getSoldeCrediteur() != 0) {
+        if(me.getSolde() != 0) {
             fieldSolde.setText(0+me.getFixe().toString());
         }
         else {
             fieldSolde.setText("0");
         }   
         
+        // Show buttons modify, delete, emptyField on existing membre
         if(buttonDelete.isVisible() == false) {
             buttonDelete.setVisible(true);
         }
         if(buttonModify.isVisible() == false) {
             buttonModify.setVisible(true);
+        }        
+        if(buttonNewMembre.isVisible() == false) {
+            buttonNewMembre.setVisible(true);
         }
-        if(buttonSubmit.isVisible() == true) {
-            buttonSubmit.setVisible(false);
+        
+        // Hide button to insert a membre on new membre
+        if(buttonInsert.isVisible() == true) {
+            buttonInsert.setVisible(false);
         }
     }
     
@@ -488,10 +514,10 @@ public class PanelMembre extends JPanel {
 	private class ActionManager implements ActionListener { 
         // Variables temporaires
         String prenom, nom, rue, numero, ville, email, filter;	
-        Integer idMembre, idContact, codePostal, fixe, gsm, provenance, idMembreList, reply;    
+        Integer idMembre, idContact, codePostal = 0, fixe = 0, gsm = 0, provenance, idMembreList, reply;    
         Boolean clientME, assistant, animateur, ecarte;
         GregorianCalendar dateNaiss;
-        Float solde;
+        Float solde = new Float(0.0);
         
         @Override
 		public void actionPerformed(ActionEvent e) {
@@ -499,7 +525,7 @@ public class PanelMembre extends JPanel {
 			if(e.getSource() == buttonNewMembre){		
                 reset();
 			}
-            else if(e.getSource() == buttonSubmit || e.getSource() == buttonModify){
+            else if(e.getSource() == buttonInsert || e.getSource() == buttonModify){
                 // Récupération des informations d'inscriptions
                 prenom      = fieldPrenom.getText();				
                 nom         = fieldNom.getText();
@@ -514,41 +540,42 @@ public class PanelMembre extends JPanel {
                 assistant   = checkBoxAssistant.isSelected();
                 animateur   = checkBoxAnimateur.isSelected();
                 ecarte      = checkBoxEcarte.isSelected();
-                solde       = Float.parseFloat(fieldSolde.getText());
                 dateNaiss   = new GregorianCalendar();
                 try {
+                    // Test Code Postal
                     if(fieldCodePostal.getText().isEmpty() == false) {
                         codePostal = Integer.parseInt(fieldCodePostal.getText());
                     }
-                    else {
-                        codePostal = 0;
-                    }
+                    // Test GSM
                     if(fieldGSM.getText().isEmpty() == false) {
                         gsm = Integer.parseInt(fieldGSM.getText());
                     }
-                    else {
-                        gsm = 0;
-                    }
+                    // Test Fixe
                     if(fieldFixe.getText().isEmpty() == false) {
                         fixe = Integer.parseInt(fieldFixe.getText());
                     }
-                    else {
-                        fixe = 0;
+                    // Test Solde
+                    if(fieldSolde.getText().isEmpty() == false) {                        
+                        solde = Float.parseFloat(fieldSolde.getText());
                     }
-                    dateNaiss.set(Integer.parseInt(fieldDate.getText(6,4)), Integer.parseInt(fieldDate.getText(3,2)), Integer.parseInt(fieldDate.getText(0,2)));
+                    
+                    dateNaiss.set(Integer.parseInt(fieldDate.getText(6,4)), Integer.parseInt(fieldDate.getText(3,2))-1, Integer.parseInt(fieldDate.getText(0,2)));
                     
                     Membre membre = new Membre(nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, provenance, idContact, assistant, animateur, clientME, ecarte, solde);
 					
-                    if(e.getSource() == buttonSubmit) {
+                    // Nouveau membre
+                    if(e.getSource() == buttonInsert) {
                         reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment ajouter ce membre ?", "Insertion Membre", JOptionPane.YES_NO_OPTION);
 						if (reply == JOptionPane.YES_OPTION) {
-                            app.newMembre(membre);                        
+                            idMembre = app.newMembre(membre);     
+                            membre.setIdMembre(idMembre);
                             JOptionPane.showMessageDialog(null, "Ajout de "+prenom+" "+nom+" réussi", "Ajout Membre", JOptionPane.INFORMATION_MESSAGE);
                         }                        
                     }
+                    // Modification membre
                     else if(e.getSource() == buttonModify) {
                         idMembre = Integer.parseInt(fieldId.getText()); 
-                        membre.setId(idMembre);
+                        membre.setIdMembre(idMembre);
                         
                         reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment modifier ce membre ?", "Modification Membre", JOptionPane.YES_NO_OPTION);
 						if (reply == JOptionPane.YES_OPTION) {
@@ -556,12 +583,22 @@ public class PanelMembre extends JPanel {
                             JOptionPane.showMessageDialog(null, "Modification de "+prenom+" "+nom+" réussie", "Ajout Membre", JOptionPane.INFORMATION_MESSAGE);
                         }
 					}
+                    
+                    // Récupération du filtre pour l'actualisation
                     filter = fieldFilter.getText();
                     if(filter.isEmpty()) {
                         filter = null;
                     }
-                    UpdateListMembre(filter);
-                    UpdateInfoMembre(membre);                    
+                    
+                    // Actualisation après modification, erreur possible ?
+                    if(idMembre == -1) {
+                        JOptionPane.showMessageDialog(null, "Erreur lors de l'ajout veuillez contacter l'administrateur.\nRécuperation de l'identifiant du membre impossible.", "Erreur lors de l'ajout", JOptionPane.INFORMATION_MESSAGE);
+                        reset();
+                    }    
+                    else {                               
+                        UpdateListMembre(filter);
+                        UpdateInfoMembre(membre);  
+                    }
                 }
                 catch(NumberFormatException nfe) {
                     JOptionPane.showMessageDialog(null, "Erreur : n'inclure que des chiffres dans les champs suivants :\nCode Postal, GSM, Fixe", "Erreur champs numérique", JOptionPane.ERROR_MESSAGE);                    
@@ -580,7 +617,6 @@ public class PanelMembre extends JPanel {
 				} 
 				catch (NotIdentified ex) {
 					JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
-					new LoginPopup();
 				}
 			}
             else if(e.getSource() == buttonDelete) {
@@ -598,7 +634,6 @@ public class PanelMembre extends JPanel {
 				} 
 				catch (NotIdentified ex) {
 					JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
-					new LoginPopup();
 				}               
             }
 		}			

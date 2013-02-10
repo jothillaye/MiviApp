@@ -1,7 +1,7 @@
 package modelPackage;
 
 public class Formation {
-    private Integer id;
+    private Integer idFormation;
     private String intitule;
 
 	public Formation(String intitule) {
@@ -11,9 +11,9 @@ public class Formation {
 	// Constructeur pour lister les clients lors d'une requete sql
 	public Formation() {}
 
-    public Integer getId() { return id;}
+    public Integer getIdFormation() { return idFormation;}
     public String getIntitule() { return intitule;}
 
-    public void setId(Integer id) { this.id = id;}
+    public void setIdFormation(Integer idForm) { this.idFormation = idForm;}
     public void setIntitule(String intitule) { this.intitule = intitule;}
 }

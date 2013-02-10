@@ -1,13 +1,11 @@
 package viewPackage;
 
+import controllerPackage.ApplicationController;
+import exceptionPackage.IdentificationError;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.*;
-
-import controllerPackage.ApplicationController;
-import exceptionPackage.IdentificationError;
 
 public class LoginPopup extends JFrame{
 	private Container cont;	
@@ -45,16 +43,16 @@ public class LoginPopup extends JFrame{
 	}	
 	
 	private class ActionManager implements ActionListener {
+        @Override
 		public void actionPerformed(ActionEvent e)	{
-				try {
-					app.Connection(new String(fieldPass.getPassword()));
-				}  
-				catch(IdentificationError idE) {
-					JOptionPane.showMessageDialog(null, idE, "Erreur d'identification", JOptionPane.ERROR_MESSAGE);
-					new LoginPopup();
-				}
-
-			setVisible(false);		
+            try {
+                app.Connection(new String(fieldPass.getPassword()));
+            }  
+            catch(IdentificationError idE) {
+                JOptionPane.showMessageDialog(null, idE, "Erreur d'identification", JOptionPane.ERROR_MESSAGE);
+                new LoginPopup();
+            }
+            setVisible(false);               
 		}
 	}
 }

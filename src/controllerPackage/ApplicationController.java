@@ -32,8 +32,8 @@ public class ApplicationController {
 	
 	
 	// Membre Managing	
-    public void newMembre(Membre membre) throws NewMembreException, NotIdentified {
-        membreManager.newMembre(membre);
+    public Integer newMembre(Membre membre) throws NewMembreException, NotIdentified {
+        return membreManager.newMembre(membre);
     }
 	
     public ArrayList<Membre> listMembre(String search) throws ListMembreException, NotIdentified {
@@ -55,5 +55,17 @@ public class ApplicationController {
     // Formation Manager
     public ArrayList<Formation> listForm() throws ListFormationException, NotIdentified {
         return formationManager.listForm();
+    }
+    
+    public void newFormation(Formation form) throws NewFormationException, NotIdentified {
+        formationManager.newFormation(form);
+    }
+    
+    public void modifyFormation(Formation form) throws ModifyFormationException, NotIdentified {
+        formationManager.modifyFormation(form);
+    }
+    
+    public void deleteFormation(Integer idFormation) throws DeleteFormationException, NotIdentified {
+                formationManager.deleteFormation(idFormation);
     }
 }

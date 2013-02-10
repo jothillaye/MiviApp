@@ -1,5 +1,6 @@
 package dataAccessPackage;
 
+import exceptionPackage.DeleteFormationException;
 import exceptionPackage.ListFormationException;
 import exceptionPackage.ModifyFormationException;
 import exceptionPackage.NewFormationException;
@@ -18,7 +19,7 @@ public class AccessFormationDB {
 	// Ajour d'un form
 	public void newFormation(Formation form) throws NewFormationException, NotIdentified {
 		try {
-			request = "insert into Formation (String intitule) VALUES(?);";
+			request = "insert into formation (intitule) values(?);";
 			prepStat = AccessDB.getInstance().prepareStatement(request);
 			prepStat.setString(1, form.getIntitule());
 			prepStat.executeUpdate();
@@ -31,10 +32,9 @@ public class AccessFormationDB {
 		}
 	}
 	
-	// Obtention d'une liste de formation
 	public ArrayList<Formation> listFormation() throws ListFormationException, NotIdentified {
 		try {
-			request = "select id, intitule Formation";	
+			request = "select idFormation, intitule from formation";	
             prepStat = AccessDB.getInstance().prepareStatement(request);					
 			data = prepStat.executeQuery();
 			
@@ -42,7 +42,7 @@ public class AccessFormationDB {
 			
 			while (data.next()) { 
                 Formation form = new Formation();
-                form.setId(data.getInt(1));
+                form.setIdFormation(data.getInt(1));
                 form.setIntitule(data.getString(2));
 				arrayFormation.add(form);
             }
@@ -58,11 +58,11 @@ public class AccessFormationDB {
 
     public void modifyFormation(Formation form) throws ModifyFormationException, NotIdentified {
         try {
-            request = "UPDATE Formation SET intitule = ?"
-                    + " WHERE id = ?;";
+            request = "update formation set intitule = ?"
+                    + " where idFormation = ?;";
             prepStat = AccessDB.getInstance().prepareStatement(request);
-			prepStat.setInt(1, form.getId());
-            prepStat.setString(2, form.getIntitule());
+            prepStat.setString(1, form.getIntitule());
+            prepStat.setInt(2, form.getIdFormation());
 			prepStat.executeUpdate();
         }	 
         catch (SQLException e) {
@@ -71,5 +71,30 @@ public class AccessFormationDB {
 		catch (NotIdentified e) {
 			throw new NotIdentified();
 		}
-    }        
+    }
+    
+    public void deleteFormation(Integer idFormation) throws DeleteFormationException, NotIdentified {
+        try {
+            request = "select idActivite from activite where idFormation = ?";
+            prepStat = AccessDB.getInstance().prepareStatement(request);
+			prepStat.setInt(1, idFormation);
+			data = prepStat.executeQuery();
+            
+            if(data.next()){
+                throw new DeleteFormationException("Cette formation possède des dates, elle est donc impossible à supprimer.");
+            }
+            else {
+                request = "delete from formation where idFormation = ?";
+                prepStat = AccessDB.getInstance().prepareStatement(request);
+                prepStat.setInt(1, idFormation);
+                prepStat.executeUpdate();
+            }
+        }	 
+        catch (SQLException e) {
+			throw new DeleteFormationException(e.getMessage());
+		}
+		catch (NotIdentified e) {
+			throw new NotIdentified();
+		}
+    }
 }

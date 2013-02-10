@@ -10,8 +10,10 @@ package viewPackage;
  */
 import controllerPackage.*;
 import exceptionPackage.DisconnectException;
+import exceptionPackage.IdentificationError;
 import java.awt.*;
 import java.awt.event.*;
+import java.net.URL;
 import javax.swing.*;
 
 public class Fenetre extends JFrame	{
@@ -20,10 +22,9 @@ public class Fenetre extends JFrame	{
 	// Panneaux accessibles
     private PanelAccueil panelAccueil;
 	private PanelMembre panelMembre;
-    private PanelListMembres panelListMembres;
-	private PanelNewActivite panelNewActivite;
-    private PanelListActivites panelListActivites;
-    private PanelFormationsCanvas panelFormationsCanvas;
+    private PanelNewActivite panelNewActivite;
+	private PanelListActivite panelListActivite;
+    private PanelFormation panelFormation;
     private PanelExportParticipants panelExportParticipants;
     private PanelExportFormation panelExportFormation;
     private PanelExportPrixSpeciaux panelExportPrixSpeciaux;
@@ -31,12 +32,12 @@ public class Fenetre extends JFrame	{
     
 	// Menu
 	private JMenuBar barre;
-    private JButton buttonAccueil;
-	private JMenu menuMembres, menuActivites, menuCanvasFormations, menuExport;
-	private JMenuItem itemNewMembre, itemListMembres, 
-            itemNewActivite, itemListActivites, 
-            itemCanvasFormation,
+    private JButton buttonAccueil, buttonMembre;
+	private JMenu menuActivite, menuExport;
+	private JMenuItem itemNewActivite, itemListActivite, itemCanvasFormation,
             itemExportParticipants, itemExportFormation, itemExportPrixSpeciaux, itemExportAccordsPaiements;
+    
+    private URL iconURL;
     
 	private ApplicationController app = new ApplicationController();
 	private WindowAdapter close;
@@ -45,12 +46,16 @@ public class Fenetre extends JFrame	{
 	public Fenetre(){
 		// Creation Fenetre
 		super("MiviApp");
-		setBounds(150,100,1000,550); 
-		
+		setBounds(150,100,900,550); 
+		setMinimumSize(new Dimension(900, 550));
+        
+        iconURL = this.getClass().getResource("/viewPackage/resources/images/icon.png");
+        setIconImage(new ImageIcon(iconURL).getImage());
+        
 		// Ecoute Fenetre        
 		close = new CloseWindow();
 		addWindowListener(close);
-        // TO-DO
+        // TODO : correct the close operation to disconnect properly
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		// Creation Container
@@ -73,41 +78,32 @@ public class Fenetre extends JFrame	{
         barre.add(buttonAccueil);
         
 		// Membres
-		menuMembres = new JMenu("Membres");
-		barre.add(menuMembres);	
-			
-			// Nouveau Client
-			itemNewMembre = new JMenuItem("Nouveau Membre");
-			itemNewMembre.addActionListener(AM);
-			menuMembres.add(itemNewMembre);
-			
-			// Liste des Membres
-			itemListMembres = new JMenuItem("Liste des Membres");
-			itemListMembres.addActionListener(AM);
-			menuMembres.add(itemListMembres);
-		
+        buttonMembre = new JButton("Membres");
+        buttonMembre.setBorderPainted(false);
+        buttonMembre.setFocusPainted(false);
+        buttonMembre.setContentAreaFilled(false);
+        buttonMembre.addActionListener(AM);        
+		barre.add(buttonMembre);	
+        
 		// Activités - Inscription
-		menuActivites = new JMenu("Activités");
-		barre.add(menuActivites);
-			
+		menuActivite = new JMenu("Activités");               
+		menuActivite.setPreferredSize(new Dimension(100,menuActivite.getHeight()));
+		barre.add(menuActivite);
+        
 			// Nouvelle Activité
 			itemNewActivite = new JMenuItem("Nouvelle Activité");
 			itemNewActivite.addActionListener(AM);
-			menuActivites.add(itemNewActivite);
+			menuActivite.add(itemNewActivite);
 			
 			// Liste des Activités
-			itemListActivites = new JMenuItem("Liste des Activités");
-			itemListActivites.addActionListener(AM);
-			menuActivites.add(itemListActivites);
+			itemListActivite = new JMenuItem("Liste des Activités");
+			itemListActivite.addActionListener(AM);
+			menuActivite.add(itemListActivite);
 		
-		// Canvas Formation
-		menuCanvasFormations = new JMenu("Canvas Formation");
-		barre.add(menuCanvasFormations);
-			
-			// Nouveau canvas
+            // Nouveau canvas
 			itemCanvasFormation = new JMenuItem("Nouveau Canvas");
 			itemCanvasFormation.addActionListener(AM);
-			menuCanvasFormations.add(itemCanvasFormation);
+			menuActivite.add(itemCanvasFormation);
 				
 		// Export
 		menuExport = new JMenu("Export");
@@ -128,8 +124,23 @@ public class Fenetre extends JFrame	{
             itemExportPrixSpeciaux = new JMenuItem("Export Prix Spéciaux");
 			itemExportPrixSpeciaux.addActionListener(AM);
 			menuExport.add(itemExportPrixSpeciaux);
-			
-		/// FIN DU MENU ///                     
+            
+        try {
+            iconURL = this.getClass().getResource("/viewPackage/resources/images/home.png");
+            buttonAccueil.setIcon(new ImageIcon(iconURL));
+            
+            iconURL = this.getClass().getResource("/viewPackage/resources/images/membre.png");
+            buttonMembre.setIcon(new ImageIcon(iconURL));
+            
+            iconURL = this.getClass().getResource("/viewPackage/resources/images/activite.png");
+            menuActivite.setIcon(new ImageIcon(iconURL));
+            
+            iconURL = this.getClass().getResource("/viewPackage/resources/images/export.png");
+            menuExport.setIcon(new ImageIcon(iconURL));
+        }
+        catch(NullPointerException ex) {
+            JOptionPane.showMessageDialog(null, "Erreur lors de la récupération des icônes.\nVeuillez contacter l'administrateur", "Erreur de récupération des icônes", JOptionPane.ERROR_MESSAGE);
+        }                   
             
         panelAccueil = new PanelAccueil();
 		getCont().add(panelAccueil, BorderLayout.CENTER);
@@ -168,15 +179,10 @@ public class Fenetre extends JFrame	{
                 panelAccueil = new PanelAccueil();
                 getCont().add(panelAccueil, BorderLayout.CENTER);
             }            
-            // Nouveau Membre
-            else if(e.getSource() == itemNewMembre){	
+            // Gestion Membre
+            else if(e.getSource() == buttonMembre){	
                 panelMembre = new PanelMembre();
                 getCont().add(panelMembre, BorderLayout.CENTER);
-            }
-            // Liste des Membres
-            else if(e.getSource() == itemListMembres){
-                panelListMembres = new PanelListMembres();
-                getCont().add(panelListMembres, BorderLayout.CENTER);
             }
             // Nouvelle Activité
             else if(e.getSource() == itemNewActivite){
@@ -184,14 +190,14 @@ public class Fenetre extends JFrame	{
                 getCont().add(panelNewActivite, BorderLayout.CENTER);
             }
             // Liste des Activités
-            else if(e.getSource() == itemListActivites){
-                panelListActivites = new PanelListActivites();
-                getCont().add(panelListActivites, BorderLayout.CENTER);			   						
+            else if(e.getSource() == itemListActivite){
+                panelListActivite = new PanelListActivite();
+                getCont().add(panelListActivite, BorderLayout.CENTER);			   						
             }
             // Canvas Formations
             else if(e.getSource() == itemCanvasFormation){
-                panelFormationsCanvas = new PanelFormationsCanvas();
-                getCont().add(panelFormationsCanvas, BorderLayout.CENTER);			   						
+                panelFormation = new PanelFormation();
+                getCont().add(panelFormation, BorderLayout.CENTER);			   						
             }
             // Export Participants
             else if(e.getSource() == itemExportParticipants){
@@ -212,8 +218,7 @@ public class Fenetre extends JFrame	{
             else if(e.getSource() == itemExportAccordsPaiements){
                 panelExportAccordsPaiements = new PanelExportAccordsPaiements();
                 getCont().add(panelExportAccordsPaiements, BorderLayout.CENTER);			   						
-            }
-            
+            }            
             getCont().validate();	// refresh la fenêtre		   				
 		}
 	}	

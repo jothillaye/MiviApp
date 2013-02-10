@@ -6,13 +6,13 @@ import static java.util.Calendar.YEAR;
 import java.util.GregorianCalendar;
 
 public class Membre {
-    private Integer id, codePostal, gsm, fixe, idContact, provenance;
+    private Integer idMembre, codePostal, gsm, fixe, idContact, provenance;
 	private String nom, prenom, email, rue, numero, ville, dayOfMonth, month;
 	private GregorianCalendar dateNaiss;
-    private Boolean assistant, animateur, clientME, ecarte;
-    private Float soldeCrediteur;
+    private Boolean assistant, animateur, clientME, ecarte, supprime;
+    private Float solde;
 
-	public Membre(String nom, String prenom, String email, GregorianCalendar dateNaiss, Integer gsm, Integer fixe, String rue, String numero, Integer codePostal, String ville, Integer provenance, Integer idContact, Boolean assistant, Boolean animateur, Boolean clientME, Boolean ecarte, Float soldeCrediteur) {
+	public Membre(String nom, String prenom, String email, GregorianCalendar dateNaiss, Integer gsm, Integer fixe, String rue, String numero, Integer codePostal, String ville, Integer provenance, Integer idContact, Boolean assistant, Boolean animateur, Boolean clientME, Boolean ecarte, Float solde) {
 		this.nom = nom;
 		this.prenom = prenom;
         this.email = email;
@@ -29,14 +29,14 @@ public class Membre {
         this.animateur = animateur;
         this.clientME = clientME;
         this.ecarte = ecarte;
-        this.soldeCrediteur = soldeCrediteur;
+        this.solde = solde;
 	}
 	
 	// Constructeur pour lister les clients lors d'une requete sql
 	public Membre() {}
 
 	// Getters
-    public Integer getId() { return id;}
+    public Integer getIdMembre() { return idMembre;}
 	public String getNom() { return nom;}
 	public String getPrenom() { return prenom;}
 	public String getEmail() { return email;}
@@ -53,7 +53,8 @@ public class Membre {
     public Boolean getAnimateur() { return animateur;}
     public Boolean getClientME() { return clientME;}
     public Boolean getEcarte() { return ecarte;}
-    public Float getSoldeCrediteur() { return soldeCrediteur;}
+    public Float getSolde() { return solde;}
+    public Boolean getSupprime() { return supprime;}
     
     public String getFormatedDateNaiss() {    
         if(dateNaiss.get(DAY_OF_MONTH)<10) {
@@ -63,16 +64,16 @@ public class Membre {
             dayOfMonth = String.valueOf(dateNaiss.get(DAY_OF_MONTH));
         }
         if(dateNaiss.get(MONTH)<10) {
-            month = 0+String.valueOf(dateNaiss.get(MONTH));
+            month = 0+String.valueOf(dateNaiss.get(MONTH)+1);
         }
         else {
-            month = String.valueOf(dateNaiss.get(MONTH));
+            month = String.valueOf(dateNaiss.get(MONTH)+1);
         }
         return dayOfMonth+month+String.valueOf(dateNaiss.get(YEAR));
     }
 
 	// Setters
-    public void setId(Integer id) { this.id = id;}
+    public void setIdMembre(Integer idMembre) { this.idMembre = idMembre;}
 	public void setNom(String nom) { this.nom = nom;}
 	public void setPrenom(String prenom) { this.prenom = prenom;}
     public void setEmail(String email) { this.email = email;}
@@ -89,5 +90,6 @@ public class Membre {
     public void setAnimateur(Boolean animateur) { this.animateur = animateur;}
     public void setClientME(Boolean clientME) { this.clientME = clientME;}
     public void setEcarte(Boolean ecarte) { this.ecarte = ecarte;}
-    public void setSoldeCrediteur(Float soldeCrediteur) { this.soldeCrediteur = soldeCrediteur;}    
+    public void setSolde(Float solde) { this.solde = solde;}    
+    public void setSupprime(Boolean supprime) { this.supprime = supprime;}
 }

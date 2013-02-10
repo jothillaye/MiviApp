@@ -1,15 +1,16 @@
 package businessPackage;
 
 import dataAccessPackage.AccessFormationDB;
-import dataAccessPackage.AccessFormationDB;
+import exceptionPackage.DeleteFormationException;
 import exceptionPackage.ListFormationException;
 import exceptionPackage.ModifyFormationException;
+import exceptionPackage.NewFormationException;
 import exceptionPackage.NotIdentified;
 import java.util.ArrayList;
 import modelPackage.Formation;
-import modelPackage.Formation;
 
 public class FormationManager {
+    private AccessFormationDB accessForm = new AccessFormationDB();
     
     public void newFormation(Formation form) throws NewFormationException, NotIdentified {
         // TODO : complèter les champs obligatoires
@@ -17,12 +18,12 @@ public class FormationManager {
             throw new NewFormationException("Il est obligatoire de remplir l'intitule");
         }	
 		else {
-            new AccessFormationDB().newFormation(form);
+            accessForm.newFormation(form);
         }
     }
 
     public ArrayList<Formation> listForm() throws ListFormationException, NotIdentified {
-        return new AccessFormationDB().listFormation();
+        return accessForm.listFormation();
     }
     
     public void modifyFormation(Formation form) throws ModifyFormationException, NotIdentified {
@@ -31,8 +32,13 @@ public class FormationManager {
             throw new ModifyFormationException("Il est obligatoire de remplir l'intitule");
         }	
 		else {
-            new AccessFormationDB().modifyFormation(form);
+            accessForm.modifyFormation(form);
         }
     }
     
-}
+    public void deleteFormation(Integer idFormation) throws DeleteFormationException, NotIdentified {
+        accessForm.deleteFormation(idFormation);
+    }
+    
+    
+} 
