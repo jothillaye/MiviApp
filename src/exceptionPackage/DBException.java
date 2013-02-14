@@ -8,10 +8,10 @@ package exceptionPackage;
  *
  * @author Joachim
  */
-public class NewFormationException extends Exception {
+public class DBException extends Exception {
     private String msg;
     
-    public NewFormationException(String msg) {
+    public DBException(String msg) {
         this.msg = msg;
     }
 

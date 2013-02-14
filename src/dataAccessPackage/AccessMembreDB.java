@@ -1,10 +1,7 @@
 package dataAccessPackage;
 
-import exceptionPackage.DeleteMembreException;
-import exceptionPackage.ListMembreException;
-import exceptionPackage.ModifyMembreException;
-import exceptionPackage.NewMembreException;
 import exceptionPackage.NotIdentified;
+import exceptionPackage.DBException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,7 +16,7 @@ public class AccessMembreDB {
 	private ResultSet data;
 	
 	// Ajour d'un membre
-	public Integer newMembre(Membre membre) throws NewMembreException, NotIdentified {
+	public Integer newMembre(Membre membre) throws DBException, NotIdentified {
 		try {
 			request = "insert into membre (nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, provenance, idContact, assistant, animateur, clientME, ecarte, solde, supprime) "
                     + " values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
@@ -57,7 +54,7 @@ public class AccessMembreDB {
             return idMembre;
 		} 
 		catch (SQLException e) {
-			throw new NewMembreException(e.getMessage());
+			throw new DBException(e.getMessage());
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -65,7 +62,7 @@ public class AccessMembreDB {
 	}
 	
 	// Obtention d'une liste de membre (sur base du nom et/ou prenom)
-	public ArrayList<Membre> listMembre(String search) throws ListMembreException, NotIdentified {
+	public ArrayList<Membre> listMembre(String search) throws DBException, NotIdentified {
 		try {
 			request = "select idMembre, nom, prenom from membre ";	
 			if(search!=null){
@@ -95,14 +92,14 @@ public class AccessMembreDB {
 			return arrayMembre;
 		} 
 		catch (SQLException e) {
-			throw new ListMembreException(e.getMessage());
+			throw new DBException(e.getMessage());
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();
 		}
 	}
    
-    public Membre getMembre(Integer idMembre) throws ListMembreException, NotIdentified {
+    public Membre getMembre(Integer idMembre) throws DBException, NotIdentified {
         try {
 			request = "select * from membre where idMembre = ?";	
             prepStat = AccessDB.getInstance().prepareStatement(request);				
@@ -143,7 +140,7 @@ public class AccessMembreDB {
 			return membre;
 		} 
 		catch (SQLException e) {
-			throw new ListMembreException(e.getMessage());
+			throw new DBException(e.getMessage());
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -151,7 +148,7 @@ public class AccessMembreDB {
         
     }
 
-    public void modifyMembre(Membre membre) throws ModifyMembreException, NotIdentified {
+    public void modifyMembre(Membre membre) throws DBException, NotIdentified {
         try {
             request = "update membre set nom = ?, prenom = ?, email = ?, dateNaiss = ?, gsm = ?, fixe = ?, rue = ?, numero = ?, codePostal = ?, ville = ?, provenance = ?, idContact = ?, assistant = ?, animateur = ?, clientME = ?, ecarte = ?, soldeCrediteur = ?"
                     + " where idMembre = ?;";
@@ -178,14 +175,14 @@ public class AccessMembreDB {
 			prepStat.executeUpdate();
         }	 
         catch (SQLException e) {
-			throw new ModifyMembreException(e.getMessage());
+			throw new DBException(e.getMessage());
 		}
 		catch (NotIdentified e) {
 			throw new NotIdentified();
 		}
     }
 
-    public void deleteMembre(Integer idMembre) throws DeleteMembreException, NotIdentified {
+    public void deleteMembre(Integer idMembre) throws DBException, NotIdentified {
         try {
 			request = "update membre set supprime = true where idMembre = ?";	
             prepStat = AccessDB.getInstance().prepareStatement(request);
@@ -194,7 +191,7 @@ public class AccessMembreDB {
             prepStat.executeUpdate();
 		} 
 		catch (SQLException e) {
-			throw new DeleteMembreException(e.getMessage());
+			throw new DBException(e.getMessage());
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();

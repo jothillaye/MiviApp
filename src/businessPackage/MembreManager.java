@@ -1,46 +1,43 @@
 package businessPackage;
 
 import dataAccessPackage.AccessMembreDB;
-import exceptionPackage.DeleteMembreException;
-import exceptionPackage.ListMembreException;
-import exceptionPackage.ModifyMembreException;
-import exceptionPackage.NewMembreException;
 import exceptionPackage.NotIdentified;
+import exceptionPackage.DBException;
 import java.util.ArrayList;
 import modelPackage.Membre;
 
 public class MembreManager {
     private AccessMembreDB accessMembre = new AccessMembreDB();
 
-	public Integer newMembre(Membre membre) throws NewMembreException, NotIdentified {
+	public Integer newMembre(Membre membre) throws DBException, NotIdentified {
         // TODO : compléter les champs obligatoires
 		if(membre.getNom().isEmpty() || membre.getPrenom().isEmpty()) {
-            throw new NewMembreException("Il est obligatoire de remplir les champs nom et prénom");
+            throw new DBException("Il est obligatoire de remplir les champs nom et prénom");
         }	
 		else {
             return accessMembre.newMembre(membre);
         }
 	}
 	
-	public ArrayList<Membre> listMembre(String search) throws ListMembreException, NotIdentified {
+	public ArrayList<Membre> listMembre(String search) throws DBException, NotIdentified {
 		return accessMembre.listMembre(search);
 	}
 
-    public Membre getMembre(Integer id) throws ListMembreException, NotIdentified {
+    public Membre getMembre(Integer id) throws DBException, NotIdentified {
         return accessMembre.getMembre(id);
     }
 
-    public void modifyMembre(Membre membre) throws ModifyMembreException, NotIdentified {
+    public void modifyMembre(Membre membre) throws DBException, NotIdentified {
         // TODO : complèter les champs obligatoires
         if(membre.getNom().isEmpty() || membre.getPrenom().isEmpty()) {
-            throw new ModifyMembreException("Il est obligatoire de remplir les champs nom et prénom");
+            throw new DBException("Il est obligatoire de remplir les champs nom et prénom");
         }	
 		else {
             accessMembre.modifyMembre(membre);
         }
     }
 
-    public void deleteMembre(Integer idMembre) throws DeleteMembreException, NotIdentified {
+    public void deleteMembre(Integer idMembre) throws DBException, NotIdentified {
         accessMembre.deleteMembre(idMembre);
     }
 }

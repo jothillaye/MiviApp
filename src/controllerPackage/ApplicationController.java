@@ -3,6 +3,7 @@ package controllerPackage;
 import businessPackage.*;
 import exceptionPackage.*;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import modelPackage.*;
 
 
@@ -10,11 +11,17 @@ public class ApplicationController {
 	private LoginManager loginManager;	
     private MembreManager membreManager;
     private FormationManager formationManager;
+    private ActiviteManager activiteManager;
+    private InscriptionManager inscriptionManager;
+    private PaiementManager paiementManager;
 
 	public ApplicationController(){	
 		loginManager = new LoginManager();
         membreManager = new MembreManager();        
         formationManager = new FormationManager();
+        activiteManager = new ActiviteManager();
+        inscriptionManager = new InscriptionManager();
+        paiementManager = new PaiementManager();
 	}	
 	
 	// Login Managing	
@@ -32,40 +39,101 @@ public class ApplicationController {
 	
 	
 	// Membre Managing	
-    public Integer newMembre(Membre membre) throws NewMembreException, NotIdentified {
+    public Integer newMembre(Membre membre) throws DBException, NotIdentified {
         return membreManager.newMembre(membre);
     }
 	
-    public ArrayList<Membre> listMembre(String search) throws ListMembreException, NotIdentified {
+    public ArrayList<Membre> listMembre(String search) throws DBException, NotIdentified {
         return membreManager.listMembre(search);
 	}
     
-    public Membre getMembre(Integer id) throws ListMembreException, NotIdentified {
+    public Membre getMembre(Integer id) throws DBException, NotIdentified {
         return membreManager.getMembre(id);
     }
 
-    public void modifyMembre(Membre membre) throws ModifyMembreException, NotIdentified {
+    public void modifyMembre(Membre membre) throws DBException, NotIdentified {
         membreManager.modifyMembre(membre);
     }
 
-    public void deleteMembre(Integer idMembre) throws DeleteMembreException, NotIdentified {
+    public void deleteMembre(Integer idMembre) throws DBException, NotIdentified {
         membreManager.deleteMembre(idMembre);
     }
 
     // Formation Manager
-    public ArrayList<Formation> listForm() throws ListFormationException, NotIdentified {
+    public ArrayList<Formation> listForm() throws DBException, NotIdentified {
         return formationManager.listForm();
     }
     
-    public void newFormation(Formation form) throws NewFormationException, NotIdentified {
+    public void newFormation(Formation form) throws DBException, NotIdentified {
         formationManager.newFormation(form);
     }
     
-    public void modifyFormation(Formation form) throws ModifyFormationException, NotIdentified {
+    public void modifyFormation(Formation form) throws DBException, NotIdentified {
         formationManager.modifyFormation(form);
     }
     
-    public void deleteFormation(Integer idFormation) throws DeleteFormationException, NotIdentified {
-                formationManager.deleteFormation(idFormation);
+    public void deleteFormation(Integer idFormation) throws DBException, NotIdentified {
+        formationManager.deleteFormation(idFormation);
     }
+    
+    // Activite Manager
+    public ArrayList<Activite> listActivite(Integer idFormation) throws DBException, NotIdentified {
+        return activiteManager.listActivite(idFormation);
+    }
+    
+    public Activite getActivite(Integer idActivite) throws DBException, NotIdentified {
+        return activiteManager.getActivite(idActivite);
+    }
+    
+    public void newActivite(Activite act) throws DBException, NotIdentified {
+        activiteManager.newActivite(act);
+    }
+    
+    public void modifyActivite(Activite act) throws DBException, NotIdentified {
+        activiteManager.modifyActivite(act);
+    }
+    
+    public void deleteActivite(Integer idActivite) throws DBException, NotIdentified {
+        activiteManager.deleteActivite(idActivite);
+    }
+    
+    // Inscription Manager
+    public void newInscription(Inscription ins) throws DBException, NotIdentified {
+        inscriptionManager.newInscription(ins);
+    }
+    
+    public ArrayList<Membre> listInscription(Integer idActivite) throws DBException, NotIdentified {
+        return inscriptionManager.listInscription(idActivite);
+    }    
+    
+    public Inscription getInscription(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {
+        return inscriptionManager.getInscription(idActivite, idMembre);
+    }    
+    
+    public void deleteInscription(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {
+        inscriptionManager.deleteInscription(idActivite, idMembre);
+    }
+    
+    public void modifyInscription(Inscription ins) throws DBException, NotIdentified {
+        inscriptionManager.modifyInscription(ins);
+    }
+
+    // Paiement Manager
+    public void newPaiement(Paiement paiement) throws DBException, NotIdentified {
+        paiementManager.newPaiement(paiement);
+    }
+    
+    public ArrayList<Paiement> listPaiement(Integer idActivite, Integer idMembre, Boolean accord) throws DBException, NotIdentified {
+        return paiementManager.listPaiement(idActivite, idMembre, accord);
+    }
+
+    public void modifyPaiement(Paiement paiement, GregorianCalendar oldDate) throws DBException, NotIdentified {
+        paiementManager.modifyPaiement(paiement, oldDate);
+    }
+    
+    public void deletePaiement(Paiement paiement) throws DBException, NotIdentified {
+        paiementManager.deletePaiement(paiement);
+    }
+
+    
 }

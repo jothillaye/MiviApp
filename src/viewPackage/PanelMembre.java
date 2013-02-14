@@ -5,10 +5,7 @@
 package viewPackage;
 
 import controllerPackage.ApplicationController;
-import exceptionPackage.DeleteMembreException;
-import exceptionPackage.ListMembreException;
-import exceptionPackage.ModifyMembreException;
-import exceptionPackage.NewMembreException;
+import exceptionPackage.DBException;
 import exceptionPackage.NotIdentified;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -284,7 +281,7 @@ public class PanelMembre extends JPanel {
                     comboBoxContact.addItem(new QueryResult(membre.getIdMembre(),membre.getNom().toString().toUpperCase()+", "+membre.getPrenom().toString().toLowerCase()));
                 }
             } 
-            catch (ListMembreException ex) {
+            catch (DBException ex) {
                 JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
             } 
             catch (NotIdentified ex) {
@@ -416,7 +413,7 @@ public class PanelMembre extends JPanel {
                 listModelMembre.addElement(new QueryResult(me.getIdMembre(),me.getNom().toString().toUpperCase()+", "+me.getPrenom().toString().toLowerCase()));
             }        
         } 
-        catch (ListMembreException ex) {
+        catch (DBException ex) {
             JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
         } 
         catch (NotIdentified ex) {
@@ -433,7 +430,7 @@ public class PanelMembre extends JPanel {
             UpdateInfoMembre(me);
             UpdateHistoryMembre(me);
         }    
-        catch (ListMembreException ex) {
+        catch (DBException ex) {
             JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
         } 
         catch (NotIdentified ex) {
@@ -609,12 +606,9 @@ public class PanelMembre extends JPanel {
                 catch(ArrayIndexOutOfBoundsException ex) {
                     JOptionPane.showMessageDialog(null, "Erreur lors de l'insertion veuillez vérifier le contenu des champs et si le problème persiste contacter l'administrateur.", "Erreur insertion", JOptionPane.ERROR_MESSAGE);
                 }
-				catch (NewMembreException ex) {
+				catch (DBException ex) {
 					JOptionPane.showMessageDialog(null, ex, "Erreur ajout", JOptionPane.ERROR_MESSAGE);
-				} 
-                catch (ModifyMembreException ex) {
-					JOptionPane.showMessageDialog(null, ex, "Erreur modification", JOptionPane.ERROR_MESSAGE);
-				} 
+				}
 				catch (NotIdentified ex) {
 					JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
 				}
@@ -629,7 +623,7 @@ public class PanelMembre extends JPanel {
                         reset();
                     }
                 } 
-                catch (DeleteMembreException ex) {
+                catch (DBException ex) {
 					JOptionPane.showMessageDialog(null, ex, "Erreur suppression", JOptionPane.ERROR_MESSAGE);
 				} 
 				catch (NotIdentified ex) {

@@ -1,8 +1,7 @@
 package dataAccessPackage;
 
-import java.sql.*;
-
 import exceptionPackage.*;
+import java.sql.*;
 import java.util.Properties;
 
 public class AccessDB {

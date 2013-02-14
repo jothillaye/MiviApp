@@ -5,11 +5,8 @@
 package viewPackage;
 
 import controllerPackage.ApplicationController;
-import exceptionPackage.DeleteFormationException;
-import exceptionPackage.ListFormationException;
-import exceptionPackage.ModifyFormationException;
-import exceptionPackage.NewFormationException;
 import exceptionPackage.NotIdentified;
+import exceptionPackage.DBException;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -73,7 +70,7 @@ public class PanelFormation extends JPanel {
                 comboBoxForm.addItem(new QueryResult(form.getIdFormation(), form.getIntitule().toString()));
             }
         } 
-        catch (ListFormationException ex) {
+        catch (DBException ex) {
             JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
         } 
         catch (NotIdentified ex) {
@@ -197,8 +194,9 @@ public class PanelFormation extends JPanel {
                 form = new Formation(fieldIntitule.getText());
                 try {
                     app.newFormation(form);
+                    reset();
                 } 
-                catch (NewFormationException ex) {
+                catch (DBException ex) {
                     JOptionPane.showMessageDialog(null, ex, "Erreur insertion", JOptionPane.ERROR_MESSAGE);
                 } 
                 catch (NotIdentified ex) {
@@ -216,9 +214,10 @@ public class PanelFormation extends JPanel {
                     reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment modifier ce canvas ?", "Modification Canvas", JOptionPane.YES_NO_OPTION);
                     if (reply == JOptionPane.YES_OPTION) {                        
                         app.modifyFormation(form);
+                        reset();
                     }
                 } 
-                catch (ModifyFormationException ex) {
+                catch (DBException ex) {
                     JOptionPane.showMessageDialog(null, ex, "Erreur modification", JOptionPane.ERROR_MESSAGE);
                 } 
                 catch (NotIdentified ex) {
@@ -231,9 +230,10 @@ public class PanelFormation extends JPanel {
                     reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment supprimer ce canvas ?", "Suppresion Canvas", JOptionPane.YES_NO_OPTION);
                     if (reply == JOptionPane.YES_OPTION) {                        
                         app.deleteFormation(structForm.id);
+                        reset();
                     }                        
                 } 
-                catch (DeleteFormationException ex) {
+                catch (DBException ex) {
                     JOptionPane.showMessageDialog(null, ex, "Erreur suppression", JOptionPane.ERROR_MESSAGE);
                 } 
                 catch (NotIdentified ex) {
