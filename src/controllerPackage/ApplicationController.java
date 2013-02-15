@@ -134,6 +134,8 @@ public class ApplicationController {
     public void deletePaiement(Paiement paiement) throws DBException, NotIdentified {
         paiementManager.deletePaiement(paiement);
     }
-
     
+    public Float getSolde(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {
+        return paiementManager.getSolde(idActivite, idMembre);
+    }    
 }

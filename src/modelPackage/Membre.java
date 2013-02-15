@@ -63,7 +63,7 @@ public class Membre {
         else {
             dayOfMonth = String.valueOf(dateNaiss.get(DAY_OF_MONTH));
         }
-        if(dateNaiss.get(MONTH)<10) {
+        if(dateNaiss.get(MONTH)<9) {
             month = 0+String.valueOf(dateNaiss.get(MONTH)+1);
         }
         else {

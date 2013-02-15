@@ -22,9 +22,9 @@ public class Fenetre extends JFrame	{
 	// Panneaux accessibles
     private PanelAccueil panelAccueil;
 	private PanelMembre panelMembre;
-    private PanelNewActivite panelNewActivite;
-	private PanelListActivite panelListActivite;
     private PanelFormation panelFormation;
+    private PanelActivite panelActivite;
+	private PanelInscription panelInscription;
     private PanelExportParticipants panelExportParticipants;
     private PanelExportFormation panelExportFormation;
     private PanelExportPrixSpeciaux panelExportPrixSpeciaux;
@@ -32,9 +32,9 @@ public class Fenetre extends JFrame	{
     
 	// Menu
 	private JMenuBar barre;
-    private JButton buttonAccueil, buttonMembre;
+    private JButton buttonAccueil, buttonMembre, buttonInscription;
 	private JMenu menuActivite, menuExport;
-	private JMenuItem itemNewActivite, itemListActivite, itemCanvasFormation,
+	private JMenuItem itemActivite, itemFormation,
             itemExportParticipants, itemExportFormation, itemExportPrixSpeciaux, itemExportAccordsPaiements;
     
     private URL iconURL;
@@ -87,23 +87,25 @@ public class Fenetre extends JFrame	{
         
 		// Activités - Inscription
 		menuActivite = new JMenu("Activités");               
-		menuActivite.setPreferredSize(new Dimension(100,menuActivite.getHeight()));
 		barre.add(menuActivite);
         
-			// Nouvelle Activité
-			itemNewActivite = new JMenuItem("Nouvelle Activité");
-			itemNewActivite.addActionListener(AM);
-			menuActivite.add(itemNewActivite);
-			
-			// Liste des Activités
-			itemListActivite = new JMenuItem("Liste des Activités");
-			itemListActivite.addActionListener(AM);
-			menuActivite.add(itemListActivite);
+			// Activite Management
+			itemActivite = new JMenuItem("Gestion des Activités");
+			itemActivite.addActionListener(AM);
+			menuActivite.add(itemActivite);
 		
-            // Nouveau canvas
-			itemCanvasFormation = new JMenuItem("Nouveau Canvas");
-			itemCanvasFormation.addActionListener(AM);
-			menuActivite.add(itemCanvasFormation);
+            // Formation Management
+			itemFormation = new JMenuItem("Gestion des Formation");
+			itemFormation.addActionListener(AM);
+			menuActivite.add(itemFormation);
+            
+        // Inscription
+        buttonInscription = new JButton("Inscriptions");
+        buttonInscription.setBorderPainted(false);
+        buttonInscription.setFocusPainted(false);
+        buttonInscription.setContentAreaFilled(false);
+        buttonInscription.addActionListener(AM);        
+		barre.add(buttonInscription);
 				
 		// Export
 		menuExport = new JMenu("Export");
@@ -135,12 +137,17 @@ public class Fenetre extends JFrame	{
             iconURL = this.getClass().getResource("/viewPackage/resources/images/activite.png");
             menuActivite.setIcon(new ImageIcon(iconURL));
             
+            iconURL = this.getClass().getResource("/viewPackage/resources/images/inscription.png");
+            buttonInscription.setIcon(new ImageIcon(iconURL));
+            
             iconURL = this.getClass().getResource("/viewPackage/resources/images/export.png");
             menuExport.setIcon(new ImageIcon(iconURL));
         }
         catch(NullPointerException ex) {
             JOptionPane.showMessageDialog(null, "Erreur lors de la récupération des icônes.\nVeuillez contacter l'administrateur", "Erreur de récupération des icônes", JOptionPane.ERROR_MESSAGE);
-        }                   
+        }    
+            
+		/// FIN DU MENU ///                     
             
         panelAccueil = new PanelAccueil();
 		getCont().add(panelAccueil, BorderLayout.CENTER);
@@ -179,25 +186,25 @@ public class Fenetre extends JFrame	{
                 panelAccueil = new PanelAccueil();
                 getCont().add(panelAccueil, BorderLayout.CENTER);
             }            
-            // Gestion Membre
+            // Gestion des Membres
             else if(e.getSource() == buttonMembre){	
                 panelMembre = new PanelMembre();
                 getCont().add(panelMembre, BorderLayout.CENTER);
             }
-            // Nouvelle Activité
-            else if(e.getSource() == itemNewActivite){
-                panelNewActivite = new PanelNewActivite();
-                getCont().add(panelNewActivite, BorderLayout.CENTER);
-            }
-            // Liste des Activités
-            else if(e.getSource() == itemListActivite){
-                panelListActivite = new PanelListActivite();
-                getCont().add(panelListActivite, BorderLayout.CENTER);			   						
-            }
-            // Canvas Formations
-            else if(e.getSource() == itemCanvasFormation){
+            // Gestion des Formations
+            else if(e.getSource() == itemFormation){
                 panelFormation = new PanelFormation();
-                getCont().add(panelFormation, BorderLayout.CENTER);			   						
+                getCont().add(panelFormation, BorderLayout.CENTER);
+            }
+            // Gestion des Activités
+            else if(e.getSource() == itemActivite){
+                panelActivite = new PanelActivite();
+                getCont().add(panelActivite, BorderLayout.CENTER);			   						
+            }
+            // Gestion des Inscriptions
+            else if(e.getSource() == buttonInscription){
+                panelInscription = new PanelInscription();
+                getCont().add(panelInscription, BorderLayout.CENTER);			   						
             }
             // Export Participants
             else if(e.getSource() == itemExportParticipants){

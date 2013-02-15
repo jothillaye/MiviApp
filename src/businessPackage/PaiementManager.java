@@ -31,4 +31,8 @@ public class PaiementManager {
     public void deletePaiement(Paiement paiement) throws DBException, NotIdentified {
         accessPaiement.deletePaiement(paiement);
     }
+    
+    public Float getSolde(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {
+        return accessPaiement.getSolde(idActivite, idMembre);
+    }
 } 

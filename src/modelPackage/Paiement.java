@@ -38,7 +38,7 @@ public class Paiement {
         else {
             dayOfMonth = String.valueOf(datePaiement.get(DAY_OF_MONTH));
         }
-        if(datePaiement.get(MONTH)<10) {
+        if(datePaiement.get(MONTH)<9) {
             month = 0+String.valueOf(datePaiement.get(MONTH)+1);
         }
         else {

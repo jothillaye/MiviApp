@@ -1,7 +1,7 @@
 package dataAccessPackage;
 
-import exceptionPackage.NotIdentified;
 import exceptionPackage.DBException;
+import exceptionPackage.NotIdentified;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -96,7 +96,7 @@ public class AccessActiviteDB {
         GregorianCalendar dateDeb;
         
         try {
-			request = "select idActivite, idFormation, promotion, dateDeb from activite where idFormation = ?;";	
+			request = "select idActivite, idFormation, promotion, dateDeb, prix from activite where idFormation = ?;";	
             prepStat = AccessDB.getInstance().prepareStatement(request);					
             prepStat.setInt(1, idFormation);
 			data = prepStat.executeQuery();
@@ -108,6 +108,7 @@ public class AccessActiviteDB {
                 act.setIdActivite(data.getInt(1));
                 act.setIdFormation(data.getInt(2));
                 act.setPromotion(data.getInt(3));
+                
                 dateDeb = new GregorianCalendar();
                 dateSQL = data.getDate(4);
                 if(dateSQL != null) {
@@ -117,6 +118,7 @@ public class AccessActiviteDB {
                     dateDeb = null;
                 }
                 act.setDateDeb(dateDeb);
+                act.setPrix(data.getFloat(5));
 				arrayActivite.add(act);
             }
 			return arrayActivite;

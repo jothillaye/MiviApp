@@ -8,7 +8,7 @@ import javax.swing.table.AbstractTableModel;
 public class PaiementList extends AbstractTableModel {
 	private ArrayList<String> listCol = new ArrayList<String>();
 	private ArrayList<Paiement> content = new ArrayList<Paiement>();
-    private String[] typePaiement = {"-- Choisir --", "Liquide", "Virement"};
+    private String[] typePaiement = {"-- Choisir --", "Liquide", "Virement", "Echange"};
     
 	private Paiement paiement;
 	
@@ -34,14 +34,14 @@ public class PaiementList extends AbstractTableModel {
 	
     @Override
 	public Object getValueAt(int row, int col) { 
-		paiement = content.get(row);
-		switch(col)	{ 	
-			case 0: return paiement.getDatePaiementFormated();
+        paiement = content.get(row);
+        switch(col)	{ 	
+            case 0: return paiement.getDatePaiementFormated();
             case 1: return paiement.getMontant();
-            case 2: return typePaiement[paiement.getTypePaiement()];                
-			
-			default: return null;
-		}
+            case 2: return typePaiement[paiement.getTypePaiement()];
+
+            default: return null;
+        }        
 	}
 	
     @Override
@@ -52,7 +52,7 @@ public class PaiementList extends AbstractTableModel {
     @Override
     public boolean isCellEditable(int row, int col) { 
         return true;    
-    } 
+    }
     
     @Override
     public void setValueAt(Object o, int row, int col) {
@@ -74,6 +74,9 @@ public class PaiementList extends AbstractTableModel {
             }
             else if(o.toString().equals("Virement") == true) {
                 paiement.setTypePaiement(2);
+            }
+            else if(o.toString().equals("Echange") == true) {
+                paiement.setTypePaiement(3);
             }
             else {
                 paiement.setTypePaiement(0);

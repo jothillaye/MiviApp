@@ -49,7 +49,7 @@ public class AccessInscriptionDB {
 	public ArrayList<Membre> listInscription(Integer idActivite) throws DBException, NotIdentified {
 		try {
 			request = "select me.idMembre, nom, prenom from inscription ins, membre me "
-                    + " where ins.idActivite = ? and ins.idMembre = me.idMembre;";	
+                    + " where ins.idActivite = ? and ins.idMembre = me.idMembre order by nom;";	
 			prepStat = AccessDB.getInstance().prepareStatement(request);	
             prepStat.setInt(1, idActivite);			
 					
@@ -107,14 +107,14 @@ public class AccessInscriptionDB {
 
     public void modifyInscription(Inscription inscription) throws DBException, NotIdentified {
         try {
-            request = "update inscription set idActivite = ?, idMembre = ?, tarifSpecial = ?, abandonne = ?, certifie = ?"
-                    + " where idInscription = ?;";
+            request = "update inscription set tarifSpecial = ?, abandonne = ?, certifie = ?"
+                    + " where idActivite = ? and idMembre = ?;";
             prepStat = AccessDB.getInstance().prepareStatement(request);
-            prepStat.setInt(1, inscription.getIdActivite());
-            prepStat.setInt(2, inscription.getIdMembre());
-            prepStat.setFloat(3, inscription.getTarifSpecial());
-            prepStat.setBoolean(4, inscription.getAbandonne());
-            prepStat.setBoolean(5, inscription.getCertifie());
+            prepStat.setFloat(1, inscription.getTarifSpecial());
+            prepStat.setBoolean(2, inscription.getAbandonne());
+            prepStat.setBoolean(3, inscription.getCertifie());
+            prepStat.setInt(4, inscription.getIdActivite());
+            prepStat.setInt(5, inscription.getIdMembre());
             
 			prepStat.executeUpdate();
         }	 

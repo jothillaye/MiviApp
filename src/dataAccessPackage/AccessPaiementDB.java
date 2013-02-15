@@ -51,7 +51,7 @@ public class AccessPaiementDB {
 	public ArrayList<Paiement> listPaiement(Integer idActivite, Integer idMembre, Boolean accord) throws DBException, NotIdentified {
 		try {
 			request = "select montant, datePaiement, typePaiement from paiement "
-                    + " where paiement.idActivite = ? and paiement.idMembre = ? and accord = ?;";	
+                    + " where idActivite = ? and idMembre = ? and accord = ? order by datePaiement;";	
 			prepStat = AccessDB.getInstance().prepareStatement(request);	
             prepStat.setInt(1, idActivite);	
             prepStat.setInt(2, idMembre);	
@@ -108,7 +108,7 @@ public class AccessPaiementDB {
 			prepStat.executeUpdate();
         }	 
         catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors de la modification du paiement.\nAttention aux doublons dans les dates.");
 		}
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -132,5 +132,37 @@ public class AccessPaiementDB {
 			throw new NotIdentified();
 		}
     }
+    
+    public Float getSolde(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {
+		try {
+            if(idActivite != null){
+                request = "select montant from paiement "
+                    + " where accord = false and idActivite = ? and idMembre = ?;";	
+                prepStat = AccessDB.getInstance().prepareStatement(request);	
+                prepStat.setInt(1, idActivite);	
+                prepStat.setInt(2, idMembre);	
+            }
+            else {
+                request = "select montant from paiement "
+                        + " where accord = false and idMembre = ?;";	
+                prepStat = AccessDB.getInstance().prepareStatement(request);	
+                prepStat.setInt(1, idMembre);	            
+            }
+            
+			data = prepStat.executeQuery();
+			
+			Float solde = new Float(0);			
+			while (data.next()) { 
+                solde += data.getFloat(1);
+			}
+			return solde;
+		} 
+		catch (SQLException e) {
+			throw new DBException(e.getMessage());
+		}	 
+		catch (NotIdentified e) {
+			throw new NotIdentified();
+		}
+	}
         
 }

@@ -8,6 +8,8 @@ import controllerPackage.ApplicationController;
 import exceptionPackage.DBException;
 import exceptionPackage.NotIdentified;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -16,6 +18,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import javax.swing.AbstractAction;
@@ -26,6 +29,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -33,8 +37,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListCellRenderer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.MaskFormatter;
 import modelPackage.AccordPaiementList;
 import modelPackage.Activite;
 import modelPackage.Formation;
@@ -60,8 +66,10 @@ public class PanelInscription extends JPanel {
     private JTextField fieldTarifSpecial;
     private JCheckBox checkAbandonne, checkCertifie;
     private JTable tablePaiement, tableAccordPaiement;
+    private TableCellListener tclP, tclA;
     private JComboBox comboBoxType, comboBoxMembre;
     private JButton buttonAddPaiement, buttonDelPaiement, buttonAddAccord, buttonDelAccord, buttonModify, buttonNewIns, buttonDelIns;
+    private JFormattedTextField fieldDate;
     
     private ArrayList<Formation> arrayFormation = new ArrayList<Formation>();
     private ArrayList<Activite> arrayActivite = new ArrayList<Activite>();
@@ -74,10 +82,10 @@ public class PanelInscription extends JPanel {
     private String desc, date;
     private QueryResult queryResult;
     private Inscription ins;
-    private GregorianCalendar datePaiement, oldDate;
-    private TableCellListener tclP, tclA;
+    private GregorianCalendar datePaiement, oldDate;    
     private URL iconURL; 
     private Dimension dimButton;
+    private Float solde, prix, prixSpecial;
     
     ApplicationController app = new ApplicationController();
     
@@ -308,17 +316,84 @@ public class PanelInscription extends JPanel {
             
             this.add(panelAccordPaiement, BorderLayout.SOUTH);
 
-            Action action = new ActionTable();
+            Action action = new ModifPaiement();
             tclP = new TableCellListener(tablePaiement, action);
             tclA = new TableCellListener(tableAccordPaiement, action);     
         }
     }
     
-    private class ActionManager implements ActionListener {
-        private Inscription ins;
-        private Integer idFormation = -1, idActivite = -1, idMembre = -1, idComboMembre;
+    private class ModifPaiement extends AbstractAction {
         @Override
         public void actionPerformed(ActionEvent e) {
+            TableCellListener tcl = (TableCellListener)e.getSource();            
+            paiement = new Paiement();
+            paiement.setIdActivite(((QueryResult)listActivite.getSelectedValue()).id);
+            paiement.setIdMembre(((QueryResult)listInscription.getSelectedValue()).id);
+            if(tcl.getTable() == tablePaiement) {
+                paiement.setAccord(false);
+                oldDate = arrayPaiement.get(tcl.getRow()).getOldDate();
+            }
+            else {
+                paiement.setAccord(true);
+                paiement.setTypePaiement(0);
+                oldDate = arrayAccordPaiement.get(tcl.getRow()).getOldDate();
+            }
+
+            // Date
+            if(tcl.getColumn() == 0) {
+                date = tcl.getNewValue().toString();
+                try {
+                    datePaiement = new GregorianCalendar(Integer.parseInt(date.substring(6, 10)), Integer.parseInt(date.substring(3, 5))-1, Integer.parseInt(date.substring(0, 2)));
+                    paiement.setDatePaiement(datePaiement);
+                }
+                catch(ArrayIndexOutOfBoundsException ex) {
+                    JOptionPane.showMessageDialog(null, "Erreur lors de l'insertion veuillez vérifier le contenu des champs et si le problème persiste contacter l'administrateur.", "Erreur insertion", JOptionPane.ERROR_MESSAGE);
+                }                            
+            }
+            // Montant
+            else if(tcl.getColumn() == 1) {
+                paiement.setMontant(Float.parseFloat(tcl.getNewValue().toString()));
+            }
+            // Type
+            else if(tcl.getColumn() == 2) {
+                if(tcl.getNewValue().toString().equals("Liquide") == true){
+                    paiement.setTypePaiement(1);
+                }
+                else if(tcl.getNewValue().toString().equals("Virement") == true) {
+                    paiement.setTypePaiement(2);
+                }
+                else if(tcl.getNewValue().toString().equals("Echange") == true) {
+                    paiement.setTypePaiement(3);
+                }
+                else {
+                    paiement.setTypePaiement(0);
+                }  
+            }
+            try {
+                app.modifyPaiement(paiement, oldDate);
+                if(tcl.getColumn() == 1 && tcl.getTable() == tablePaiement) {
+                    Integer index = listInscription.getSelectedIndex();
+                    UpdateListInscription(((QueryResult)listActivite.getSelectedValue()).id);
+                    listInscription.setSelectedIndex(index);
+                }
+            } 
+            catch (DBException ex) {
+                JOptionPane.showMessageDialog(null, ex, "Erreur modification", JOptionPane.ERROR_MESSAGE);
+            } 
+            catch (NotIdentified ex) {
+                JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        
+    }
+    
+    private class ActionManager implements ActionListener {
+        private Inscription ins;
+        private Integer idFormation = -1, idActivite = -1, idMembre = -1, idComboMembre, indexIns;
+        private Object src;
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            src = e.getSource();
             if(listFormation.getSelectedIndex() != -1){
                 idFormation = ((QueryResult)listFormation.getSelectedValue()).id;
             }
@@ -329,7 +404,7 @@ public class PanelInscription extends JPanel {
                 idMembre = ((QueryResult)listInscription.getSelectedValue()).id;            
             }
             if(idFormation != -1 && idActivite != -1){
-                if(e.getSource() == buttonNewIns){
+                if(src == buttonNewIns){
                     idComboMembre = ((QueryResult)comboBoxMembre.getSelectedItem()).id;
                     if(idComboMembre != -1) {
                         ins = new Inscription();
@@ -337,6 +412,7 @@ public class PanelInscription extends JPanel {
                         ins.setIdMembre(idComboMembre);                        
                         try {
                             app.newInscription(ins);
+                            UpdateListInscription(idActivite);
                         } 
                         catch (DBException ex) {
                             JOptionPane.showMessageDialog(null, ex, "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
@@ -344,48 +420,69 @@ public class PanelInscription extends JPanel {
                         catch (NotIdentified ex) {
                             JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
                         }
-                        
-                        UpdateListInscription(idActivite);
                     }
                 }
-                else if(e.getSource() == buttonDelIns && idMembre != -1) {
-                    try {
-                        Integer reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment supprimer cette inscription ?", "Modification Membre", JOptionPane.YES_NO_OPTION);
-                        if (reply == JOptionPane.YES_OPTION) {       
-                            app.deleteInscription(idActivite, idMembre);
+                else if(idMembre != -1) {
+                    if(src == buttonDelIns) { 
+                        try {
+                            Integer reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment supprimer cette inscription ?", "Modification Membre", JOptionPane.YES_NO_OPTION);
+                            if (reply == JOptionPane.YES_OPTION) {       
+                                app.deleteInscription(idActivite, idMembre);
+                                UpdateListInscription(idActivite);
+                            }
+                        } 
+                        catch (DBException ex) {
+                                JOptionPane.showMessageDialog(null, ex, "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
+                        } 
+                        catch (NotIdentified ex) {
+                            JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
                         }
-                    } 
-                    catch (DBException ex) {
-                            JOptionPane.showMessageDialog(null, ex, "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
-                    } 
-                    catch (NotIdentified ex) {
-                        JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+                    }                
+                    else if(src == buttonModify) {
+                        ins = new Inscription();
+                        ins.setIdActivite(idActivite);
+                        ins.setIdMembre(idMembre); 
+                        ins.setTarifSpecial(Float.parseFloat(fieldTarifSpecial.getText()));
+                        ins.setCertifie(checkCertifie.isSelected());
+                        ins.setAbandonne(checkAbandonne.isSelected());
+                        try {
+                            app.modifyInscription(ins);
+                            JOptionPane.showMessageDialog(null, "Inscription modifiée", "Modification inscription", JOptionPane.INFORMATION_MESSAGE);
+                            UpdateInfoInscription(idActivite, idMembre);                            
+                            indexIns = listInscription.getSelectedIndex();
+                            UpdateListInscription(((QueryResult)listActivite.getSelectedValue()).id);
+                            listInscription.setSelectedIndex(indexIns);
+                        } 
+                        catch (DBException ex) {
+                            JOptionPane.showMessageDialog(null, ex, "Erreur Modification", JOptionPane.ERROR_MESSAGE);
+                        } 
+                        catch (NotIdentified ex) {
+                            JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+                        }
                     }
-                    UpdateListInscription(idActivite);
+                    else {
+                        TrtPaiement(src, idActivite, idMembre);                        
+                    }
                 }
-                else {
-                    if(idMembre != -1) {
-                        TrtPaiement(e, idActivite, idMembre);
-                    }
-                }                                
             }
         }
     }
     
-    private void TrtPaiement(ActionEvent e, Integer idActivite, Integer idMembre){
+    private void TrtPaiement(Object src, Integer idActivite, Integer idMembre){
         Paiement newPaiement = new Paiement();
         newPaiement.setIdActivite(idActivite);
         newPaiement.setIdMembre(idMembre);
         newPaiement.setMontant(new Float(0));
-        newPaiement.setDatePaiement(new GregorianCalendar(1900,0,1));
         newPaiement.setAccord(false);
+        newPaiement.setDatePaiement(new GregorianCalendar(2015,0,tablePaiement.getRowCount()));
         newPaiement.setTypePaiement(0);
         
-        if(e.getSource() == buttonAddAccord || e.getSource() == buttonDelAccord) {
+        if(src == buttonAddAccord || src == buttonDelAccord) {
             newPaiement.setAccord(true);
+            newPaiement.setDatePaiement(new GregorianCalendar(2015,0,tableAccordPaiement.getRowCount()));
         }
         
-        if(e.getSource() == buttonAddAccord || e.getSource() == buttonAddPaiement) {
+        if(src == buttonAddAccord || src == buttonAddPaiement) {
             try {
                 app.newPaiement(newPaiement);
             }
@@ -396,18 +493,18 @@ public class PanelInscription extends JPanel {
                 JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
             }
         }
-        else {
+        else if((src == buttonDelAccord && tableAccordPaiement.getSelectedRow() != -1) ||  (src == buttonDelPaiement && tablePaiement.getSelectedRow() != -1)){
             try {                
                 Integer reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment supprimer ce paiement ?", "Modification Membre", JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION) {       
-                    if(e.getSource() == buttonDelPaiement) { 
+                    if(src == buttonDelPaiement) { 
                         date = (String)tablePaiement.getValueAt(tablePaiement.getSelectedRow(), 0);
                         datePaiement = new GregorianCalendar(Integer.parseInt(date.substring(6, 10)), Integer.parseInt(date.substring(3, 5))-1, Integer.parseInt(date.substring(0, 2)));
                         newPaiement.setDatePaiement(datePaiement);
                         app.deletePaiement(newPaiement);
                     }
                     else {
-                        date = (String)tableAccordPaiement.getValueAt(tablePaiement.getSelectedRow(), 0);
+                        date = (String)tableAccordPaiement.getValueAt(tableAccordPaiement.getSelectedRow(), 0);
                         datePaiement = new GregorianCalendar(Integer.parseInt(date.substring(6, 10)), Integer.parseInt(date.substring(3, 5))-1, Integer.parseInt(date.substring(0, 2)));
                         newPaiement.setDatePaiement(datePaiement);
                         app.deletePaiement(newPaiement);
@@ -424,63 +521,29 @@ public class PanelInscription extends JPanel {
         UpdateInfoInscription(idActivite, idMembre);
     }
     
-    private class ActionTable extends AbstractAction {
+    private class ListListener implements ListSelectionListener {
         @Override
-        public void actionPerformed(ActionEvent e) {
-            TableCellListener tcl = (TableCellListener)e.getSource();
-            if(tcl.getTable() == tablePaiement) {
-                paiement = new Paiement();
-                paiement.setIdActivite(((QueryResult)listActivite.getSelectedValue()).id);
-                paiement.setIdMembre(((QueryResult)listInscription.getSelectedValue()).id);
-                if(tcl.getTable() == tablePaiement) {
-                    paiement.setAccord(false);
-                    oldDate = arrayPaiement.get(tcl.getRow()).getOldDate();
-                }
-                else {
-                    paiement.setAccord(true);
-                    paiement.setTypePaiement(0);
-                    oldDate = arrayAccordPaiement.get(tcl.getRow()).getOldDate();
-                }
-                
-                // Date
-                if(tcl.getColumn() == 0) {
-                    date = tcl.getNewValue().toString();
-                    try {
-                        datePaiement = new GregorianCalendar(Integer.parseInt(date.substring(6, 10)), Integer.parseInt(date.substring(3, 5))-1, Integer.parseInt(date.substring(0, 2)));
-                        paiement.setDatePaiement(datePaiement);
+        public void valueChanged(ListSelectionEvent lse) {  
+            if(lse.getValueIsAdjusting()){
+                queryResult = (QueryResult)((JList)lse.getSource()).getSelectedValue();
+                if(queryResult.id != -1) {
+                    if(lse.getSource() == listFormation) {
+                        UpdateListActivite(queryResult.id);
+                        UpdateListInscription(-1);
+                        UpdateInfoInscription(-1, -1);
                     }
-                    catch(ArrayIndexOutOfBoundsException ex) {
-                        JOptionPane.showMessageDialog(null, "Erreur lors de l'insertion veuillez vérifier le contenu des champs et si le problème persiste contacter l'administrateur.", "Erreur insertion", JOptionPane.ERROR_MESSAGE);
-                    }                            
-                }
-                // Montant
-                else if(tcl.getColumn() == 1) {
-                    paiement.setMontant(Float.parseFloat(tcl.getNewValue().toString()));
-                }
-                // Type
-                else if(tcl.getColumn() == 2) {
-                    if(tcl.getNewValue().toString().equals("Liquide") == true){
-                        paiement.setTypePaiement(1);
+                    else if(lse.getSource() == listActivite) {
+                        UpdateListInscription(queryResult.id);
+                        UpdateInfoInscription(-1, -1);
                     }
-                    else if(tcl.getNewValue().toString().equals("Virement") == true) {
-                        paiement.setTypePaiement(2);
+                    else if(lse.getSource() == listInscription) {
+                        QueryResult structAct = (QueryResult)listActivite.getSelectedValue();
+                        UpdateInfoInscription(structAct.id, queryResult.id);
                     }
-                    else {
-                        paiement.setTypePaiement(0);
-                    }  
-                }
-                try {
-                    app.modifyPaiement(paiement, oldDate);
-                } 
-                catch (DBException ex) {
-                    JOptionPane.showMessageDialog(null, ex, "Erreur modification", JOptionPane.ERROR_MESSAGE);
-                } 
-                catch (NotIdentified ex) {
-                    JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
                 }
             }
         }
-    }
+    }  
     
     private void UpdateListActivite(Integer idFormation) {
         try {            
@@ -519,10 +582,16 @@ public class PanelInscription extends JPanel {
                 listModelInscription.addElement(new QueryResult(-1,"-- Aucune inscription --"));
             }
             else {            
+                prix = (app.getActivite(idActivite).getPrix())*-1;
+                
                 for(Membre me : arrayInscription) {                    
                     desc =  me.getNom().toString().toUpperCase() + ", " + me.getPrenom().toString().toLowerCase();
+                    prixSpecial = app.getInscription(idActivite, me.getIdMembre()).getTarifSpecial();
+                    solde = app.getSolde(idActivite, me.getIdMembre()) + prix + prixSpecial;
+                    desc += " ("+solde+")";
                     listModelInscription.addElement(new QueryResult(me.getIdMembre(),desc));
-                }            
+                }
+                listInscription.setCellRenderer(new MyCellRenderer());
             }          
         } 
         catch (DBException ex) {
@@ -564,6 +633,10 @@ public class PanelInscription extends JPanel {
                 comboBoxType.addItem("Virement");      
                 comboBoxType.addItem("Echange");   
                 tablePaiement.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(comboBoxType));    
+                
+                fieldDate = new JFormattedTextField(new MaskFormatter("##'/##'/####")); 
+                tablePaiement.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(fieldDate));
+                tableAccordPaiement.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(fieldDate));
             }
         }
         catch (DBException ex) {
@@ -572,31 +645,35 @@ public class PanelInscription extends JPanel {
         catch (NotIdentified ex) {
             JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
         } 
-    }   
-
-    private class ListListener implements ListSelectionListener {
-        @Override
-        public void valueChanged(ListSelectionEvent lse) {  
-            if(lse.getValueIsAdjusting()){
-                queryResult = (QueryResult)((JList)lse.getSource()).getSelectedValue();
-                if(queryResult.id != -1) {
-                    if(lse.getSource() == listFormation) {
-                        UpdateListActivite(queryResult.id);
-                        UpdateListInscription(-1);
-                        UpdateInfoInscription(-1, -1);
-                    }
-                    else if(lse.getSource() == listActivite) {
-                        UpdateListInscription(queryResult.id);
-                        UpdateInfoInscription(-1, -1);
-                    }
-                    else if(lse.getSource() == listInscription) {
-                        QueryResult structAct = (QueryResult)listActivite.getSelectedValue();
-                        UpdateInfoInscription(structAct.id, queryResult.id);
-                    }
-                }
-            }
+        catch (ParseException ex) {
+            JOptionPane.showMessageDialog(null, "Erreur dans le champs de la date.", "Erreur date", JOptionPane.ERROR_MESSAGE);
         }
-    }    
+    }   
+    
+    private class MyCellRenderer extends JLabel implements ListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            String s = value.toString();
+            setText(s);
+            if(value.toString().contains("(-") == true){;
+                setForeground(Color.RED);
+            }
+            else {
+                setForeground(Color.BLACK);
+            }
+            if (isSelected) {
+                setBackground(list.getSelectionBackground());
+            }
+            else {
+                setBackground(list.getBackground());
+            }
+ 
+            setEnabled(list.isEnabled());
+            setFont(list.getFont());
+            setOpaque(true);
+            return this;
+        }    
+    }
     
     private class QueryResult {  
         int id;  
