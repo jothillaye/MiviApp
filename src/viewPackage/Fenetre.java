@@ -13,6 +13,11 @@ import exceptionPackage.DisconnectException;
 import exceptionPackage.IdentificationError;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import javax.swing.*;
 
@@ -58,7 +63,7 @@ public class Fenetre extends JFrame	{
         // TODO : correct the close operation to disconnect properly
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		// Creation Container
+        // Creation Container
 		setContent(getContentPane());
 		getCont().setLayout(new BorderLayout());
 		
@@ -82,7 +87,7 @@ public class Fenetre extends JFrame	{
         buttonMembre.setBorderPainted(false);
         buttonMembre.setFocusPainted(false);
         buttonMembre.setContentAreaFilled(false);
-        buttonMembre.addActionListener(AM);        
+        buttonMembre.addActionListener(AM);   
 		barre.add(buttonMembre);	
         
 		// Activités - Inscription
@@ -146,11 +151,15 @@ public class Fenetre extends JFrame	{
         catch(NullPointerException ex) {
             JOptionPane.showMessageDialog(null, "Erreur lors de la récupération des icônes.\nVeuillez contacter l'administrateur", "Erreur de récupération des icônes", JOptionPane.ERROR_MESSAGE);
         }    
-            
-		/// FIN DU MENU ///                     
-            
-        panelAccueil = new PanelAccueil();
-		getCont().add(panelAccueil, BorderLayout.CENTER);
+        
+        HoverButton HB = new HoverButton();
+        buttonAccueil.addMouseListener(HB);
+        buttonMembre.addMouseListener(HB);
+        menuActivite.addMouseListener(HB);
+        buttonInscription.addMouseListener(HB);
+        menuExport.addMouseListener(HB);
+        
+        Login();
 	}
 	
 	
@@ -228,5 +237,104 @@ public class Fenetre extends JFrame	{
             }            
             getCont().validate();	// refresh la fenêtre		   				
 		}
-	}	
+	}
+    
+    private class HoverButton implements MouseListener {        
+        @Override
+        public void mouseEntered(MouseEvent me) {
+            String src = me.getComponent().getClass().getSimpleName();
+            if(src.equals("JMenu")) {
+                ((JMenu)me.getSource()).setForeground(Color.GRAY);
+            }
+            else {
+                ((JButton)me.getSource()).setForeground(Color.GRAY);
+            }
+        }
+        @Override
+        public void mouseExited(MouseEvent me) {            
+            String src = me.getComponent().getClass().getSimpleName();
+            if(src.equals("JMenu")) {
+                ((JMenu)me.getSource()).setForeground(Color.BLACK);
+            }
+            else {
+                ((JButton)me.getSource()).setForeground(Color.BLACK);
+            }
+        }
+        @Override
+        public void mouseClicked(MouseEvent me) {}
+        @Override
+        public void mousePressed(MouseEvent me) {}
+        @Override
+        public void mouseReleased(MouseEvent me) {}    
+    }
+    
+    private class PanelLogin extends JPanel {
+        private JLabel labelConnexion;
+        private JButton buttonValid;
+        
+        public PanelLogin() {
+            this.setLayout(new GridBagLayout());
+            GridBagConstraints c = new GridBagConstraints();
+            c.anchor = GridBagConstraints.CENTER;
+            c.insets = new Insets(0, 0, 40, 0);
+            
+            labelConnexion = new JLabel("Connexion à la base de donnée");
+            labelConnexion.setFont(new Font("Arial", Font.BOLD, 18));
+            c.gridy = 0;
+            this.add(labelConnexion, c);
+            
+            buttonValid = new JButton("Nouvelle Tentative de Connexion");
+            buttonValid.setContentAreaFilled(false);
+            buttonValid.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    Login();
+                }
+            });	
+            c.gridy ++;
+            this.add(buttonValid, c);
+        }	            
+    }
+    
+    private void Login() {
+        String pass = "";
+        try {
+            File filePW = new File("pass/pw.txt");
+            BufferedReader br = new BufferedReader(new FileReader(filePW));
+            pass = br.readLine();
+            app.Connection(pass);
+            ChangeLockStatus(true);
+        }  
+        catch (FileNotFoundException e) {
+            JOptionPane.showMessageDialog(null, "Fichier contenant le mot de passe introuvable.", "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+            ChangeLockStatus(false);
+        }
+        catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Lecture du mot de passe impossible.", "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+            ChangeLockStatus(false);
+        }
+        catch(IdentificationError idE) {
+            JOptionPane.showMessageDialog(null, idE, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+            ChangeLockStatus(false);
+        }
+    }
+            
+    private void ChangeLockStatus(Boolean b) {
+        buttonAccueil.setEnabled(b);
+        buttonMembre.setEnabled(b);
+        menuActivite.setEnabled(b);
+        buttonInscription.setEnabled(b);
+        menuExport.setEnabled(b);
+
+        if(b == true) {
+            Fenetre.getCont().removeAll();
+            Fenetre.getCont().add(new PanelAccueil(), BorderLayout.CENTER);            
+        }
+        else {
+            Fenetre.getCont().removeAll();
+            Fenetre.getCont().add(new PanelLogin(), BorderLayout.CENTER);
+        }
+        Fenetre.getCont().repaint();
+        Fenetre.getCont().validate();
+    }
 }

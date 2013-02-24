@@ -117,8 +117,7 @@ public class PanelInscription extends JPanel {
         buttonDelPaiement.addActionListener(AM);
         buttonAddAccord.addActionListener(AM);
         buttonDelAccord.addActionListener(AM);
-        buttonModify.addActionListener(AM);
-        
+        buttonModify.addActionListener(AM);        
         
         try {
             iconURL = this.getClass().getResource("/viewPackage/resources/images/validate.png");
@@ -202,6 +201,7 @@ public class PanelInscription extends JPanel {
             comboBoxMembre.setPreferredSize(new Dimension(219, 28));
             c.gridy++;
             this.add(comboBoxMembre, c);	 
+            
             try {            
                 arrayMembre = app.listMembre(null);
                 comboBoxMembre.addItem(new QueryResult(-1,"Aucun"));
@@ -495,7 +495,7 @@ public class PanelInscription extends JPanel {
         }
         else if((src == buttonDelAccord && tableAccordPaiement.getSelectedRow() != -1) ||  (src == buttonDelPaiement && tablePaiement.getSelectedRow() != -1)){
             try {                
-                Integer reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment supprimer ce paiement ?", "Modification Membre", JOptionPane.YES_NO_OPTION);
+                Integer reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment supprimer ce paiement ?", "Suppression Paiement", JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION) {       
                     if(src == buttonDelPaiement) { 
                         date = (String)tablePaiement.getValueAt(tablePaiement.getSelectedRow(), 0);

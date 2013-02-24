@@ -406,7 +406,7 @@ public class PanelMembre extends JPanel {
     } 
     
     private void UpdateListMembre(String filter){
-        listModelMembre.clear();
+        listModelMembre.removeAllElements();
         try {        
             arrayMembre = app.listMembre(filter);
             for(Membre me : arrayMembre){
@@ -418,8 +418,7 @@ public class PanelMembre extends JPanel {
         } 
         catch (NotIdentified ex) {
             JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
-        }
-        listMembre.validate();
+        }   
     }  
     
     private void UpdateMembre(Integer indexList) {
@@ -531,8 +530,7 @@ public class PanelMembre extends JPanel {
                 ville       = fieldVille.getText();
                 email       = fieldEmail.getText();
                 provenance  = comboBoxProvenance.getSelectedIndex();
-                structMembre= (QueryResult)comboBoxContact.getSelectedItem();
-                idContact   = structMembre.id;
+                idContact   = ((QueryResult)comboBoxContact.getSelectedItem()).id;
                 clientME    = checkBoxClientME.isSelected();
                 assistant   = checkBoxAssistant.isSelected();
                 animateur   = checkBoxAnimateur.isSelected();
@@ -559,14 +557,13 @@ public class PanelMembre extends JPanel {
                     dateNaiss.set(Integer.parseInt(fieldDate.getText(6,4)), Integer.parseInt(fieldDate.getText(3,2))-1, Integer.parseInt(fieldDate.getText(0,2)));
                     
                     Membre membre = new Membre(nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, provenance, idContact, assistant, animateur, clientME, ecarte, solde);
-					
                     // Nouveau membre
                     if(e.getSource() == buttonInsert) {
                         reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment ajouter ce membre ?", "Insertion Membre", JOptionPane.YES_NO_OPTION);
 						if (reply == JOptionPane.YES_OPTION) {
                             idMembre = app.newMembre(membre);     
                             membre.setIdMembre(idMembre);
-                            JOptionPane.showMessageDialog(null, "Ajout de "+prenom+" "+nom+" réussi", "Ajout Membre", JOptionPane.INFORMATION_MESSAGE);
+                            JOptionPane.showMessageDialog(null, "Ajout de "+prenom+" "+nom+" réussi.", "Ajout Membre", JOptionPane.INFORMATION_MESSAGE);
                         }                        
                     }
                     // Modification membre
@@ -577,7 +574,7 @@ public class PanelMembre extends JPanel {
                         reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment modifier ce membre ?", "Modification Membre", JOptionPane.YES_NO_OPTION);
 						if (reply == JOptionPane.YES_OPTION) {
                             app.modifyMembre(membre);
-                            JOptionPane.showMessageDialog(null, "Modification de "+prenom+" "+nom+" réussie", "Ajout Membre", JOptionPane.INFORMATION_MESSAGE);
+                            JOptionPane.showMessageDialog(null, "Modification de "+prenom+" "+nom+" réussie.", "Ajout Membre", JOptionPane.INFORMATION_MESSAGE);
                         }
 					}
                     
@@ -619,7 +616,7 @@ public class PanelMembre extends JPanel {
                     reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment supprimer ce membre ?", "Suppresion Membre", JOptionPane.YES_NO_OPTION);
                     if (reply == JOptionPane.YES_OPTION) {                        
                         app.deleteMembre(idMembre);
-                        JOptionPane.showMessageDialog(null, "Suppression réussie", "Suppression Membre", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Suppression réussie.", "Suppression Membre", JOptionPane.INFORMATION_MESSAGE);
                         reset();
                     }
                 } 

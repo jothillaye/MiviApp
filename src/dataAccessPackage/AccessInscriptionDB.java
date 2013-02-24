@@ -27,7 +27,7 @@ public class AccessInscriptionDB {
 			
             prepStat.executeUpdate();    
             
-            request = "SELECT @@IDENTITY";
+            request = "SELECT LAST_INSERT_ID()";
             prepStat = AccessDB.getInstance().prepareStatement(request);			
             data = prepStat.executeQuery();
             
@@ -49,7 +49,7 @@ public class AccessInscriptionDB {
 	public ArrayList<Membre> listInscription(Integer idActivite) throws DBException, NotIdentified {
 		try {
 			request = "select me.idMembre, nom, prenom from inscription ins, membre me "
-                    + " where ins.idActivite = ? and ins.idMembre = me.idMembre order by nom;";	
+                    + " where ins.idActivite = ? and ins.idMembre = me.idMembre order by upper(nom);";	
 			prepStat = AccessDB.getInstance().prepareStatement(request);	
             prepStat.setInt(1, idActivite);			
 					

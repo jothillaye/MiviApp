@@ -29,7 +29,7 @@ public class AccessPaiementDB {
 			
             prepStat.executeUpdate();    
             
-            request = "SELECT @@IDENTITY";
+            request = "SELECT LAST_INSERT_ID()";
             prepStat = AccessDB.getInstance().prepareStatement(request);			
             data = prepStat.executeQuery();
             

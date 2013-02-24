@@ -31,8 +31,8 @@ public class AccessActiviteDB {
                 prepStat.setDate(4, null);
             }
             prepStat.setFloat(5, act.getPrix());
-            prepStat.setInt(6, act.getAccompte());
-            prepStat.setInt(7, act.getTva());
+            prepStat.setFloat(6, act.getAccompte());
+            prepStat.setFloat(7, act.getTva());
 			prepStat.executeUpdate();
 		} 
 		catch (SQLException e) {
@@ -78,8 +78,8 @@ public class AccessActiviteDB {
                 }
                 activite.setDateFin(dateFin);
                 activite.setPrix(data.getFloat(6));
-                activite.setAccompte(data.getInt(7));
-                activite.setTva(data.getInt(8));
+                activite.setAccompte(data.getFloat(7));
+                activite.setTva(data.getFloat(8));
             }
 			return activite;
 		} 
@@ -133,22 +133,26 @@ public class AccessActiviteDB {
 
     public void modifyActivite(Activite act) throws DBException, NotIdentified {
         try {
-            request = "update activite set idFormation = ?, promotion = ?, dateDeb = ?, dateFin = ?, prix = ?, accompte = ?, tva = ? "
+            request = "update activite set promotion = ?, dateDeb = ?, dateFin = ?, prix = ?, accompte = ?, tva = ? "
                     + " where idActivite = ?;";
 			prepStat = AccessDB.getInstance().prepareStatement(request);
-			prepStat.setInt(1, act.getIdFormation());
-            prepStat.setInt(2, act.getPromotion());
-            prepStat.setDate(3, new java.sql.Date(act.getDateDeb().getTimeInMillis()));
-            if(act.getDateFin() != null) {
-                prepStat.setDate(4, new java.sql.Date(act.getDateFin().getTimeInMillis()));
+            prepStat.setInt(1, act.getPromotion());            
+            if(act.getDateDeb() != null) {
+                prepStat.setDate(2, new java.sql.Date(act.getDateDeb().getTimeInMillis()));
             }
             else {
-                prepStat.setDate(4, null);
+                prepStat.setDate(2, null);
             }
-            prepStat.setFloat(5, act.getPrix());
-            prepStat.setInt(6, act.getAccompte());
-            prepStat.setInt(7, act.getTva());
-            prepStat.setInt(8, act.getIdActivite());
+            if(act.getDateFin() != null) {
+                prepStat.setDate(3, new java.sql.Date(act.getDateFin().getTimeInMillis()));
+            }
+            else {
+                prepStat.setDate(3, null);
+            }
+            prepStat.setFloat(4, act.getPrix());
+            prepStat.setFloat(5, act.getAccompte());
+            prepStat.setFloat(6, act.getTva());
+            prepStat.setInt(7, act.getIdActivite());
 			prepStat.executeUpdate();
         }	 
         catch (SQLException e) {

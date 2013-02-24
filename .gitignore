@@ -1,2 +1,6 @@
 /nbproject/private/
 /build/
+/db/mividb.trace.db
+/db/mividb.h2.db
+/db/mividb.lock.db
+/pass/

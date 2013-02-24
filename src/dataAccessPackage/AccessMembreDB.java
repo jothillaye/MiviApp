@@ -42,7 +42,7 @@ public class AccessMembreDB {
 			
             prepStat.executeUpdate();    
             
-            request = "SELECT @@IDENTITY";
+            request = "SELECT LAST_INSERT_ID()";
             prepStat = AccessDB.getInstance().prepareStatement(request);			
             data = prepStat.executeQuery();
             
@@ -66,16 +66,14 @@ public class AccessMembreDB {
 		try {
 			request = "select idMembre, nom, prenom from membre ";	
 			if(search!=null){
-				request += " where supprime <> ? and (nom like ? or prenom like ?) order by nom";
-				prepStat = AccessDB.getInstance().prepareStatement(request);	
-                prepStat.setBoolean(1, true);			
+				request += " where supprime <> true and (nom like ? or prenom like ?) order by upper(nom)";
+				prepStat = AccessDB.getInstance().prepareStatement(request);		
+				prepStat.setString(1, "%" + search + "%");
 				prepStat.setString(2, "%" + search + "%");
-				prepStat.setString(3, "%" + search + "%");
 			}	
 			else {
-                request += " where supprime <> ? order by nom";
+                request += " where supprime <> true order by upper(nom)";
                 prepStat = AccessDB.getInstance().prepareStatement(request);
-                prepStat.setBoolean(1, true);
             }
 					
 			data = prepStat.executeQuery();
@@ -150,7 +148,7 @@ public class AccessMembreDB {
 
     public void modifyMembre(Membre membre) throws DBException, NotIdentified {
         try {
-            request = "update membre set nom = ?, prenom = ?, email = ?, dateNaiss = ?, gsm = ?, fixe = ?, rue = ?, numero = ?, codePostal = ?, ville = ?, provenance = ?, idContact = ?, assistant = ?, animateur = ?, clientME = ?, ecarte = ?, soldeCrediteur = ?"
+            request = "update membre set nom = ?, prenom = ?, email = ?, dateNaiss = ?, gsm = ?, fixe = ?, rue = ?, numero = ?, codePostal = ?, ville = ?, provenance = ?, idContact = ?, assistant = ?, animateur = ?, clientME = ?, ecarte = ?, solde = ?"
                     + " where idMembre = ?;";
             prepStat = AccessDB.getInstance().prepareStatement(request);
 			prepStat.setString(1, membre.getNom());
