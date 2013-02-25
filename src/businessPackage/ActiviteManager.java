@@ -9,8 +9,8 @@ import modelPackage.Activite;
 public class ActiviteManager {
     private AccessActiviteDB accessActivite = new AccessActiviteDB();
     
-    public void newActivite(Activite act) throws DBException, NotIdentified {
-        accessActivite.newActivite(act);
+    public Integer newActivite(Activite act) throws DBException, NotIdentified {
+        return accessActivite.newActivite(act);
     }
 
     public ArrayList<Activite> listActivite(Integer idFormation) throws DBException, NotIdentified {

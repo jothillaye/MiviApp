@@ -34,9 +34,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JSpinner.DefaultEditor;
+import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.text.MaskFormatter;
 import modelPackage.Activite;
 import modelPackage.Formation;
@@ -89,6 +91,7 @@ public class PanelActivite extends JPanel {
         
             listFormation = new JList();
             listModelFormation = new DefaultListModel();
+            listFormation.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             listFormation.setModel(listModelFormation);
             
             try {            
@@ -111,6 +114,7 @@ public class PanelActivite extends JPanel {
             this.add(scrollPaneFormation, BorderLayout.NORTH);
             
             listActivite = new JList();
+            listActivite.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             listModelActivite = new DefaultListModel();
             listActivite.setModel(listModelActivite);      
             
@@ -293,14 +297,14 @@ public class PanelActivite extends JPanel {
                             JOptionPane.showMessageDialog(null, "Erreur lors de l'insertion veuillez vérifier le contenu des dates et si le problème persiste contacter l'administrateur.", "Erreur insertion", JOptionPane.ERROR_MESSAGE);
                         }
                     }
-                    newAct.setPromotion(0);
+                    newAct.setPromotion((Integer)spinPromo.getValue());
                     newAct.setPrix(Float.parseFloat(spinPrix.getValue().toString()));                    
                     newAct.setAccompte(Float.parseFloat(spinAccompte.getValue().toString()));
                     newAct.setTva(Float.parseFloat(spinTVA.getValue().toString()));
                     
                     if(e.getSource() == buttonInsert) {
                         try {
-                            app.newActivite(act);
+                            idActivite = app.newActivite(newAct);
                             JOptionPane.showMessageDialog(null, "Activité ajoutée.", "Insertion Activité", JOptionPane.INFORMATION_MESSAGE);
                         } 
                         catch (DBException ex) {
@@ -312,7 +316,6 @@ public class PanelActivite extends JPanel {
                     }
                     else {
                         idActivite = ((QueryResult)listActivite.getSelectedValue()).id;
-                        System.out.println(idActivite);
                         newAct.setIdActivite(idActivite);
                         reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment modifier cette activtée ?", "Modification Activité", JOptionPane.YES_NO_OPTION);
                         if (reply == JOptionPane.YES_OPTION) {       
@@ -328,6 +331,13 @@ public class PanelActivite extends JPanel {
                             }                    
                         }       
                     }
+                    UpdateListActivite(idFormation);
+                    UpdateInfoActivite(idActivite);
+                    
+                    for(Object o : listModelActivite.toArray()){
+                        
+                    }
+                    listActivite.setSelectedValue(e, true);
                 }
                 else if(e.getSource() == buttonDelete) {
                     idActivite = ((QueryResult)listActivite.getSelectedValue()).id;

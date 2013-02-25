@@ -5,8 +5,8 @@
 package viewPackage;
 
 import controllerPackage.ApplicationController;
-import exceptionPackage.NotIdentified;
 import exceptionPackage.DBException;
+import exceptionPackage.NotIdentified;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;

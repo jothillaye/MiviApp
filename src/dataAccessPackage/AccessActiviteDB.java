@@ -16,14 +16,19 @@ public class AccessActiviteDB {
 	private ResultSet data;
 	
 	// Ajour d'un act
-	public void newActivite(Activite act) throws DBException, NotIdentified {
+	public Integer newActivite(Activite act) throws DBException, NotIdentified {
 		try {
 			request = "insert into activite (idFormation, promotion, dateDeb, dateFin, prix, accompte, tva) "
                     + " values(?, ?, ?, ?, ?, ?, ?);";
 			prepStat = AccessDB.getInstance().prepareStatement(request);
 			prepStat.setInt(1, act.getIdFormation());
             prepStat.setInt(2, act.getPromotion());
-            prepStat.setDate(3, new java.sql.Date(act.getDateDeb().getTimeInMillis()));
+            if(act.getDateDeb() != null) {
+                prepStat.setDate(3, new java.sql.Date(act.getDateDeb().getTimeInMillis()));
+            }
+            else {
+                prepStat.setDate(3, null);
+            }
             if(act.getDateFin() != null) {
                 prepStat.setDate(4, new java.sql.Date(act.getDateFin().getTimeInMillis()));
             }
@@ -34,6 +39,17 @@ public class AccessActiviteDB {
             prepStat.setFloat(6, act.getAccompte());
             prepStat.setFloat(7, act.getTva());
 			prepStat.executeUpdate();
+            
+            request = "SELECT LAST_INSERT_ID()";
+            prepStat = AccessDB.getInstance().prepareStatement(request);			
+            data = prepStat.executeQuery();
+            
+            Integer idActivite = -1;
+            if(data.next() == true){
+                idActivite = data.getInt(0);
+            }
+            
+            return idActivite;
 		} 
 		catch (SQLException e) {
 			throw new DBException(e.getMessage());

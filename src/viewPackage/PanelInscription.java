@@ -38,6 +38,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.MaskFormatter;
@@ -141,9 +142,10 @@ public class PanelInscription extends JPanel {
     private class PanelFormAct extends JPanel {
         public PanelFormAct(){
             this.setLayout(new BorderLayout());
-            listFormation = new JList();
+            listFormation = new JList();            
             listModelFormation = new DefaultListModel();
             listFormation.setModel(listModelFormation);
+            listFormation.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             
             try {            
                 arrayFormation = app.listForm();
@@ -164,9 +166,10 @@ public class PanelInscription extends JPanel {
             
             this.add(scrollPaneFormation, BorderLayout.NORTH);
             
-            listActivite = new JList();
+            listActivite = new JList();            
             listModelActivite = new DefaultListModel();
             listActivite.setModel(listModelActivite);      
+            listActivite.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             
             listModelActivite.addElement(new QueryResult(-1,"-- Aucune formation sélectionnée --"));
             
@@ -189,6 +192,7 @@ public class PanelInscription extends JPanel {
             listInscription = new JList();
             listModelInscription = new DefaultListModel();
             listInscription.setModel(listModelInscription);
+            listInscription.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             
             listModelInscription.addElement(new QueryResult(-1,"-- Aucune activité sélectionnée --"));
             

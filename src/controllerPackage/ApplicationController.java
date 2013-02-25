@@ -85,8 +85,8 @@ public class ApplicationController {
         return activiteManager.getActivite(idActivite);
     }
     
-    public void newActivite(Activite act) throws DBException, NotIdentified {
-        activiteManager.newActivite(act);
+    public Integer newActivite(Activite act) throws DBException, NotIdentified {
+        return activiteManager.newActivite(act);
     }
     
     public void modifyActivite(Activite act) throws DBException, NotIdentified {
