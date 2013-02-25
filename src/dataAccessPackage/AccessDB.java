@@ -24,7 +24,7 @@ public class AccessDB {
             try	{
                 Class.forName("org.h2.Driver");
                 JdbcDataSource ds = new JdbcDataSource();
-                ds.setURL("jdbc:h2:~/Documents/NetBeansProjects/MiviApp/db/mividb");
+                ds.setURL("jdbc:h2:db/mividb");
                 ds.setUser("michel");
                 ds.setPassword(pass);				
                 connexionUnique = ds.getConnection();
