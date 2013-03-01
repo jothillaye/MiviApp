@@ -141,5 +141,60 @@ public class AccessInscriptionDB {
 			throw new NotIdentified();
 		}
     }
-        
+    
+    public ArrayList<String> listInsMembre(Integer idMembre) throws DBException, NotIdentified {
+		try {
+			request = "select form.intitule, act.promotion, act.dateDeb, sum(paie.montant), act.prix, ins.certifie"
+                + " from inscription ins, activite act, formation form, paiement paie" 
+                + " where ins.idMembre = ? and ins.idActivite = act.idActivite and"
+                    + " act.idFormation = form.idFormation and paie.idActivite = ins.idActivite and paie.idMembre = ins.idMembre"
+                + " group by ins.idActivite;";	
+			prepStat = AccessDB.getInstance().prepareStatement(request);	
+            prepStat.setInt(1, idMembre);			
+					
+			data = prepStat.executeQuery();
+			
+			ArrayList<String> arrayInscription = new ArrayList<String>();
+			
+            String line;
+            Integer promo;
+            Float paye, prix, totalPaye = new Float(0), totalPrix = new Float(0);
+			while (data.next()) {
+                line = data.getString(1);
+                promo = data.getInt(2);
+                if(promo != null) {
+                    line += " - Promotion : " + promo;
+                }
+                else {
+                    line += "- le " + data.getDate(3).getTime();
+                }
+                
+                paye = data.getFloat(4);
+                prix = data.getFloat(5);
+                line += " - Payé : " + paye + "/" + prix;
+                totalPaye += paye;
+                totalPrix += prix;
+                
+                line += " - Certifié : ";
+                if(data.getBoolean(6) == true) {
+                    line += "Oui";
+                }
+                else {
+                    line += "Non";
+                }
+                line += "\n";
+                arrayInscription.add(line);
+            }
+            line = "SOLDE TOTAL : " + totalPaye + "/" + totalPrix + "\n";
+            arrayInscription.add(line);
+            
+			return arrayInscription;
+		} 
+		catch (SQLException e) {
+			throw new DBException(e.getMessage());
+		}	 
+		catch (NotIdentified e) {
+			throw new NotIdentified();
+		}
+	}        
 }

@@ -112,7 +112,7 @@ public class AccessActiviteDB {
         GregorianCalendar dateDeb;
         
         try {
-			request = "select idActivite, idFormation, promotion, dateDeb, prix from activite where idFormation = ?;";	
+			request = "select idActivite, idFormation, promotion, dateDeb, prix from activite where idFormation = ?";
             prepStat = AccessDB.getInstance().prepareStatement(request);					
             prepStat.setInt(1, idFormation);
 			data = prepStat.executeQuery();

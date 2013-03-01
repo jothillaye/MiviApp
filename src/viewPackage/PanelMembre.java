@@ -21,6 +21,8 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -42,6 +44,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.MaskFormatter;
 import javax.swing.text.StyledDocument;
+import modelPackage.Activite;
 import modelPackage.Membre;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
@@ -502,9 +505,25 @@ public class PanelMembre extends JPanel {
     
     private void UpdateHistoryMembre(Membre me) {        
         docHistory = new DefaultStyledDocument();
-        
-        // TODO : Describe methode
-        //ArrayList<Inscription> = app.getHistoryIns(me);
+        ArrayList<String> arrayInscription;
+        try {
+            arrayInscription = app.listInsMembre(me.getIdMembre());
+            for(String ins : arrayInscription) {
+                try {
+                    docHistory.insertString(0, (ins+"\n"), null);
+                }
+                catch (BadLocationException ex) {
+                    JOptionPane.showMessageDialog(null, ex, "Erreur récupération des inscriptions", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            textPaneHistory.setStyledDocument(docHistory);
+        }
+        catch (DBException ex) {
+            JOptionPane.showMessageDialog(null, ex, "Erreur ajout", JOptionPane.ERROR_MESSAGE);
+        }
+        catch (NotIdentified ex) {
+            JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
 	private class ActionManager implements ActionListener { 
@@ -592,6 +611,11 @@ public class PanelMembre extends JPanel {
                     else {                               
                         UpdateListMembre(filter);
                         UpdateInfoMembre(membre);  
+                        for(Object o : listModelMembre.toArray()){      
+                            if(((QueryResult)o).id == idMembre){
+                                listMembre.setSelectedValue(o, true);
+                            }
+                        }
                     }
                 }
                 catch(NumberFormatException nfe) {

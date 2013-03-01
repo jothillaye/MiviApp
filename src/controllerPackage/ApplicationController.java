@@ -117,6 +117,10 @@ public class ApplicationController {
     public void modifyInscription(Inscription ins) throws DBException, NotIdentified {
         inscriptionManager.modifyInscription(ins);
     }
+    
+    public ArrayList<String> listInsMembre(Integer idMembre) throws DBException, NotIdentified {
+        return inscriptionManager.listInsMembre(idMembre);
+    }
 
     // Paiement Manager
     public void newPaiement(Paiement paiement) throws DBException, NotIdentified {
