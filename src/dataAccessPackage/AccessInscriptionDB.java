@@ -14,7 +14,7 @@ public class AccessInscriptionDB {
 	private PreparedStatement prepStat;
 	private ResultSet data;
 	
-	public Integer newInscription(Inscription inscription) throws DBException, NotIdentified {
+	public void newInscription(Inscription inscription) throws DBException, NotIdentified {
 		try {
 			request = "insert into inscription (idActivite, idMembre, tarifSpecial, abandonne, certifie) "
                     + " values (?,?,?,?,?);";
@@ -26,17 +26,6 @@ public class AccessInscriptionDB {
             prepStat.setBoolean(5, inscription.getCertifie());
 			
             prepStat.executeUpdate();    
-            
-            request = "SELECT LAST_INSERT_ID()";
-            prepStat = AccessDB.getInstance().prepareStatement(request);			
-            data = prepStat.executeQuery();
-            
-            Integer idInscription = -1;
-            if(data.next()) {
-                idInscription = data.getInt(1);
-            }
-            
-            return idInscription;
 		} 
 		catch (SQLException e) {
 			throw new DBException("Membre déjà inscris.");

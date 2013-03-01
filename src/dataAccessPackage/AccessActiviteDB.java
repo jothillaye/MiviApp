@@ -46,7 +46,7 @@ public class AccessActiviteDB {
             
             Integer idActivite = -1;
             if(data.next() == true){
-                idActivite = data.getInt(0);
+                idActivite = data.getInt(1);
             }
             
             return idActivite;

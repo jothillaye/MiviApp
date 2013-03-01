@@ -302,29 +302,31 @@ public class PanelActivite extends JPanel {
                     newAct.setAccompte(Float.parseFloat(spinAccompte.getValue().toString()));
                     newAct.setTva(Float.parseFloat(spinTVA.getValue().toString()));
                     
+                    // Nouvelle activitée
                     if(e.getSource() == buttonInsert) {
                         try {
                             idActivite = app.newActivite(newAct);
                             JOptionPane.showMessageDialog(null, "Activité ajoutée.", "Insertion Activité", JOptionPane.INFORMATION_MESSAGE);
                         } 
                         catch (DBException ex) {
-                            JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, ex, "Erreur ajout", JOptionPane.ERROR_MESSAGE);
                         } 
                         catch (NotIdentified ex) {
                             JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
                         }
                     }
+                    // Modification Activité
                     else {
                         idActivite = ((QueryResult)listActivite.getSelectedValue()).id;
                         newAct.setIdActivite(idActivite);
                         reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment modifier cette activtée ?", "Modification Activité", JOptionPane.YES_NO_OPTION);
                         if (reply == JOptionPane.YES_OPTION) {       
                             try {                                                   
-                                app.modifyActivite(act);
+                                app.modifyActivite(newAct);
                                 JOptionPane.showMessageDialog(null, "Activité modifiée.", "Modification Activité", JOptionPane.INFORMATION_MESSAGE);
                             } 
                             catch (DBException ex) {
-                                JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(null, ex, "Erreur modification", JOptionPane.ERROR_MESSAGE);
                             } 
                             catch (NotIdentified ex) {
                                 JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
@@ -334,11 +336,13 @@ public class PanelActivite extends JPanel {
                     UpdateListActivite(idFormation);
                     UpdateInfoActivite(idActivite);
                     
-                    for(Object o : listModelActivite.toArray()){
-                        
-                    }
-                    listActivite.setSelectedValue(e, true);
+                    for(Object o : listModelActivite.toArray()){      
+                        if(((QueryResult)o).id == idActivite){
+                            listActivite.setSelectedValue(o, true);
+                        }
+                    }                    
                 }
+                // Suppression activité
                 else if(e.getSource() == buttonDelete) {
                     idActivite = ((QueryResult)listActivite.getSelectedValue()).id;
                     reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment supprimer cette activtée ?", "Suppression Activité", JOptionPane.YES_NO_OPTION);
@@ -352,7 +356,10 @@ public class PanelActivite extends JPanel {
                         } 
                         catch (NotIdentified ex) {
                             JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
-                        } 
+                        }
+                        UpdateListActivite(idFormation);
+                        UpdateInfoActivite(-1);
+                        listActivite.setSelectedIndex(0);
                     }
                 }
             }
@@ -362,7 +369,7 @@ public class PanelActivite extends JPanel {
     private class ListListener implements ListSelectionListener {
         @Override
         public void valueChanged(ListSelectionEvent lse) {  
-            if(lse.getValueIsAdjusting()){
+            if(lse.getValueIsAdjusting() && ((JList)lse.getSource()).getSelectedIndex() != -1){
                 queryResult = (QueryResult)((JList)lse.getSource()).getSelectedValue();
                 if(lse.getSource() == listFormation && queryResult.id != -1) {
                     UpdateListActivite(queryResult.id);
@@ -407,18 +414,21 @@ public class PanelActivite extends JPanel {
             else {            
                 listModelActivite.addElement(new QueryResult(-1,"-- Nouvelle activité --"));
                 for(Activite activite : arrayActivite) {                    
-                    if(activite.getPromotion() != null) {
+                    if(activite.getPromotion() != 0) {
                         desc = "Promotion " + activite.getPromotion().toString();
                     }
-                    else {
+                    else if(activite.getDateDeb() != null){
                         desc = activite.getDateDeb().getTime().toString();
+                    }
+                    else {
+                        desc = "Activité sans date ni promotion!";
                     }
                     listModelActivite.addElement(new QueryResult(activite.getIdActivite(), desc));
                 }            
             }          
         } 
         catch (DBException ex) {
-            JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, ex, "Erreur listing activité", JOptionPane.ERROR_MESSAGE);
         } 
         catch (NotIdentified ex) {
             JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
@@ -465,13 +475,13 @@ public class PanelActivite extends JPanel {
                 else {
                     fieldDateFin.setText("");
                 }
-                if(act.getPromotion() != null) {
+                if(act.getPromotion() != 0) {
                     checkPromo.setSelected(true);
                     spinPromo.setValue(act.getPromotion());
                 }
                 else {
                     checkPromo.setSelected(false);
-                    spinPromo.setValue(null);
+                    spinPromo.setValue(0);
                 }
                 spinPrix.setValue(act.getPrix());
                 spinAccompte.setValue(act.getAccompte()/100);
@@ -489,7 +499,7 @@ public class PanelActivite extends JPanel {
                 }
             } 
             catch (DBException ex) {
-                JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, ex, "Erreur récupération d'une activité", JOptionPane.ERROR_MESSAGE);
             } 
             catch (NotIdentified ex) {
                 JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);

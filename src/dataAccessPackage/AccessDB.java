@@ -1,10 +1,8 @@
 package dataAccessPackage;
 
 import exceptionPackage.*;
-import java.io.FileReader;
 import java.sql.*;
 import org.h2.jdbcx.JdbcDataSource;
-import sun.misc.IOUtils;
 
 public class AccessDB {
 	
@@ -30,12 +28,12 @@ public class AccessDB {
                 connexionUnique = ds.getConnection();
 			}
 			catch(SQLException e) {                
-				String msg = "Mot de passe entré incorrecte.";
-				if(pass.equals("")) {
-                    msg = "Vous devez entrer un password!";
-                }
+				String msg;
                 if(e.getErrorCode() == 90020){
                     msg = "Connexion à la base de donnée déjà existante, veuillez fermer cette connexion pour continuer.";
+                }
+                else {
+                    msg = "Mot de passe entré incorrecte.";
                 }
 				throw new IdentificationError(msg);
 			}

@@ -408,6 +408,7 @@ public class PanelInscription extends JPanel {
                 idMembre = ((QueryResult)listInscription.getSelectedValue()).id;            
             }
             if(idFormation != -1 && idActivite != -1){
+                // Nouvelle Inscription
                 if(src == buttonNewIns){
                     idComboMembre = ((QueryResult)comboBoxMembre.getSelectedItem()).id;
                     if(idComboMembre != -1) {
@@ -417,6 +418,13 @@ public class PanelInscription extends JPanel {
                         try {
                             app.newInscription(ins);
                             UpdateListInscription(idActivite);
+                            
+                            for(Object o : listModelInscription.toArray()){      
+                                if(((QueryResult)o).id == idComboMembre){
+                                    listInscription.setSelectedValue(o, true);
+                                }
+                            }
+                            UpdateInfoInscription(idActivite, idComboMembre);
                         } 
                         catch (DBException ex) {
                             JOptionPane.showMessageDialog(null, ex, "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
@@ -426,6 +434,7 @@ public class PanelInscription extends JPanel {
                         }
                     }
                 }
+                // Suppression Inscription
                 else if(idMembre != -1) {
                     if(src == buttonDelIns) { 
                         try {
@@ -592,7 +601,9 @@ public class PanelInscription extends JPanel {
                     desc =  me.getNom().toString().toUpperCase() + ", " + me.getPrenom().toString().toLowerCase();
                     prixSpecial = app.getInscription(idActivite, me.getIdMembre()).getTarifSpecial();
                     solde = app.getSolde(idActivite, me.getIdMembre()) + prix + prixSpecial;
-                    desc += " ("+solde+")";
+                    if(solde != 0) {
+                        desc += " ("+solde+"€)";
+                    }
                     listModelInscription.addElement(new QueryResult(me.getIdMembre(),desc));
                 }
                 listInscription.setCellRenderer(new MyCellRenderer());
