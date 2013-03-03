@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package viewPackage;
 
 import controllerPackage.ApplicationController;
@@ -21,8 +17,6 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -35,16 +29,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.MaskFormatter;
-import javax.swing.text.StyledDocument;
-import modelPackage.Activite;
+import modelPackage.HistoryMembreList;
 import modelPackage.Membre;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
@@ -61,15 +53,14 @@ public class PanelMembre extends JPanel {
         
     // Champs & Labels
     private JList listMembre;
-    private JScrollPane scrollPaneMembre;
+    private JScrollPane scrollPaneMembre, scrollPaneHistory;
     private DefaultListModel listModelMembre;
 	private JTextField fieldId, fieldNom, fieldPrenom, fieldRue, fieldNumero, fieldCodePostal, fieldVille, fieldFixe, fieldGSM, fieldEmail, fieldFilter, fieldSolde;
     private JFormattedTextField fieldDate;
     private JCheckBox checkBoxClientME, checkBoxAssistant, checkBoxAnimateur, checkBoxEcarte;
     private JComboBox comboBoxProvenance, comboBoxContact;
     private JButton buttonInsert, buttonNewMembre, buttonModify, buttonDelete;	
-    private JTextPane textPaneHistory;
-    private StyledDocument docHistory;
+    private JTable tableHistory;
     
     private QueryResult structMembre;	
     private ArrayList<Membre> arrayMembre, arrayMembreComboBox;
@@ -92,8 +83,8 @@ public class PanelMembre extends JPanel {
             listMembre.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             listMembre.addListSelectionListener(new ListSelectionListener() {
                 @Override
-                public void valueChanged(ListSelectionEvent lse) {                                        
-                    if(listMembre.getValueIsAdjusting()) {
+                public void valueChanged(ListSelectionEvent lse) {
+                    if(!listMembre.getValueIsAdjusting()) {
                         UpdateMembre(listMembre.getSelectedIndex());
                     }
                 }
@@ -281,7 +272,7 @@ public class PanelMembre extends JPanel {
                 arrayMembreComboBox = app.listMembre(null);
                 comboBoxContact.addItem(new QueryResult(0,"Aucun"));
                 for(Membre membre : arrayMembreComboBox) {
-                    comboBoxContact.addItem(new QueryResult(membre.getIdMembre(),membre.getNom().toString().toUpperCase()+", "+membre.getPrenom().toString().toLowerCase()));
+                    comboBoxContact.addItem(new QueryResult(membre.getIdMembre(),membre.getNom()+", "+membre.getPrenom()));
                 }
             } 
             catch (DBException ex) {
@@ -384,9 +375,11 @@ public class PanelMembre extends JPanel {
             labelFormation = new JLabel("Historique formation :");
             this.add(labelFormation, BorderLayout.NORTH);
             
-            textPaneHistory = new JTextPane();
-            textPaneHistory.setEditable(false);
-            this.add(textPaneHistory, BorderLayout.CENTER);
+            tableHistory = new JTable();            
+            tableHistory.getTableHeader().setReorderingAllowed(false);
+            scrollPaneHistory = new JScrollPane(tableHistory);
+                
+            this.add(scrollPaneHistory, BorderLayout.CENTER);
         }
     }
 	
@@ -396,24 +389,13 @@ public class PanelMembre extends JPanel {
 		Fenetre.getCont().add(panelMembre, BorderLayout.CENTER);
 		Fenetre.getCont().validate();		
 	}   
-    
-    private class QueryResult {  
-        int id;  
-        String desc;  
-        public QueryResult(int i, String d) {  
-            id = i;
-            desc = d;  
-        }          
-        @Override
-        public String toString(){return desc;}  
-    } 
-    
+        
     private void UpdateListMembre(String filter){
         listModelMembre.removeAllElements();
         try {        
             arrayMembre = app.listMembre(filter);
             for(Membre me : arrayMembre){
-                listModelMembre.addElement(new QueryResult(me.getIdMembre(),me.getNom().toString().toUpperCase()+", "+me.getPrenom().toString().toLowerCase()));
+                listModelMembre.addElement(new QueryResult(me.getIdMembre(),me.getNom()+", "+me.getPrenom()));
             }        
         } 
         catch (DBException ex) {
@@ -503,20 +485,10 @@ public class PanelMembre extends JPanel {
         }
     }
     
-    private void UpdateHistoryMembre(Membre me) {        
-        docHistory = new DefaultStyledDocument();
-        ArrayList<String> arrayInscription;
+    private void UpdateHistoryMembre(Membre me) {                
         try {
-            arrayInscription = app.listInsMembre(me.getIdMembre());
-            for(String ins : arrayInscription) {
-                try {
-                    docHistory.insertString(0, (ins+"\n"), null);
-                }
-                catch (BadLocationException ex) {
-                    JOptionPane.showMessageDialog(null, ex, "Erreur récupération des inscriptions", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-            textPaneHistory.setStyledDocument(docHistory);
+            tableHistory.setModel(new HistoryMembreList(app.listInsMembre(me.getIdMembre()))); 
+            tableHistory.getColumnModel().getColumn(0).setMinWidth(250);
         }
         catch (DBException ex) {
             JOptionPane.showMessageDialog(null, ex, "Erreur ajout", JOptionPane.ERROR_MESSAGE);
@@ -578,12 +550,20 @@ public class PanelMembre extends JPanel {
                     Membre membre = new Membre(nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, provenance, idContact, assistant, animateur, clientME, ecarte, solde);
                     // Nouveau membre
                     if(e.getSource() == buttonInsert) {
-                        reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment ajouter ce membre ?", "Insertion Membre", JOptionPane.YES_NO_OPTION);
-						if (reply == JOptionPane.YES_OPTION) {
+                        idMembre = null;
+                        ArrayList<Membre> arrayExistingMembre = app.listMembre(membre.getNom());
+                        if(arrayExistingMembre.isEmpty() == true) {
                             idMembre = app.newMembre(membre);     
                             membre.setIdMembre(idMembre);
-                            JOptionPane.showMessageDialog(null, "Ajout de "+prenom+" "+nom+" réussi.", "Ajout Membre", JOptionPane.INFORMATION_MESSAGE);
-                        }                        
+                        }
+                        else {
+                            reply = JOptionPane.showConfirmDialog(null, "Il existe déjà "+arrayExistingMembre.size()+" membre(s) avec ce nom, êtes-vous sûr qu'il n'est pas déjà inscrit ?", "Insertion Membre", JOptionPane.YES_NO_OPTION);
+                            if (reply == JOptionPane.YES_OPTION) {
+                                idMembre = app.newMembre(membre);     
+                                membre.setIdMembre(idMembre);
+                                JOptionPane.showMessageDialog(null, "Ajout de "+prenom+" "+nom+" réussi.", "Ajout Membre", JOptionPane.INFORMATION_MESSAGE);
+                            }     
+                        }
                     }
                     // Modification membre
                     else if(e.getSource() == buttonModify) {
@@ -604,11 +584,11 @@ public class PanelMembre extends JPanel {
                     }
                     
                     // Actualisation après modification, erreur possible ?
-                    if(idMembre == -1) {
+                    if(idMembre != null && idMembre == -1) {
                         JOptionPane.showMessageDialog(null, "Erreur lors de l'ajout veuillez contacter l'administrateur.\nRécuperation de l'identifiant du membre impossible.", "Erreur lors de l'ajout", JOptionPane.INFORMATION_MESSAGE);
                         reset();
                     }    
-                    else {                               
+                    else if (idMembre != null){                               
                         UpdateListMembre(filter);
                         UpdateInfoMembre(membre);  
                         for(Object o : listModelMembre.toArray()){      

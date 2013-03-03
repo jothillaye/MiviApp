@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package viewPackage;
 
 import controllerPackage.ApplicationController;
@@ -173,8 +169,7 @@ public class PanelFormation extends JPanel {
                     }                    
                 }
                 else {
-                    structForm = (QueryResult)comboBoxForm.getSelectedItem();
-                    fieldIntitule.setText(structForm.intitule);
+                    fieldIntitule.setText(((QueryResult)comboBoxForm.getSelectedItem()).desc);
 
                     // Show buttons modify, delete, emptyField on existing membre
                     if(buttonDelete.isVisible() == false) {
@@ -248,16 +243,5 @@ public class PanelFormation extends JPanel {
 		panelFormation = new PanelFormation();
 		Fenetre.getCont().add(panelFormation, BorderLayout.CENTER);
 		Fenetre.getCont().validate();	
-    }
-    
-    private class QueryResult {  
-        int id;  
-        String intitule;  
-        public QueryResult(int i, String desc) {  
-            id = i;
-            intitule = desc;  
-        }          
-        @Override
-        public String toString(){return intitule;} 
     } 
 }

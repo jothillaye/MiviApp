@@ -8,7 +8,7 @@ import javax.swing.table.AbstractTableModel;
 public class PaiementList extends AbstractTableModel {
 	private ArrayList<String> listCol = new ArrayList<String>();
 	private ArrayList<Paiement> content = new ArrayList<Paiement>();
-    private String[] typePaiement = {"-- Choisir --", "Liquide", "Virement", "Echange"};
+    private String[] typePaiement = {"-- Choisir --", "Liquide", "Virement", "Echange", "Note de Crédit"};
     
 	private Paiement paiement;
 	
@@ -41,7 +41,7 @@ public class PaiementList extends AbstractTableModel {
             case 2: return typePaiement[paiement.getTypePaiement()];
 
             default: return null;
-        }        
+        }    
 	}
 	
     @Override
@@ -77,6 +77,9 @@ public class PaiementList extends AbstractTableModel {
             }
             else if(o.toString().equals("Echange") == true) {
                 paiement.setTypePaiement(3);
+            }
+            else if(o.toString().equals("Note de Crédit") == true) {
+                paiement.setTypePaiement(4);
             }
             else {
                 paiement.setTypePaiement(0);

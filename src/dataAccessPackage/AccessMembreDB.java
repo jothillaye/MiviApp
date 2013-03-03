@@ -1,7 +1,7 @@
 package dataAccessPackage;
 
-import exceptionPackage.NotIdentified;
 import exceptionPackage.DBException;
+import exceptionPackage.NotIdentified;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -66,10 +66,10 @@ public class AccessMembreDB {
 		try {
 			request = "select idMembre, nom, prenom from membre ";	
 			if(search!=null){
-				request += " where supprime <> true and (nom like ? or prenom like ?) order by upper(nom)";
+				request += " where supprime <> true and (upper(nom) like ? or upper(prenom) like ?) order by upper(nom)";
 				prepStat = AccessDB.getInstance().prepareStatement(request);		
-				prepStat.setString(1, "%" + search + "%");
-				prepStat.setString(2, "%" + search + "%");
+				prepStat.setString(1, "%" + search.toUpperCase() + "%");
+				prepStat.setString(2, "%" + search.toUpperCase() + "%");
 			}	
 			else {
                 request += " where supprime <> true order by upper(nom)";

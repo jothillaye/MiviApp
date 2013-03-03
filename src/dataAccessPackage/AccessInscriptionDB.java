@@ -2,10 +2,14 @@ package dataAccessPackage;
 
 import exceptionPackage.DBException;
 import exceptionPackage.NotIdentified;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import modelPackage.Activite;
+import modelPackage.Formation;
 import modelPackage.Inscription;
 import modelPackage.Membre;
 
@@ -37,7 +41,7 @@ public class AccessInscriptionDB {
 	
 	public ArrayList<Membre> listInscription(Integer idActivite) throws DBException, NotIdentified {
 		try {
-			request = "select me.idMembre, nom, prenom from inscription ins, membre me "
+			request = "select me.idMembre, nom, prenom, gsm from inscription ins, membre me "
                     + " where ins.idActivite = ? and ins.idMembre = me.idMembre order by upper(nom);";	
 			prepStat = AccessDB.getInstance().prepareStatement(request);	
             prepStat.setInt(1, idActivite);			
@@ -51,6 +55,7 @@ public class AccessInscriptionDB {
                 membre.setIdMembre(data.getInt(1));
                 membre.setNom(data.getString(2));
                 membre.setPrenom(data.getString(3));
+                membre.setGsm(data.getInt(4));
 				arrayInscription.add(membre);	
 			}
 			return arrayInscription;
@@ -142,52 +147,59 @@ public class AccessInscriptionDB {
 		}
     }
     
-    public ArrayList<String> listInsMembre(Integer idMembre) throws DBException, NotIdentified {
+    public ArrayList<ArrayList<Object>> listInsMembre(Integer idMembre) throws DBException, NotIdentified {
 		try {
-			request = "select form.intitule, act.promotion, act.dateDeb, sum(paie.montant), act.prix, ins.certifie"
-                + " from inscription ins, activite act, formation form, paiement paie" 
-                + " where ins.idMembre = ? and ins.idActivite = act.idActivite and"
-                    + " act.idFormation = form.idFormation and paie.idActivite = ins.idActivite and paie.idMembre = ins.idMembre"
-                + " group by ins.idActivite;";	
+			request = "select form.intitule, act.promotion, act.dateDeb, ins.tarifSpecial, act.prix, ins.certifie, "
+                +"  case when (select count(idMembre) from paiement where paiement.idMembre = ins.idMembre and paiement.idActivite = ins.idActivite) > 0 then "
+                    + "sum(paie.montant) else 0 end as paye "
+                +" from inscription ins, activite act, formation form, paiement paie"
+                +" where ins.idMembre = ? and ins.idActivite = act.idActivite and"
+                    +" act.idFormation = form.idFormation and"
+                    +" case when (select count(idMembre) from paiement where paiement.idMembre = ins.idMembre and paiement.idActivite = ins.idActivite) > 0 then "
+                        +" paie.idMembre = ins.idMembre and paie.idActivite = ins.idActivite else ins.idMembre = ins.idMembre end"
+                +" group by ins.idActivite order by form.intitule;";
 			prepStat = AccessDB.getInstance().prepareStatement(request);	
             prepStat.setInt(1, idMembre);			
 					
 			data = prepStat.executeQuery();
 			
-			ArrayList<String> arrayInscription = new ArrayList<String>();
+			ArrayList<ArrayList<Object>> arrayInscription = new ArrayList<ArrayList<Object>>();
 			
-            String line;
-            Integer promo;
-            Float paye, prix, totalPaye = new Float(0), totalPrix = new Float(0);
-			while (data.next()) {
-                line = data.getString(1);
-                promo = data.getInt(2);
-                if(promo != null) {
-                    line += " - Promotion : " + promo;
+            while(data.next()) {
+                ArrayList<Object> arrayObject = new ArrayList<Object>();
+                
+                Formation form = new Formation();
+                form.setIntitule(data.getString(1));
+                arrayObject.add(form);
+                
+                Activite act = new Activite();
+                act.setPromotion(data.getInt(2));
+                GregorianCalendar dateDeb = new GregorianCalendar();
+                Date dateSql = data.getDate(3);
+                if(dateSql != null){
+                    dateDeb.setTimeInMillis(dateSql.getTime());
+                    act.setDateDeb(dateDeb);
                 }
                 else {
-                    line += "- le " + data.getDate(3).getTime();
-                }
-                
-                paye = data.getFloat(4);
-                prix = data.getFloat(5);
-                line += " - Payé : " + paye + "/" + prix;
-                totalPaye += paye;
-                totalPrix += prix;
-                
-                line += " - Certifié : ";
-                if(data.getBoolean(6) == true) {
-                    line += "Oui";
+                    act.setDateDeb(null);
+                }                
+                Float tarifSpecial = data.getFloat(4), prix = data.getFloat(5);
+                if(tarifSpecial != 0) {
+                    act.setPrix(tarifSpecial);
                 }
                 else {
-                    line += "Non";
+                    act.setPrix(prix);
                 }
-                line += "\n";
-                arrayInscription.add(line);
+                arrayObject.add(act);
+                
+                Inscription ins = new Inscription();
+                ins.setCertifie(data.getBoolean(6));
+                arrayObject.add(ins);
+                
+                arrayObject.add(data.getFloat(7));
+                
+                arrayInscription.add(arrayObject);
             }
-            line = "SOLDE TOTAL : " + totalPaye + "/" + totalPrix + "\n";
-            arrayInscription.add(line);
-            
 			return arrayInscription;
 		} 
 		catch (SQLException e) {

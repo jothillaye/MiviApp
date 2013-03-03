@@ -37,8 +37,8 @@ public class Membre {
 
 	// Getters
     public Integer getIdMembre() { return idMembre;}
-	public String getNom() { return nom;}
-	public String getPrenom() { return prenom;}
+	public String getNom() { return nom.toUpperCase();}
+	public String getPrenom() { return prenom.substring(0, 1).toUpperCase() + prenom.substring(1, prenom.length()).toLowerCase();}
 	public String getEmail() { return email;}
     public GregorianCalendar getDateNaiss() { return dateNaiss;}
     public Integer getGsm() { return gsm;}

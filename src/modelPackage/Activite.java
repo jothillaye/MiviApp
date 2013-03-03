@@ -45,7 +45,7 @@ public class Activite {
         else {
             month = String.valueOf(dateDeb.get(MONTH)+1);
         }
-        return dayOfMonth+month+String.valueOf(dateDeb.get(YEAR));
+        return dayOfMonth+"/"+month+"/"+String.valueOf(dateDeb.get(YEAR));
     }
     
     public String getFormatedDateFin() {    
@@ -61,7 +61,7 @@ public class Activite {
         else {
             month = String.valueOf(dateFin.get(MONTH)+1);
         }
-        return dayOfMonth+month+String.valueOf(dateFin.get(YEAR));
+        return dayOfMonth+"/"+month+"/"+String.valueOf(dateFin.get(YEAR));
     }
     
     public void setIdActivite(Integer idActivite) {this.idActivite = idActivite;}

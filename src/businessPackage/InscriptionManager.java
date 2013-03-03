@@ -39,7 +39,7 @@ public class InscriptionManager {
         accessIns.deleteInscription(idActivite, idMembre);
     }
     
-    public ArrayList<String> listInsMembre(Integer idMembre) throws DBException, NotIdentified {
+    public ArrayList<ArrayList<Object>> listInsMembre(Integer idMembre) throws DBException, NotIdentified {
         return accessIns.listInsMembre(idMembre);
     }
 } 

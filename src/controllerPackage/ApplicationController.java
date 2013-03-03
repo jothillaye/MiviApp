@@ -118,7 +118,7 @@ public class ApplicationController {
         inscriptionManager.modifyInscription(ins);
     }
     
-    public ArrayList<String> listInsMembre(Integer idMembre) throws DBException, NotIdentified {
+    public ArrayList<ArrayList<Object>> listInsMembre(Integer idMembre) throws DBException, NotIdentified {
         return inscriptionManager.listInsMembre(idMembre);
     }
 

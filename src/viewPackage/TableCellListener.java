@@ -5,7 +5,9 @@ import java.beans.*;
 import javax.swing.*;
 
 /*
- *  This class listens for changes made to the data in the table via the
+ * author : Rob Camick http://tips4java.wordpress.com/2009/06/07/table-cell-listener/
+ * 
+ * This class listens for changes made to the data in the table via the
  *  TableCellEditor. When editing is started, the value of the cell is saved
  *  When editing is stopped the new value is saved. When the oold and new
  *  values are different, then the provided Action is invoked.

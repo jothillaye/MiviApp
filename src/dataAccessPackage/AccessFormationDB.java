@@ -1,7 +1,7 @@
 package dataAccessPackage;
 
-import exceptionPackage.NotIdentified;
 import exceptionPackage.DBException;
+import exceptionPackage.NotIdentified;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

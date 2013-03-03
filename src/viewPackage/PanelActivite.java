@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package viewPackage;
 
 import controllerPackage.ApplicationController;
@@ -34,11 +30,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JSpinner.DefaultEditor;
+import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.text.MaskFormatter;
 import modelPackage.Activite;
 import modelPackage.Formation;
@@ -60,6 +56,7 @@ public class PanelActivite extends JPanel {
     private JCheckBox checkPromo, checkDateFin;
     private JButton buttonInsert, buttonModify, buttonDelete;
     private JSpinner spinPromo, spinPrix, spinAccompte, spinTVA;
+    private JSplitPane splitFormAct;
     
     private ArrayList<Formation> arrayFormation = new ArrayList<Formation>();
     private ArrayList<Activite> arrayActivite = new ArrayList<Activite>();
@@ -109,9 +106,7 @@ public class PanelActivite extends JPanel {
             }
             
             scrollPaneFormation = new JScrollPane(listFormation);
-            scrollPaneFormation.setPreferredSize(new Dimension(210, (Fenetre.getCont().getHeight())/2));
-            
-            this.add(scrollPaneFormation, BorderLayout.NORTH);
+            scrollPaneFormation.setPreferredSize(new Dimension(210, (Fenetre.getCont().getHeight())/2));                        
             
             listActivite = new JList();
             listActivite.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -123,7 +118,10 @@ public class PanelActivite extends JPanel {
             scrollPaneActivite = new JScrollPane(listActivite);
             scrollPaneActivite.setPreferredSize(new Dimension(210, (Fenetre.getCont().getHeight())/2));
             
-            this.add(scrollPaneActivite, BorderLayout.SOUTH);            
+            splitFormAct = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollPaneFormation, scrollPaneActivite);
+            splitFormAct.setDividerLocation(Fenetre.getCont().getHeight()/2);
+            splitFormAct.setDividerSize(2);
+            this.add(splitFormAct, BorderLayout.CENTER);
         }
     }
     
@@ -299,8 +297,8 @@ public class PanelActivite extends JPanel {
                     }
                     newAct.setPromotion((Integer)spinPromo.getValue());
                     newAct.setPrix(Float.parseFloat(spinPrix.getValue().toString()));                    
-                    newAct.setAccompte(Float.parseFloat(spinAccompte.getValue().toString()));
-                    newAct.setTva(Float.parseFloat(spinTVA.getValue().toString()));
+                    newAct.setAccompte(Float.parseFloat(spinAccompte.getValue().toString())*100);
+                    newAct.setTva(Float.parseFloat(spinTVA.getValue().toString())*100);
                     
                     // Nouvelle activitée
                     if(e.getSource() == buttonInsert) {
@@ -369,7 +367,7 @@ public class PanelActivite extends JPanel {
     private class ListListener implements ListSelectionListener {
         @Override
         public void valueChanged(ListSelectionEvent lse) {  
-            if(lse.getValueIsAdjusting() && ((JList)lse.getSource()).getSelectedIndex() != -1){
+            if(!lse.getValueIsAdjusting() && ((JList)lse.getSource()).getSelectedIndex() != -1){
                 queryResult = (QueryResult)((JList)lse.getSource()).getSelectedValue();
                 if(lse.getSource() == listFormation && queryResult.id != -1) {
                     UpdateListActivite(queryResult.id);
@@ -418,7 +416,7 @@ public class PanelActivite extends JPanel {
                         desc = "Promotion " + activite.getPromotion().toString();
                     }
                     else if(activite.getDateDeb() != null){
-                        desc = activite.getDateDeb().getTime().toString();
+                        desc = activite.getFormatedDateDeb();
                     }
                     else {
                         desc = "Activité sans date ni promotion!";

@@ -1,10 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package viewPackage;
 
 import controllerPackage.ApplicationController;
+import controllerPackage.ExportToExcel;
 import exceptionPackage.DBException;
 import exceptionPackage.NotIdentified;
 import java.awt.BorderLayout;
@@ -17,6 +14,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -35,6 +33,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
@@ -57,8 +56,9 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
  */
 public class PanelInscription extends JPanel {
     private JPanel panelFormAct, panelListInscription, panelRight, panelInfoInscription, panelPaiement, panelAccordPaiement;
-    private FlowLayout flowPanels, flowIns;
-    private GridBagConstraints c;
+    private FlowLayout flowIns;
+    private GridBagConstraints c, d;
+    private JSplitPane splitFormAct;
     
     private JList listFormation, listActivite, listInscription;
     private JScrollPane scrollPaneFormation, scrollPaneActivite, scrollPaneMembre, scrollPaneTablePaiement, scrollPaneTableAccordPaiement;
@@ -69,7 +69,7 @@ public class PanelInscription extends JPanel {
     private JTable tablePaiement, tableAccordPaiement;
     private TableCellListener tclP, tclA;
     private JComboBox comboBoxType, comboBoxMembre;
-    private JButton buttonAddPaiement, buttonDelPaiement, buttonAddAccord, buttonDelAccord, buttonModify, buttonNewIns, buttonDelIns;
+    private JButton buttonAddPaiement, buttonDelPaiement, buttonAddAccord, buttonDelAccord, buttonModIns, buttonNewIns, buttonDelIns, buttonExportIns, buttonExportPaiement, buttonExportAccord;
     private JFormattedTextField fieldDate;
     
     private ArrayList<Formation> arrayFormation = new ArrayList<Formation>();
@@ -88,23 +88,27 @@ public class PanelInscription extends JPanel {
     private Dimension dimButton;
     private Float solde, prix, prixSpecial;
     
-    ApplicationController app = new ApplicationController();
+    private ApplicationController app = new ApplicationController();
+    private ExportToExcel export = new ExportToExcel();
     
     public PanelInscription() {
-        flowPanels = new FlowLayout();
-        this.setLayout(flowPanels);
-        flowPanels.setAlignment(FlowLayout.LEFT);
-        flowPanels.setHgap(1);
-        flowPanels.setVgap(1);
+        this.setLayout(new GridBagLayout());
+        d = new GridBagConstraints();
+        d.insets = new Insets(0, 0, 0, 0);
+        d.anchor = GridBagConstraints.LINE_START;
+        d.gridx = 0; d.gridy = 0;
+        d.fill = GridBagConstraints.BOTH;
         
         panelFormAct = new PanelFormAct();
-        this.add(panelFormAct);
+        this.add(panelFormAct,d);
         
         panelListInscription = new PanelListInscription();        
-        this.add(panelListInscription);
+        d.gridx++;
+        this.add(panelListInscription,d);
         
         panelRight = new PanelRight();       
-        this.add(panelRight);
+        d.gridx++;
+        this.add(panelRight,d);
         
         ListListener LL = new ListListener();
         listFormation.addListSelectionListener(LL);
@@ -114,15 +118,19 @@ public class PanelInscription extends JPanel {
         ActionManager AM = new ActionManager();
         buttonNewIns.addActionListener(AM);
         buttonDelIns.addActionListener(AM);
+        buttonModIns.addActionListener(AM);
+        buttonExportIns.addActionListener(AM);
         buttonAddPaiement.addActionListener(AM);
         buttonDelPaiement.addActionListener(AM);
+        buttonExportPaiement.addActionListener(AM);
         buttonAddAccord.addActionListener(AM);
         buttonDelAccord.addActionListener(AM);
-        buttonModify.addActionListener(AM);        
+        buttonExportAccord.addActionListener(AM);
+        
         
         try {
             iconURL = this.getClass().getResource("/viewPackage/resources/images/validate.png");
-            buttonModify.setIcon(new ImageIcon(iconURL));
+            buttonModIns.setIcon(new ImageIcon(iconURL));
 
             iconURL = this.getClass().getResource("/viewPackage/resources/images/add.png");
             buttonAddPaiement.setIcon(new ImageIcon(iconURL));
@@ -133,6 +141,11 @@ public class PanelInscription extends JPanel {
             buttonDelAccord.setIcon(new ImageIcon(iconURL));
             buttonDelIns.setIcon(new ImageIcon(iconURL));
             buttonDelPaiement.setIcon(new ImageIcon(iconURL));
+            
+            iconURL = this.getClass().getResource("/viewPackage/resources/images/export.png");
+            buttonExportIns.setIcon(new ImageIcon(iconURL));
+            buttonExportPaiement.setIcon(new ImageIcon(iconURL));
+            buttonExportAccord.setIcon(new ImageIcon(iconURL));
         }
         catch(NullPointerException ex) {
             JOptionPane.showMessageDialog(null, "Erreur lors de la récupération des icônes.\nVeuillez contacter l'administrateur", "Erreur de récupération des icônes", JOptionPane.ERROR_MESSAGE);
@@ -162,9 +175,6 @@ public class PanelInscription extends JPanel {
             }
             
             scrollPaneFormation = new JScrollPane(listFormation);
-            scrollPaneFormation.setPreferredSize(new Dimension(210, (Fenetre.getCont().getHeight())/2));
-            
-            this.add(scrollPaneFormation, BorderLayout.NORTH);
             
             listActivite = new JList();            
             listModelActivite = new DefaultListModel();
@@ -174,9 +184,11 @@ public class PanelInscription extends JPanel {
             listModelActivite.addElement(new QueryResult(-1,"-- Aucune formation sélectionnée --"));
             
             scrollPaneActivite = new JScrollPane(listActivite);
-            scrollPaneActivite.setPreferredSize(new Dimension(210, (Fenetre.getCont().getHeight())/2));
             
-            this.add(scrollPaneActivite, BorderLayout.SOUTH);
+            splitFormAct = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollPaneFormation, scrollPaneActivite);
+            splitFormAct.setDividerLocation(Fenetre.getCont().getHeight()/2);
+            splitFormAct.setDividerSize(2);
+            this.add(splitFormAct, BorderLayout.CENTER);
         }
     }
     
@@ -197,7 +209,7 @@ public class PanelInscription extends JPanel {
             listModelInscription.addElement(new QueryResult(-1,"-- Aucune activité sélectionnée --"));
             
             scrollPaneMembre = new JScrollPane(listInscription);
-            scrollPaneMembre.setPreferredSize(new Dimension(220, Fenetre.getCont().getHeight()-60));
+            scrollPaneMembre.setPreferredSize(new Dimension(220, Fenetre.getCont().getHeight()-88));
             
             this.add(scrollPaneMembre, c);
             
@@ -210,7 +222,7 @@ public class PanelInscription extends JPanel {
                 arrayMembre = app.listMembre(null);
                 comboBoxMembre.addItem(new QueryResult(-1,"Aucun"));
                 for(Membre membre : arrayMembre) {
-                    comboBoxMembre.addItem(new QueryResult(membre.getIdMembre(),membre.getNom().toString().toUpperCase()+", "+membre.getPrenom().toString().toLowerCase()));
+                    comboBoxMembre.addItem(new QueryResult(membre.getIdMembre(),membre.getNom()+", "+membre.getPrenom()));
                 }
             } 
             catch (DBException ex) {
@@ -234,6 +246,13 @@ public class PanelInscription extends JPanel {
             buttonDelIns.setPreferredSize(new Dimension(114, 25));
             c.gridx++;
             this.add(buttonDelIns, c);
+            
+            buttonExportIns = new JButton("Export de la liste");
+            buttonExportIns.setContentAreaFilled(false);
+            buttonExportIns.setPreferredSize(new Dimension(220, 25));
+            c.gridx=0; c.gridy++;
+            c.gridwidth = 2;
+            this.add(buttonExportIns, c);
         }
     }
     
@@ -259,9 +278,9 @@ public class PanelInscription extends JPanel {
             checkCertifie = new JCheckBox("Certifié");
             panelInfoInscription.add(checkCertifie);
             
-            buttonModify = new JButton("Modifier");
-            buttonModify.setContentAreaFilled(false);
-            panelInfoInscription.add(buttonModify);
+            buttonModIns = new JButton("Modifier");
+            buttonModIns.setContentAreaFilled(false);
+            panelInfoInscription.add(buttonModIns);
             
             this.add(panelInfoInscription, BorderLayout.NORTH);
         
@@ -269,10 +288,11 @@ public class PanelInscription extends JPanel {
             panelPaiement.setLayout(new GridBagLayout());              
             c.insets = new Insets(0, 0, 0, 0);
             c.gridx = 0; c.gridy = 0;
-            c.gridwidth = 2;
-            dimButton = new Dimension(224, 25);
+            c.gridwidth = 3;
+            dimButton = new Dimension(149, 25);
         
                 tablePaiement = new JTable();
+                tablePaiement.setName("tablePaiement");
                 tablePaiement.getTableHeader().setReorderingAllowed(false);
                 tablePaiement.setModel(new PaiementList(arrayPaiement)); 
                 scrollPaneTablePaiement = new JScrollPane(tablePaiement);
@@ -290,16 +310,23 @@ public class PanelInscription extends JPanel {
                 buttonDelPaiement.setPreferredSize(dimButton);
                 c.gridx++;
                 panelPaiement.add(buttonDelPaiement, c);
+                
+                buttonExportPaiement = new JButton("Export Paiements");
+                buttonExportPaiement.setContentAreaFilled(false);
+                buttonExportPaiement.setPreferredSize(dimButton);
+                c.gridx++;
+                panelPaiement.add(buttonExportPaiement, c);
             
             this.add(panelPaiement, BorderLayout.CENTER);
 
             panelAccordPaiement = new JPanel();
             panelAccordPaiement.setLayout(new GridBagLayout());
             c.insets = new Insets(24, 0, 0, 0);
-            c.gridwidth = 2;
+            c.gridwidth = 3;
             c.gridx = 0; c.gridy = 0;
         
                 tableAccordPaiement = new JTable();
+                tableAccordPaiement.setName("tableAccordPaiement");
                 tableAccordPaiement.setModel(new AccordPaiementList(arrayAccordPaiement));  
                 scrollPaneTableAccordPaiement = new JScrollPane(tableAccordPaiement);
                 scrollPaneTableAccordPaiement.setPreferredSize(new Dimension(450, (Fenetre.getCont().getHeight())*5/13));   
@@ -317,6 +344,12 @@ public class PanelInscription extends JPanel {
                 buttonDelAccord.setPreferredSize(dimButton);
                 c.gridx++;
                 panelAccordPaiement.add(buttonDelAccord, c);
+                
+                buttonExportAccord = new JButton("Export Accords");
+                buttonExportAccord.setContentAreaFilled(false);
+                buttonExportAccord.setPreferredSize(dimButton);
+                c.gridx++;
+                panelAccordPaiement.add(buttonExportAccord, c);
             
             this.add(panelAccordPaiement, BorderLayout.SOUTH);
 
@@ -342,7 +375,6 @@ public class PanelInscription extends JPanel {
                 paiement.setTypePaiement(0);
                 oldDate = arrayAccordPaiement.get(tcl.getRow()).getOldDate();
             }
-
             // Date
             if(tcl.getColumn() == 0) {
                 date = tcl.getNewValue().toString();
@@ -360,14 +392,19 @@ public class PanelInscription extends JPanel {
             }
             // Type
             else if(tcl.getColumn() == 2) {
-                if(tcl.getNewValue().toString().equals("Liquide") == true){
+                String choice = tcl.getNewValue().toString();
+                
+                if(choice.equals("Liquide") == true){
                     paiement.setTypePaiement(1);
                 }
-                else if(tcl.getNewValue().toString().equals("Virement") == true) {
+                else if(choice.equals("Virement") == true) {
                     paiement.setTypePaiement(2);
                 }
-                else if(tcl.getNewValue().toString().equals("Echange") == true) {
+                else if(choice.equals("Echange") == true) {
                     paiement.setTypePaiement(3);
+                }
+                else if(choice.equals("Note de Crédit") == true) {
+                    paiement.setTypePaiement(4);
                 }
                 else {
                     paiement.setTypePaiement(0);
@@ -388,7 +425,6 @@ public class PanelInscription extends JPanel {
                 JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
             }
         }
-        
     }
     
     private class ActionManager implements ActionListener {
@@ -434,6 +470,23 @@ public class PanelInscription extends JPanel {
                         }
                     }
                 }
+                // Exportation liste des inscriptions
+                else if(src == buttonExportIns) {
+                    String formInt = ((QueryResult)listFormation.getSelectedValue()).desc;
+                    Integer idActiviteExport = ((QueryResult)listActivite.getSelectedValue()).id;
+                    try {
+                        export.ExportListToExcel(formInt, idActiviteExport);
+                    } 
+                    catch (IOException ex) {
+                        JOptionPane.showMessageDialog(null, ex, "Erreur création fichier", JOptionPane.ERROR_MESSAGE);
+                    }
+                    catch (DBException ex) {
+                        JOptionPane.showMessageDialog(null, ex, "Erreur Modification", JOptionPane.ERROR_MESSAGE);
+                    } 
+                    catch (NotIdentified ex) {
+                        JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
                 // Suppression Inscription
                 else if(idMembre != -1) {
                     if(src == buttonDelIns) { 
@@ -451,7 +504,8 @@ public class PanelInscription extends JPanel {
                             JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
                         }
                     }                
-                    else if(src == buttonModify) {
+                    // Modifier Inscription
+                    else if(src == buttonModIns) {
                         ins = new Inscription();
                         ins.setIdActivite(idActivite);
                         ins.setIdMembre(idMembre); 
@@ -473,7 +527,35 @@ public class PanelInscription extends JPanel {
                             JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
                         }
                     }
-                    else {
+                    
+                    // Exportation des accords ou paiements
+                    else if(src == buttonExportPaiement || src == buttonExportAccord) {
+                        String formInt = ((QueryResult)listFormation.getSelectedValue()).desc;
+                        Integer idMembreExport = ((QueryResult)listInscription.getSelectedValue()).id;
+                        JTable table;
+                        
+                        if(src == buttonExportPaiement) {
+                            table = tablePaiement;
+                        }
+                        else {
+                            table = tableAccordPaiement;
+                        }
+                        
+                        try {                            
+                            export.ExportTableToExcel(table, table.getName(), formInt, idMembreExport);
+                        } 
+                        catch (IOException ex) {
+                            JOptionPane.showMessageDialog(null, ex, "Erreur création fichier", JOptionPane.ERROR_MESSAGE);
+                        }
+                        catch (DBException ex) {
+                            JOptionPane.showMessageDialog(null, ex, "Erreur Modification", JOptionPane.ERROR_MESSAGE);
+                        } 
+                        catch (NotIdentified ex) {
+                            JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                    // Traitement des accords ou paiements
+                    else{                               
                         TrtPaiement(src, idActivite, idMembre);                        
                     }
                 }
@@ -532,12 +614,19 @@ public class PanelInscription extends JPanel {
             }
         }
         UpdateInfoInscription(idActivite, idMembre);
+        UpdateListInscription(idActivite);
+        
+        for(Object o : listModelInscription.toArray()) {
+            if(((QueryResult)o).id == idMembre) {
+                listInscription.setSelectedValue(o, true);
+            }
+        }        
     }
     
     private class ListListener implements ListSelectionListener {
         @Override
-        public void valueChanged(ListSelectionEvent lse) {  
-            if(lse.getValueIsAdjusting()){
+        public void valueChanged(ListSelectionEvent lse) {              
+            if(!lse.getValueIsAdjusting() && ((JList)lse.getSource()).getSelectedIndex() != -1){                
                 queryResult = (QueryResult)((JList)lse.getSource()).getSelectedValue();
                 if(queryResult.id != -1) {
                     if(lse.getSource() == listFormation) {
@@ -567,11 +656,11 @@ public class PanelInscription extends JPanel {
             }
             else {            
                 for(Activite act : arrayActivite) {                    
-                    if(act.getPromotion() != null) {
+                    if(act.getPromotion() != 0) {
                         desc = "Promotion " + act.getPromotion().toString();
                     }
                     else {
-                        desc = act.getDateDeb().getTime().toString();
+                        desc = act.getFormatedDateDeb();
                     }
                     listModelActivite.addElement(new QueryResult(act.getIdActivite(), desc));
                 }            
@@ -598,9 +687,14 @@ public class PanelInscription extends JPanel {
                 prix = (app.getActivite(idActivite).getPrix())*-1;
                 
                 for(Membre me : arrayInscription) {                    
-                    desc =  me.getNom().toString().toUpperCase() + ", " + me.getPrenom().toString().toLowerCase();
+                    desc =  me.getNom() + ", " + me.getPrenom();
                     prixSpecial = app.getInscription(idActivite, me.getIdMembre()).getTarifSpecial();
-                    solde = app.getSolde(idActivite, me.getIdMembre()) + prix + prixSpecial;
+                    if(prixSpecial != 0){
+                        solde = app.getSolde(idActivite, me.getIdMembre()) + (prixSpecial*-1);
+                    }
+                    else {
+                        solde = app.getSolde(idActivite, me.getIdMembre()) + prix;
+                    }
                     if(solde != 0) {
                         desc += " ("+solde+"€)";
                     }
@@ -647,6 +741,7 @@ public class PanelInscription extends JPanel {
                 comboBoxType.addItem("Liquide");
                 comboBoxType.addItem("Virement");      
                 comboBoxType.addItem("Echange");   
+                comboBoxType.addItem("Note de Crédit");   
                 tablePaiement.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(comboBoxType));    
                 
                 fieldDate = new JFormattedTextField(new MaskFormatter("##'/##'/####")); 
@@ -689,15 +784,4 @@ public class PanelInscription extends JPanel {
             return this;
         }    
     }
-    
-    private class QueryResult {  
-        int id;  
-        String desc;  
-        public QueryResult(int i, String d) {  
-            id = i;
-            desc = d;  
-        }          
-        @Override
-        public String toString(){return desc;}  
-    } 
 }

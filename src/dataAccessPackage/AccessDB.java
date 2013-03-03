@@ -22,15 +22,22 @@ public class AccessDB {
             try	{
                 Class.forName("org.h2.Driver");
                 JdbcDataSource ds = new JdbcDataSource();
-                ds.setURL("jdbc:h2:db/mividb");
+                ds.setURL("jdbc:h2:db/mividb;CIPHER=AES;IFEXISTS=TRUE;");
                 ds.setUser("michel");
-                ds.setPassword(pass);				
+                ds.setPassword(pass+" "+pass); //user pw and file pw to decrypt			
                 connexionUnique = ds.getConnection();
 			}
 			catch(SQLException e) {                
 				String msg;
+                // Already connected
                 if(e.getErrorCode() == 90020){
                     msg = "Connexion à la base de donnée déjà existante, veuillez fermer cette connexion pour continuer.";
+                }
+                // Not created yet
+                else if(e.getErrorCode() == 90013){
+                    msg = "Création de la base de donnée.";
+                    //CreateDB();
+                    //org.h2.tools.ChangeFileEncryption.execute("D:\\Documents\\NetBeansProjects\\MiviApp\\db", "mividb", "AES", null, pass.toCharArray(), false);                    
                 }
                 else {
                     msg = "Mot de passe entré incorrecte.";

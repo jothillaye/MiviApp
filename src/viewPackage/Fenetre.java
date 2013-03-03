@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package viewPackage;
 
 /**
@@ -30,17 +26,12 @@ public class Fenetre extends JFrame	{
     private PanelFormation panelFormation;
     private PanelActivite panelActivite;
 	private PanelInscription panelInscription;
-    private PanelExportParticipants panelExportParticipants;
-    private PanelExportFormation panelExportFormation;
-    private PanelExportPrixSpeciaux panelExportPrixSpeciaux;
-    private PanelExportAccordsPaiements panelExportAccordsPaiements;
     
 	// Menu
 	private JMenuBar barre;
     private JButton buttonAccueil, buttonMembre, buttonInscription;
-	private JMenu menuActivite, menuExport;
-	private JMenuItem itemActivite, itemFormation,
-            itemExportParticipants, itemExportFormation, itemExportPrixSpeciaux, itemExportAccordsPaiements;
+	private JMenu menuActivite;
+	private JMenuItem itemActivite, itemFormation;
     
     private URL iconURL;
     
@@ -111,26 +102,6 @@ public class Fenetre extends JFrame	{
         buttonInscription.setContentAreaFilled(false);
         buttonInscription.addActionListener(AM);        
 		barre.add(buttonInscription);
-				
-		// Export
-		menuExport = new JMenu("Export");
-		barre.add(menuExport);
-			
-			itemExportParticipants = new JMenuItem("Export Participants");
-			itemExportParticipants.addActionListener(AM);
-			menuExport.add(itemExportParticipants);
-			
-            itemExportFormation = new JMenuItem("Export Formation");
-			itemExportFormation.addActionListener(AM);
-			menuExport.add(itemExportFormation);
-			
-            itemExportAccordsPaiements = new JMenuItem("Export Accords de Paiements");
-			itemExportAccordsPaiements.addActionListener(AM);
-			menuExport.add(itemExportAccordsPaiements);
-			
-            itemExportPrixSpeciaux = new JMenuItem("Export Prix Spéciaux");
-			itemExportPrixSpeciaux.addActionListener(AM);
-			menuExport.add(itemExportPrixSpeciaux);
             
         try {
             iconURL = this.getClass().getResource("/viewPackage/resources/images/home.png");
@@ -144,9 +115,6 @@ public class Fenetre extends JFrame	{
             
             iconURL = this.getClass().getResource("/viewPackage/resources/images/inscription.png");
             buttonInscription.setIcon(new ImageIcon(iconURL));
-            
-            iconURL = this.getClass().getResource("/viewPackage/resources/images/export.png");
-            menuExport.setIcon(new ImageIcon(iconURL));
         }
         catch(NullPointerException ex) {
             JOptionPane.showMessageDialog(null, "Erreur lors de la récupération des icônes.\nVeuillez contacter l'administrateur", "Erreur de récupération des icônes", JOptionPane.ERROR_MESSAGE);
@@ -157,7 +125,6 @@ public class Fenetre extends JFrame	{
         buttonMembre.addMouseListener(HB);
         menuActivite.addMouseListener(HB);
         buttonInscription.addMouseListener(HB);
-        menuExport.addMouseListener(HB);
         
         Login();
 	}
@@ -215,26 +182,6 @@ public class Fenetre extends JFrame	{
                 panelInscription = new PanelInscription();
                 getCont().add(panelInscription, BorderLayout.CENTER);			   						
             }
-            // Export Participants
-            else if(e.getSource() == itemExportParticipants){
-                panelExportParticipants = new PanelExportParticipants();
-                getCont().add(panelExportParticipants, BorderLayout.CENTER);			   						
-            }
-            // Export Formation
-            else if(e.getSource() == itemExportFormation){
-                panelExportFormation = new PanelExportFormation();
-                getCont().add(panelExportFormation, BorderLayout.CENTER);			   						
-            }
-            // Export Prix Speciaux
-            else if(e.getSource() == itemExportPrixSpeciaux){
-                panelExportPrixSpeciaux = new PanelExportPrixSpeciaux();
-                getCont().add(panelExportPrixSpeciaux, BorderLayout.CENTER);			   						
-            }
-            // Export Accords Paiements
-            else if(e.getSource() == itemExportAccordsPaiements){
-                panelExportAccordsPaiements = new PanelExportAccordsPaiements();
-                getCont().add(panelExportAccordsPaiements, BorderLayout.CENTER);			   						
-            }            
             getCont().validate();	// refresh la fenêtre		   				
 		}
 	}
@@ -324,7 +271,6 @@ public class Fenetre extends JFrame	{
         buttonMembre.setEnabled(b);
         menuActivite.setEnabled(b);
         buttonInscription.setEnabled(b);
-        menuExport.setEnabled(b);
 
         if(b == true) {
             Fenetre.getCont().removeAll();
