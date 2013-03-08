@@ -4,6 +4,8 @@ import dataAccessPackage.AccessInscriptionDB;
 import exceptionPackage.DBException;
 import exceptionPackage.NotIdentified;
 import java.util.ArrayList;
+import modelPackage.Activite;
+import modelPackage.Formation;
 import modelPackage.Inscription;
 import modelPackage.Membre;
 
@@ -40,6 +42,37 @@ public class InscriptionManager {
     }
     
     public ArrayList<ArrayList<Object>> listInsMembre(Integer idMembre) throws DBException, NotIdentified {
-        return accessIns.listInsMembre(idMembre);
+        ArrayList<ArrayList<Object>> arrayIns = accessIns.listInsMembre(idMembre);
+        
+        if(arrayIns.isEmpty() == false) {        
+            Float prixTotal = new Float(0), payeTotal = new Float(0);
+            for(ArrayList<Object> array : arrayIns){
+                if(((Inscription)array.get(2)).getTarifSpecial() != null && ((Inscription)array.get(2)).getTarifSpecial() != 0) {
+                    prixTotal += ((Inscription)array.get(2)).getTarifSpecial();
+                }
+                else {
+                    prixTotal += ((Activite)array.get(1)).getPrix();
+                }            
+                payeTotal += ((Float)array.get(3));
+            }
+            ArrayList<Object> newArray = new ArrayList<Object>();
+
+            Formation form = new Formation("TOTAL");
+            newArray.add(form);
+
+            Activite act = new Activite();
+            act.setPrix(prixTotal);
+            act.setPromotion(0);
+            newArray.add(act);
+
+            Inscription ins = new Inscription();
+            ins.setTarifSpecial(new Float(0));
+            newArray.add(ins);
+
+            newArray.add(payeTotal);        
+            arrayIns.add(newArray);        
+        }
+        
+        return arrayIns;
     }
 } 

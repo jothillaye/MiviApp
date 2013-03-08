@@ -55,7 +55,7 @@ public class AccessInscriptionDB {
                 membre.setIdMembre(data.getInt(1));
                 membre.setNom(data.getString(2));
                 membre.setPrenom(data.getString(3));
-                membre.setGsm(data.getInt(4));
+                membre.setGsm(data.getString(4));
 				arrayInscription.add(membre);	
 			}
 			return arrayInscription;

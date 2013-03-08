@@ -69,8 +69,8 @@ public class ExportToExcel {
         ArrayList<Membre> arrayIns = app.listInscription(idActivite);
         for(Membre me : arrayIns) {
             out.write("\n\n" + me.getPrenom() + " " + me.getNom() + "\n");            
-            if(me.getGsm() != 0) {
-                out.write("GSM : 0" + me.getGsm());
+            if(me.getGsm() != null && me.getGsm().isEmpty() == false) {
+                out.write("GSM : " + me.getGsm());
             }
             Float solde = app.getSolde(idActivite, me.getIdMembre());
             Float prixSpecial = app.getInscription(idActivite, me.getIdMembre()).getTarifSpecial();

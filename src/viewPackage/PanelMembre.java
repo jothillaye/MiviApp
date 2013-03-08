@@ -17,6 +17,7 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -34,7 +35,6 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.MaskFormatter;
 import modelPackage.HistoryMembreList;
 import modelPackage.Membre;
@@ -57,10 +57,11 @@ public class PanelMembre extends JPanel {
     private DefaultListModel listModelMembre;
 	private JTextField fieldId, fieldNom, fieldPrenom, fieldRue, fieldNumero, fieldCodePostal, fieldVille, fieldFixe, fieldGSM, fieldEmail, fieldFilter, fieldSolde;
     private JFormattedTextField fieldDate;
-    private JCheckBox checkBoxClientME, checkBoxAssistant, checkBoxAnimateur, checkBoxEcarte;
+    private JCheckBox checkBoxClientME, checkBoxAssistant, checkBoxAnimateur;
     private JComboBox comboBoxProvenance, comboBoxContact;
     private JButton buttonInsert, buttonNewMembre, buttonModify, buttonDelete;	
     private JTable tableHistory;
+    private DefaultComboBoxModel modelContact = new DefaultComboBoxModel();
     
     private QueryResult structMembre;	
     private ArrayList<Membre> arrayMembre, arrayMembreComboBox;
@@ -83,8 +84,9 @@ public class PanelMembre extends JPanel {
             listMembre.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             listMembre.addListSelectionListener(new ListSelectionListener() {
                 @Override
-                public void valueChanged(ListSelectionEvent lse) {
-                    if(!listMembre.getValueIsAdjusting()) {
+                public void valueChanged(ListSelectionEvent lse) {       
+                    if(listMembre.getValueIsAdjusting()){return;} // ignore extra message
+                    if(listMembre.getSelectedIndex() != -1) {
                         UpdateMembre(listMembre.getSelectedIndex());
                     }
                 }
@@ -266,14 +268,16 @@ public class PanelMembre extends JPanel {
             this.add(labelContact, c);
 
             comboBoxContact = new JComboBox();
+            comboBoxContact.setPreferredSize(new Dimension(180, 25));
             c.gridx = 3;
             this.add(comboBoxContact, c);	 
             try {            
                 arrayMembreComboBox = app.listMembre(null);
-                comboBoxContact.addItem(new QueryResult(0,"Aucun"));
+                modelContact.addElement(new QueryResult(-1,"Aucun"));
                 for(Membre membre : arrayMembreComboBox) {
-                    comboBoxContact.addItem(new QueryResult(membre.getIdMembre(),membre.getNom()+", "+membre.getPrenom()));
+                    modelContact.addElement(new QueryResult(membre.getIdMembre(),membre.getNom()+", "+membre.getPrenom()));
                 }
+                comboBoxContact.setModel(modelContact);
             } 
             catch (DBException ex) {
                 JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
@@ -300,10 +304,6 @@ public class PanelMembre extends JPanel {
                 // Animateur
                 checkBoxAnimateur = new JCheckBox("Animateur");
                 panelStatus.add(checkBoxAnimateur); 
-
-                // Ecarte
-                checkBoxEcarte = new JCheckBox("Ecarte");
-                panelStatus.add(checkBoxEcarte); 
 
             c.gridx = 0; c.gridy++; c.gridwidth = 4;
             c.insets = new Insets(15,20,0,0);
@@ -407,19 +407,21 @@ public class PanelMembre extends JPanel {
     }  
     
     private void UpdateMembre(Integer indexList) {
-        try {
-            structMembre = (QueryResult)listModelMembre.getElementAt(indexList);  
-            Membre me = app.getMembre(structMembre.id);
-            
-            UpdateInfoMembre(me);
-            UpdateHistoryMembre(me);
-        }    
-        catch (DBException ex) {
-            JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
-        } 
-        catch (NotIdentified ex) {
-            JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
-        }         
+        if(indexList != -1){
+            try {
+                structMembre = (QueryResult)listModelMembre.getElementAt(indexList);  
+                Membre me = app.getMembre(structMembre.id);
+
+                UpdateInfoMembre(me);
+                UpdateHistoryMembre(me);
+            }    
+            catch (DBException ex) {
+                JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
+            } 
+            catch (NotIdentified ex) {
+                JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+            }    
+        }
     }
     
     private void UpdateInfoMembre(Membre me) {  
@@ -435,38 +437,34 @@ public class PanelMembre extends JPanel {
             fieldCodePostal.setText("");
         }
         fieldVille.setText(me.getVille());
-        if(me.getGsm() != 0) {
-            fieldGSM.setText(0+me.getGsm().toString());
+        if(me.getGsm() != null && me.getGsm().isEmpty() == false) {
+            fieldGSM.setText(me.getGsm().toString());
         }            
         else {
             fieldGSM.setText("");
         }
-        if(me.getFixe() != 0) {
-            fieldFixe.setText(0+me.getFixe().toString());
+        if(me.getFixe() != null && me.getFixe().isEmpty() == false) {
+            fieldFixe.setText(me.getFixe().toString());
         }
         else {
             fieldFixe.setText("");
         }           
         fieldDate.setText(me.getFormatedDateNaiss());
         fieldEmail.setText(me.getEmail());
-        comboBoxProvenance.setSelectedIndex(me.getProvenance());
-        comboBoxContact.setSelectedIndex(0);
-        for(Membre cMembre : arrayMembreComboBox){
-            if(cMembre.getIdMembre() == me.getIdContact()) {
-                QueryResult qr = new QueryResult(me.getIdContact(), cMembre.getNom().toString().toUpperCase()+", "+cMembre.getPrenom().toString().toLowerCase()); 
-                comboBoxContact.setSelectedItem(qr);
+        comboBoxProvenance.setSelectedIndex(me.getProvenance());        
+        if(me.getIdContact() != -1){
+            for(Membre cMembre : arrayMembreComboBox){
+                if(cMembre.getIdMembre().equals(me.getIdContact()) == true) {
+                    comboBoxContact.setSelectedIndex(arrayMembreComboBox.indexOf(cMembre)+1);
+                }
             }
+        }
+        else {
+            comboBoxContact.setSelectedIndex(0);
         }
         checkBoxAnimateur.setSelected(me.getAnimateur());
         checkBoxAssistant.setSelected(me.getAssistant());
         checkBoxClientME.setSelected(me.getClientME());
-        checkBoxEcarte.setSelected(me.getEcarte());
-        if(me.getSolde() != 0) {
-            fieldSolde.setText(0+me.getFixe().toString());
-        }
-        else {
-            fieldSolde.setText("0");
-        }   
         
         // Show buttons modify, delete, emptyField on existing membre
         if(buttonDelete.isVisible() == false) {
@@ -500,9 +498,9 @@ public class PanelMembre extends JPanel {
     
 	private class ActionManager implements ActionListener { 
         // Variables temporaires
-        String prenom, nom, rue, numero, ville, email, filter;	
-        Integer idMembre, idContact, codePostal = 0, fixe = 0, gsm = 0, provenance, idMembreList, reply;    
-        Boolean clientME, assistant, animateur, ecarte;
+        String prenom, nom, rue, numero, ville, email, filter, fixe, gsm, dateString;	
+        Integer idMembre, idContact, codePostal = 0, provenance, idMembreList, reply, testGsm, testFixe;    
+        Boolean clientME, assistant, animateur, supprime;
         GregorianCalendar dateNaiss;
         Float solde = new Float(0.0);
         
@@ -525,7 +523,7 @@ public class PanelMembre extends JPanel {
                 clientME    = checkBoxClientME.isSelected();
                 assistant   = checkBoxAssistant.isSelected();
                 animateur   = checkBoxAnimateur.isSelected();
-                ecarte      = checkBoxEcarte.isSelected();
+                supprime    = false;
                 dateNaiss   = new GregorianCalendar();
                 try {
                     // Test Code Postal
@@ -534,20 +532,19 @@ public class PanelMembre extends JPanel {
                     }
                     // Test GSM
                     if(fieldGSM.getText().isEmpty() == false) {
-                        gsm = Integer.parseInt(fieldGSM.getText());
+                        testGsm = Integer.parseInt(fieldGSM.getText());
                     }
                     // Test Fixe
                     if(fieldFixe.getText().isEmpty() == false) {
-                        fixe = Integer.parseInt(fieldFixe.getText());
-                    }
-                    // Test Solde
-                    if(fieldSolde.getText().isEmpty() == false) {                        
-                        solde = Float.parseFloat(fieldSolde.getText());
+                        testFixe = Integer.parseInt(fieldFixe.getText());
                     }
                     
-                    dateNaiss.set(Integer.parseInt(fieldDate.getText(6,4)), Integer.parseInt(fieldDate.getText(3,2))-1, Integer.parseInt(fieldDate.getText(0,2)));
+                    if(fieldDate.getValue() != null){
+                        dateString = (String)fieldDate.getValue();
+                        dateNaiss.set(Integer.parseInt(dateString.substring(6, 10)), Integer.parseInt(dateString.substring(3, 5))-1, Integer.parseInt(dateString.substring(0, 2)));
+                    }
                     
-                    Membre membre = new Membre(nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, provenance, idContact, assistant, animateur, clientME, ecarte, solde);
+                    Membre membre = new Membre(nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, provenance, idContact, assistant, animateur, clientME, supprime);
                     // Nouveau membre
                     if(e.getSource() == buttonInsert) {
                         idMembre = null;
@@ -600,12 +597,6 @@ public class PanelMembre extends JPanel {
                 }
                 catch(NumberFormatException nfe) {
                     JOptionPane.showMessageDialog(null, "Erreur : n'inclure que des chiffres dans les champs suivants :\nCode Postal, GSM, Fixe", "Erreur champs numérique", JOptionPane.ERROR_MESSAGE);                    
-                }
-                catch (BadLocationException ex) {
-                    JOptionPane.showMessageDialog(null, "Erreur lors de l'insertion veuillez vérifier le contenu des champs et si le problème persiste contacter l'administrateur.", "Erreur insertion", JOptionPane.ERROR_MESSAGE);
-                }
-                catch(ArrayIndexOutOfBoundsException ex) {
-                    JOptionPane.showMessageDialog(null, "Erreur lors de l'insertion veuillez vérifier le contenu des champs et si le problème persiste contacter l'administrateur.", "Erreur insertion", JOptionPane.ERROR_MESSAGE);
                 }
 				catch (DBException ex) {
 					JOptionPane.showMessageDialog(null, ex, "Erreur ajout", JOptionPane.ERROR_MESSAGE);

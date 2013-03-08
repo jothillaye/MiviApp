@@ -18,15 +18,15 @@ public class AccessMembreDB {
 	// Ajour d'un membre
 	public Integer newMembre(Membre membre) throws DBException, NotIdentified {
 		try {
-			request = "insert into membre (nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, provenance, idContact, assistant, animateur, clientME, ecarte, solde, supprime) "
+			request = "insert into membre (nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, provenance, idContact, assistant, animateur, clientME, supprimer) "
                     + " values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 			prepStat = AccessDB.getInstance().prepareStatement(request);
 			prepStat.setString(1, membre.getNom());
 			prepStat.setString(2, membre.getPrenom());			
 			prepStat.setString(3, membre.getEmail());
             prepStat.setDate(4,  new java.sql.Date(membre.getDateNaiss().getTimeInMillis()));
-            prepStat.setInt(5, membre.getGsm());
-            prepStat.setInt(6, membre.getFixe());
+            prepStat.setString(5, membre.getGsm());
+            prepStat.setString(6, membre.getFixe());
             prepStat.setString(7, membre.getRue());
             prepStat.setString(8, membre.getNumero());
             prepStat.setInt(9, membre.getCodePostal());
@@ -36,9 +36,7 @@ public class AccessMembreDB {
             prepStat.setBoolean(13, membre.getAssistant());
             prepStat.setBoolean(14, membre.getAnimateur());
             prepStat.setBoolean(15, membre.getClientME());
-            prepStat.setBoolean(16, membre.getEcarte());
-            prepStat.setFloat(17, membre.getSolde());
-            prepStat.setBoolean(18, false);
+            prepStat.setBoolean(16, false);
 			
             prepStat.executeUpdate();    
             
@@ -121,8 +119,8 @@ public class AccessMembreDB {
                     dateNaiss.set(1900,1,1);
                 }
                 membre.setDateNaiss(dateNaiss);
-                membre.setGsm(data.getInt(6));
-                membre.setFixe(data.getInt(7));
+                membre.setGsm(data.getString(6));
+                membre.setFixe(data.getString(7));
                 membre.setRue(data.getString(8));
                 membre.setNumero(data.getString(9));
                 membre.setCodePostal(data.getInt(10));
@@ -132,8 +130,6 @@ public class AccessMembreDB {
                 membre.setAssistant(data.getBoolean(14));
                 membre.setAnimateur(data.getBoolean(15)); 
                 membre.setClientME(data.getBoolean(16));
-                membre.setEcarte(data.getBoolean(17));
-                membre.setSolde(data.getFloat(18));
 			}
 			return membre;
 		} 
@@ -148,15 +144,15 @@ public class AccessMembreDB {
 
     public void modifyMembre(Membre membre) throws DBException, NotIdentified {
         try {
-            request = "update membre set nom = ?, prenom = ?, email = ?, dateNaiss = ?, gsm = ?, fixe = ?, rue = ?, numero = ?, codePostal = ?, ville = ?, provenance = ?, idContact = ?, assistant = ?, animateur = ?, clientME = ?, ecarte = ?, solde = ?"
+            request = "update membre set nom = ?, prenom = ?, email = ?, dateNaiss = ?, gsm = ?, fixe = ?, rue = ?, numero = ?, codePostal = ?, ville = ?, provenance = ?, idContact = ?, assistant = ?, animateur = ?, clientME = ?"
                     + " where idMembre = ?;";
             prepStat = AccessDB.getInstance().prepareStatement(request);
 			prepStat.setString(1, membre.getNom());
 			prepStat.setString(2, membre.getPrenom());			
 			prepStat.setString(3, membre.getEmail());
             prepStat.setDate(4,  new java.sql.Date(membre.getDateNaiss().getTimeInMillis()));
-            prepStat.setInt(5, membre.getGsm());
-            prepStat.setInt(6, membre.getFixe());
+            prepStat.setString(5, membre.getGsm());
+            prepStat.setString(6, membre.getFixe());
             prepStat.setString(7, membre.getRue());
             prepStat.setString(8, membre.getNumero());
             prepStat.setInt(9, membre.getCodePostal());
@@ -166,9 +162,7 @@ public class AccessMembreDB {
             prepStat.setBoolean(13, membre.getAssistant());
             prepStat.setBoolean(14, membre.getAnimateur());
             prepStat.setBoolean(15, membre.getClientME());
-            prepStat.setBoolean(16, membre.getEcarte());
-            prepStat.setFloat(17, membre.getSolde());
-            prepStat.setInt(18, membre.getIdMembre());
+            prepStat.setInt(16, membre.getIdMembre());
             
 			prepStat.executeUpdate();
         }	 

@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -63,7 +65,7 @@ public class PanelInscription extends JPanel {
     private JList listFormation, listActivite, listInscription;
     private JScrollPane scrollPaneFormation, scrollPaneActivite, scrollPaneMembre, scrollPaneTablePaiement, scrollPaneTableAccordPaiement;
     private DefaultListModel listModelFormation, listModelActivite, listModelInscription;
-    private JLabel labelTarifSpecial;
+    private JLabel labelTarifSpecial, labelTotalInscris, labelPaiement, labelAccordPaiement;
     private JTextField fieldTarifSpecial;
     private JCheckBox checkAbandonne, checkCertifie;
     private JTable tablePaiement, tableAccordPaiement;
@@ -100,6 +102,7 @@ public class PanelInscription extends JPanel {
         d.fill = GridBagConstraints.BOTH;
         
         panelFormAct = new PanelFormAct();
+        panelFormAct.setPreferredSize(new Dimension(210, Fenetre.getCont().getHeight()));
         this.add(panelFormAct,d);
         
         panelListInscription = new PanelListInscription();        
@@ -200,6 +203,10 @@ public class PanelInscription extends JPanel {
             c.anchor = GridBagConstraints.LINE_START;
             c.gridx = 0; c.gridy = 0;
             c.gridwidth = 2;
+            
+            labelTotalInscris = new JLabel("Nombre d'inscris :");
+            labelTotalInscris.setPreferredSize(new Dimension(220, 15));
+            this.add(labelTotalInscris, c);
         
             listInscription = new JList();
             listModelInscription = new DefaultListModel();
@@ -209,8 +216,9 @@ public class PanelInscription extends JPanel {
             listModelInscription.addElement(new QueryResult(-1,"-- Aucune activité sélectionnée --"));
             
             scrollPaneMembre = new JScrollPane(listInscription);
-            scrollPaneMembre.setPreferredSize(new Dimension(220, Fenetre.getCont().getHeight()-88));
+            scrollPaneMembre.setPreferredSize(new Dimension(220, Fenetre.getCont().getHeight()-100));
             
+            c.gridy++;
             this.add(scrollPaneMembre, c);
             
             comboBoxMembre = new JComboBox();
@@ -258,7 +266,7 @@ public class PanelInscription extends JPanel {
     
     private class PanelRight extends JPanel {
         public PanelRight() {        
-            this.setLayout(new BorderLayout());
+            this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         
             panelInfoInscription = new JPanel();
             panelInfoInscription.setPreferredSize(new Dimension(450, (Fenetre.getCont().getHeight())*1/14));
@@ -282,7 +290,7 @@ public class PanelInscription extends JPanel {
             buttonModIns.setContentAreaFilled(false);
             panelInfoInscription.add(buttonModIns);
             
-            this.add(panelInfoInscription, BorderLayout.NORTH);
+            this.add(panelInfoInscription);
         
             panelPaiement = new JPanel();
             panelPaiement.setLayout(new GridBagLayout());              
@@ -291,18 +299,24 @@ public class PanelInscription extends JPanel {
             c.gridwidth = 3;
             dimButton = new Dimension(149, 25);
         
+                labelPaiement = new JLabel("<html><u>Paiements</u> :</html>");
+                labelPaiement.setFont(new Font("Arial", Font.ITALIC, 13));
+                panelPaiement.add(labelPaiement, c);
+                
                 tablePaiement = new JTable();
                 tablePaiement.setName("tablePaiement");
                 tablePaiement.getTableHeader().setReorderingAllowed(false);
                 tablePaiement.setModel(new PaiementList(arrayPaiement)); 
                 scrollPaneTablePaiement = new JScrollPane(tablePaiement);
-                scrollPaneTablePaiement.setPreferredSize(new Dimension(450, (Fenetre.getCont().getHeight())*5/13));                                
+                scrollPaneTablePaiement.setPreferredSize(new Dimension(451, 180));                                
+                c.gridy++;
                 panelPaiement.add(scrollPaneTablePaiement, c);
                 
                 buttonAddPaiement = new JButton("Ajout Paiement");  
                 buttonAddPaiement.setContentAreaFilled(false);
                 buttonAddPaiement.setPreferredSize(dimButton);
                 c.gridy++; c.gridwidth = 1;
+                c.insets = new Insets(0, 1, 0, 0);
                 panelPaiement.add(buttonAddPaiement, c);
                 
                 buttonDelPaiement = new JButton("Supprimer Paiement");
@@ -317,26 +331,31 @@ public class PanelInscription extends JPanel {
                 c.gridx++;
                 panelPaiement.add(buttonExportPaiement, c);
             
-            this.add(panelPaiement, BorderLayout.CENTER);
+            this.add(panelPaiement);
 
             panelAccordPaiement = new JPanel();
             panelAccordPaiement.setLayout(new GridBagLayout());
-            c.insets = new Insets(24, 0, 0, 0);
+            c.insets = new Insets(0, 0, 0, 0);
             c.gridwidth = 3;
             c.gridx = 0; c.gridy = 0;
+            
+                labelAccordPaiement = new JLabel("<html><u>Accords Paiements</u> : </html>");
+                labelAccordPaiement.setFont(new Font("Arial", Font.ITALIC, 13));
+                panelAccordPaiement.add(labelAccordPaiement, c);
         
                 tableAccordPaiement = new JTable();
                 tableAccordPaiement.setName("tableAccordPaiement");
                 tableAccordPaiement.setModel(new AccordPaiementList(arrayAccordPaiement));  
                 scrollPaneTableAccordPaiement = new JScrollPane(tableAccordPaiement);
-                scrollPaneTableAccordPaiement.setPreferredSize(new Dimension(450, (Fenetre.getCont().getHeight())*5/13));   
+                scrollPaneTableAccordPaiement.setPreferredSize(new Dimension(451, 180));   
+                c.gridy++;
                 panelAccordPaiement.add(scrollPaneTableAccordPaiement, c);
             
                 buttonAddAccord = new JButton("Ajout Accord");
                 buttonAddAccord.setContentAreaFilled(false);
                 buttonAddAccord.setPreferredSize(dimButton);
                 c.gridy++; c.gridwidth = 1;
-                c.insets = new Insets(0, 0, 0, 0);
+                c.insets = new Insets(0, 1, 0, 0);
                 panelAccordPaiement.add(buttonAddAccord, c);
                 
                 buttonDelAccord = new JButton("Supprimer Accord");
@@ -351,7 +370,7 @@ public class PanelInscription extends JPanel {
                 c.gridx++;
                 panelAccordPaiement.add(buttonExportAccord, c);
             
-            this.add(panelAccordPaiement, BorderLayout.SOUTH);
+            this.add(panelAccordPaiement);
 
             Action action = new ModifPaiement();
             tclP = new TableCellListener(tablePaiement, action);
@@ -682,8 +701,10 @@ public class PanelInscription extends JPanel {
             listModelInscription.clear();
             if(arrayInscription.isEmpty() == true || idActivite == -1) {
                 listModelInscription.addElement(new QueryResult(-1,"-- Aucune inscription --"));
+                labelTotalInscris.setText("Aucun inscris");
             }
-            else {            
+            else {         
+                labelTotalInscris.setText("Nombre d'inscris : "+arrayInscription.size());
                 prix = (app.getActivite(idActivite).getPrix())*-1;
                 
                 for(Membre me : arrayInscription) {                    
