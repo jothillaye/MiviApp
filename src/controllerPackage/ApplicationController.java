@@ -43,8 +43,8 @@ public class ApplicationController {
         return membreManager.newMembre(membre);
     }
 	
-    public ArrayList<Membre> listMembre(String search) throws DBException, NotIdentified {
-        return membreManager.listMembre(search);
+    public ArrayList<Membre> listMembre(String nom, String prenom) throws DBException, NotIdentified {
+        return membreManager.listMembre(nom, prenom);
 	}
     
     public Membre getMembre(Integer id) throws DBException, NotIdentified {

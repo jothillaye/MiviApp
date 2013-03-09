@@ -35,6 +35,7 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.MaskFormatter;
 import modelPackage.HistoryMembreList;
 import modelPackage.Membre;
@@ -55,8 +56,8 @@ public class PanelMembre extends JPanel {
     private JList listMembre;
     private JScrollPane scrollPaneMembre, scrollPaneHistory;
     private DefaultListModel listModelMembre;
-	private JTextField fieldId, fieldNom, fieldPrenom, fieldRue, fieldNumero, fieldCodePostal, fieldVille, fieldFixe, fieldGSM, fieldEmail, fieldFilter, fieldSolde;
-    private JFormattedTextField fieldDate;
+	private JTextField fieldId, fieldNom, fieldPrenom, fieldRue, fieldNumero, fieldCodePostal, fieldVille, fieldEmail, fieldFilter, fieldSolde;
+    private JFormattedTextField fieldDate, fieldFixe, fieldGSM;
     private JCheckBox checkBoxClientME, checkBoxAssistant, checkBoxAnimateur;
     private JComboBox comboBoxProvenance, comboBoxContact;
     private JButton buttonInsert, buttonNewMembre, buttonModify, buttonDelete;	
@@ -66,6 +67,7 @@ public class PanelMembre extends JPanel {
     private QueryResult structMembre;	
     private ArrayList<Membre> arrayMembre, arrayMembreComboBox;
     private URL iconURL;
+    private ArrayList<String> arrayPrefix;
 	
 	private PanelMembre panelMembre;	    
     private ApplicationController app = new ApplicationController();
@@ -128,6 +130,11 @@ public class PanelMembre extends JPanel {
             panelRight.add(tabbedPane, BorderLayout.CENTER); 
         
         this.add(panelRight, BorderLayout.CENTER);	
+        
+        arrayPrefix = new ArrayList<String>(); 
+        arrayPrefix.add("02");
+        arrayPrefix.add("03");
+        arrayPrefix.add("04");
 	}
     
     private class PanelFicheMembre extends JPanel {
@@ -224,8 +231,13 @@ public class PanelMembre extends JPanel {
             c.gridx = 0; c.gridy++; 
             c.insets = new Insets(40,20,0,0);
             this.add(labelFixe, c);
-
-            fieldFixe = new JTextField(12);
+            
+            try {
+                fieldFixe = new JFormattedTextField(new MaskFormatter("### ## ## ##"));
+            } catch (ParseException ex) {
+                JOptionPane.showMessageDialog(null, "Erreur lors du parsing du numéro de téléphone, veuillez contacter l'administrateur.", "Erreur parsing", JOptionPane.ERROR_MESSAGE);
+            }
+            fieldFixe.setColumns(9);
             c.gridx = 1;
             this.add(fieldFixe, c); 
 
@@ -233,8 +245,12 @@ public class PanelMembre extends JPanel {
             labelGSM = new JLabel("GSM : ");
             c.gridx = 2; 
             this.add(labelGSM, c);
-
-            fieldGSM = new JTextField(12);
+            try {
+                fieldGSM = new JFormattedTextField(new MaskFormatter("#### ## ## ##"));
+            } catch (ParseException ex) {
+                JOptionPane.showMessageDialog(null, "Erreur lors du parsing du numéro de gsm, veuillez contacter l'administrateur.", "Erreur parsing", JOptionPane.ERROR_MESSAGE);
+            }
+            fieldGSM.setColumns(10);
             c.gridx = 3;
             this.add(fieldGSM, c);         
 
@@ -272,7 +288,7 @@ public class PanelMembre extends JPanel {
             c.gridx = 3;
             this.add(comboBoxContact, c);	 
             try {            
-                arrayMembreComboBox = app.listMembre(null);
+                arrayMembreComboBox = app.listMembre(null, null);
                 modelContact.addElement(new QueryResult(-1,"Aucun"));
                 for(Membre membre : arrayMembreComboBox) {
                     modelContact.addElement(new QueryResult(membre.getIdMembre(),membre.getNom()+", "+membre.getPrenom()));
@@ -393,7 +409,7 @@ public class PanelMembre extends JPanel {
     private void UpdateListMembre(String filter){
         listModelMembre.removeAllElements();
         try {        
-            arrayMembre = app.listMembre(filter);
+            arrayMembre = app.listMembre(filter, filter);
             for(Membre me : arrayMembre){
                 listModelMembre.addElement(new QueryResult(me.getIdMembre(),me.getNom()+", "+me.getPrenom()));
             }        
@@ -437,18 +453,35 @@ public class PanelMembre extends JPanel {
             fieldCodePostal.setText("");
         }
         fieldVille.setText(me.getVille());
-        if(me.getGsm() != null && me.getGsm().isEmpty() == false) {
-            fieldGSM.setText(me.getGsm().toString());
-        }            
-        else {
-            fieldGSM.setText("");
-        }
-        if(me.getFixe() != null && me.getFixe().isEmpty() == false) {
-            fieldFixe.setText(me.getFixe().toString());
+     
+        if(me.getFixe() != null && me.getFixe().length() >= 9) {
+            String mask = "### ## ## ##", fixeString = me.getFixe();
+            if(me.getFixe().subSequence(0, 2).equals("32")) {
+                fixeString = "0" + fixeString.substring(2, fixeString.length());
+            }                
+            if(arrayPrefix.contains(fixeString.substring(0, 2))){
+                mask = "## ### ## ##";                           
+            }
+                
+            try {
+                fieldFixe.setFormatterFactory(new DefaultFormatterFactory(new MaskFormatter(mask)));        
+            } 
+            catch (ParseException ex) {
+                JOptionPane.showMessageDialog(null, "Erreur lors du parsing du numéro fixe. Veuillez contacter l'administrateur.", "Erreur Parsing", JOptionPane.ERROR_MESSAGE);
+            }
+            fieldFixe.setText(fixeString);
         }
         else {
             fieldFixe.setText("");
-        }           
+        }
+        
+        if(me.getGsm() != null && me.getGsm().length() >= 10){
+            fieldGSM.setText(me.getGsm());
+        }
+        else {
+            fieldGSM.setText("");
+        }
+        
         fieldDate.setText(me.getFormatedDateNaiss());
         fieldEmail.setText(me.getEmail());
         comboBoxProvenance.setSelectedIndex(me.getProvenance());        
@@ -531,12 +564,20 @@ public class PanelMembre extends JPanel {
                         codePostal = Integer.parseInt(fieldCodePostal.getText());
                     }
                     // Test GSM
-                    if(fieldGSM.getText().isEmpty() == false) {
-                        testGsm = Integer.parseInt(fieldGSM.getText());
+                    if(fieldGSM.getValue() != null) {
+                        gsm = fieldGSM.getText().replaceAll("\\s","");;
+                        testGsm = Integer.parseInt(gsm);
+                    }
+                    else {
+                        gsm = null;
                     }
                     // Test Fixe
-                    if(fieldFixe.getText().isEmpty() == false) {
-                        testFixe = Integer.parseInt(fieldFixe.getText());
+                    if(fieldFixe.getValue() != null) {
+                        fixe = fieldFixe.getText().replaceAll("\\s","");
+                        testFixe = Integer.parseInt(fixe);
+                    }
+                    else {
+                        fixe = null;
                     }
                     
                     if(fieldDate.getValue() != null){
@@ -548,7 +589,7 @@ public class PanelMembre extends JPanel {
                     // Nouveau membre
                     if(e.getSource() == buttonInsert) {
                         idMembre = null;
-                        ArrayList<Membre> arrayExistingMembre = app.listMembre(membre.getNom());
+                        ArrayList<Membre> arrayExistingMembre = app.listMembre(membre.getNom(), null);
                         if(arrayExistingMembre.isEmpty() == true) {
                             idMembre = app.newMembre(membre);     
                             membre.setIdMembre(idMembre);
@@ -596,7 +637,7 @@ public class PanelMembre extends JPanel {
                     }
                 }
                 catch(NumberFormatException nfe) {
-                    JOptionPane.showMessageDialog(null, "Erreur : n'inclure que des chiffres dans les champs suivants :\nCode Postal, GSM, Fixe", "Erreur champs numérique", JOptionPane.ERROR_MESSAGE);                    
+                    JOptionPane.showMessageDialog(null, "Erreur : n'inclure que des chiffres dans les champs suivants :\nCode Postal, GSM, Téléphone Fixe", "Erreur champs numérique", JOptionPane.ERROR_MESSAGE);                    
                 }
 				catch (DBException ex) {
 					JOptionPane.showMessageDialog(null, ex, "Erreur ajout", JOptionPane.ERROR_MESSAGE);

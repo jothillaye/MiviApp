@@ -227,7 +227,7 @@ public class PanelInscription extends JPanel {
             this.add(comboBoxMembre, c);	 
             
             try {            
-                arrayMembre = app.listMembre(null);
+                arrayMembre = app.listMembre(null, null);
                 comboBoxMembre.addItem(new QueryResult(-1,"Aucun"));
                 for(Membre membre : arrayMembre) {
                     comboBoxMembre.addItem(new QueryResult(membre.getIdMembre(),membre.getNom()+", "+membre.getPrenom()));
@@ -528,7 +528,13 @@ public class PanelInscription extends JPanel {
                         ins = new Inscription();
                         ins.setIdActivite(idActivite);
                         ins.setIdMembre(idMembre); 
-                        ins.setTarifSpecial(Float.parseFloat(fieldTarifSpecial.getText()));
+                        String tarifString = fieldTarifSpecial.getText();
+                        if(tarifString.isEmpty() == false){                        
+                            ins.setTarifSpecial(Float.parseFloat(tarifString));
+                        }
+                        else {
+                            ins.setTarifSpecial(new Float(0));
+                        }
                         ins.setCertifie(checkCertifie.isSelected());
                         ins.setAbandonne(checkAbandonne.isSelected());
                         try {
@@ -678,7 +684,7 @@ public class PanelInscription extends JPanel {
                     if(act.getPromotion() != 0) {
                         desc = "Promotion " + act.getPromotion().toString();
                     }
-                    else {
+                    else if(act.getDateDeb() != null){
                         desc = act.getFormatedDateDeb();
                     }
                     listModelActivite.addElement(new QueryResult(act.getIdActivite(), desc));
@@ -699,7 +705,11 @@ public class PanelInscription extends JPanel {
                 arrayInscription = app.listInscription(idActivite);
             }
             listModelInscription.clear();
-            if(arrayInscription.isEmpty() == true || idActivite == -1) {
+            if(idActivite == -1) {
+                listModelInscription.addElement(new QueryResult(-1,"-- Aucune activité sélectionnée --"));
+                labelTotalInscris.setText("Aucun inscris");
+            }
+            else if(arrayInscription.isEmpty() == true){            
                 listModelInscription.addElement(new QueryResult(-1,"-- Aucune inscription --"));
                 labelTotalInscris.setText("Aucun inscris");
             }

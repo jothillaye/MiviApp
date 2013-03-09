@@ -18,8 +18,8 @@ public class AccessMembreDB {
 	// Ajour d'un membre
 	public Integer newMembre(Membre membre) throws DBException, NotIdentified {
 		try {
-			request = "insert into membre (nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, provenance, idContact, assistant, animateur, clientME, supprimer) "
-                    + " values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+			request = "insert into membre (nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, provenance, idContact, assistant, animateur, clientME, supprime) "
+                    + " values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 			prepStat = AccessDB.getInstance().prepareStatement(request);
 			prepStat.setString(1, membre.getNom());
 			prepStat.setString(2, membre.getPrenom());			
@@ -60,15 +60,20 @@ public class AccessMembreDB {
 	}
 	
 	// Obtention d'une liste de membre (sur base du nom et/ou prenom)
-	public ArrayList<Membre> listMembre(String search) throws DBException, NotIdentified {
+	public ArrayList<Membre> listMembre(String nom, String prenom) throws DBException, NotIdentified {
 		try {
 			request = "select idMembre, nom, prenom from membre ";	
-			if(search!=null){
+			if(nom != null && prenom != null){
 				request += " where supprime <> true and (upper(nom) like ? or upper(prenom) like ?) order by upper(nom)";
 				prepStat = AccessDB.getInstance().prepareStatement(request);		
-				prepStat.setString(1, "%" + search.toUpperCase() + "%");
-				prepStat.setString(2, "%" + search.toUpperCase() + "%");
+				prepStat.setString(1, "%" + nom.toUpperCase() + "%");
+				prepStat.setString(2, "%" + prenom.toUpperCase() + "%");
 			}	
+            else if(nom != null){
+				request += " where supprime <> true and upper(nom) like ? order by upper(nom)";
+				prepStat = AccessDB.getInstance().prepareStatement(request);		
+				prepStat.setString(1, "%" + nom.toUpperCase() + "%");            
+            }
 			else {
                 request += " where supprime <> true order by upper(nom)";
                 prepStat = AccessDB.getInstance().prepareStatement(request);
