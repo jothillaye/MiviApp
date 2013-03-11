@@ -17,8 +17,8 @@ public class AccessPaiementDB {
 	
 	public Integer newPaiement(Paiement paiement) throws DBException, NotIdentified {
 		try {
-			request = "insert into paiement (idActivite, idMembre, datePaiement, accord, montant, typePaiement) "
-                    + " values (?,?,?,?,?,?);";
+			request = "insert into paiement (idActivite, idMembre, datePaiement, accord, montant, typePaiement, typeIns) "
+                    + " values (?,?,?,?,?,?,?);";
 			prepStat = AccessDB.getInstance().prepareStatement(request);
             prepStat.setInt(1, paiement.getIdActivite());
             prepStat.setInt(2, paiement.getIdMembre());            
@@ -26,6 +26,7 @@ public class AccessPaiementDB {
             prepStat.setBoolean(4, paiement.getAccord());
             prepStat.setFloat(5, paiement.getMontant());
             prepStat.setInt(6, paiement.getTypePaiement());
+            prepStat.setInt(7, paiement.getTypeIns());
 			
             prepStat.executeUpdate();    
             
@@ -48,28 +49,29 @@ public class AccessPaiementDB {
 		}
 	}
 	
-	public ArrayList<Paiement> listPaiement(Integer idActivite, Integer idMembre, Boolean accord) throws DBException, NotIdentified {
+	public ArrayList<Paiement> listPaiement(Paiement paiement) throws DBException, NotIdentified {
 		try {
 			request = "select montant, datePaiement, typePaiement from paiement "
-                    + " where idActivite = ? and idMembre = ? and accord = ? order by datePaiement;";	
+                    + " where idActivite = ? and idMembre = ? and accord = ? and typeIns = ? order by datePaiement;";	
 			prepStat = AccessDB.getInstance().prepareStatement(request);	
-            prepStat.setInt(1, idActivite);	
-            prepStat.setInt(2, idMembre);	
-            prepStat.setBoolean(3, accord);		
+            prepStat.setInt(1, paiement.getIdActivite());	
+            prepStat.setInt(2, paiement.getIdMembre());	
+            prepStat.setBoolean(3, paiement.getAccord());		
+            prepStat.setInt(4, paiement.getTypeIns());
 					
 			data = prepStat.executeQuery();
 			
 			ArrayList<Paiement> arrayPaiement = new ArrayList<Paiement>();
 			
 			while (data.next()) { 
-                Paiement paiement = new Paiement();
-                paiement.setMontant(data.getFloat(1));
+                Paiement newPaiement = new Paiement();
+                newPaiement.setMontant(data.getFloat(1));
                 GregorianCalendar datePaiement = new GregorianCalendar();
                 datePaiement.setTimeInMillis(data.getDate(2).getTime());
-                paiement.setDatePaiement(datePaiement);
-                paiement.setOldDate(datePaiement);
-                paiement.setTypePaiement(data.getInt(3));
-				arrayPaiement.add(paiement);	
+                newPaiement.setDatePaiement(datePaiement);
+                newPaiement.setOldDate(datePaiement);
+                newPaiement.setTypePaiement(data.getInt(3));
+				arrayPaiement.add(newPaiement);	
 			}
 			return arrayPaiement;
 		} 
@@ -85,19 +87,19 @@ public class AccessPaiementDB {
         try {
             if(paiement.getDatePaiement() != null) {
                 request = "update paiement set datePaiement = ?"
-                    + " where idActivite = ? and idMembre = ? and datePaiement = ? and accord = ?;";                
+                    + " where idActivite = ? and idMembre = ? and datePaiement = ? and accord = ? and typeIns = ?;";                
                 prepStat = AccessDB.getInstance().prepareStatement(request);            
                 prepStat.setDate(1, new Date(paiement.getDatePaiement().getTimeInMillis()));
             }
             else if(paiement.getMontant() != null) {
                 request = "update paiement set montant = ?"
-                    + " where idActivite = ? and idMembre = ? and datePaiement = ? and accord = ?;";                
+                    + " where idActivite = ? and idMembre = ? and datePaiement = ? and accord = ? and typeIns = ?;";                
                 prepStat = AccessDB.getInstance().prepareStatement(request);            
                 prepStat.setFloat(1, paiement.getMontant());                
             }
             else if(paiement.getTypePaiement() != null) {
                 request = "update paiement set typePaiement = ?"
-                    + " where idActivite = ? and idMembre = ? and datePaiement = ? and accord = ?;";                
+                    + " where idActivite = ? and idMembre = ? and datePaiement = ? and accord = ? and typeIns = ?;";                
                 prepStat = AccessDB.getInstance().prepareStatement(request);            
                 prepStat.setInt(1, paiement.getTypePaiement());
             }                        
@@ -105,6 +107,7 @@ public class AccessPaiementDB {
             prepStat.setInt(3, paiement.getIdMembre());
             prepStat.setDate(4, new Date(oldDate.getTimeInMillis()));                
             prepStat.setBoolean(5, paiement.getAccord());
+            prepStat.setInt(6, paiement.getTypeIns());
 			prepStat.executeUpdate();
         }	 
         catch (SQLException e) {
@@ -117,12 +120,13 @@ public class AccessPaiementDB {
 
     public void deletePaiement(Paiement paiement) throws DBException, NotIdentified {
         try {
-            request = "delete from paiement where idActivite = ? and idMembre = ? and datePaiement = ? and accord = ?;";
+            request = "delete from paiement where idActivite = ? and idMembre = ? and datePaiement = ? and accord = ? and typeIns = ?;";
             prepStat = AccessDB.getInstance().prepareStatement(request);
             prepStat.setInt(1, paiement.getIdActivite());
             prepStat.setInt(2, paiement.getIdMembre());
             prepStat.setDate(3, new Date(paiement.getDatePaiement().getTimeInMillis()));
             prepStat.setBoolean(4, paiement.getAccord());
+            prepStat.setInt(5, paiement.getTypeIns());
             prepStat.executeUpdate();            
         }	 
 		catch (SQLException e) {
@@ -137,14 +141,14 @@ public class AccessPaiementDB {
 		try {
             if(idActivite != null){
                 request = "select montant from paiement "
-                    + " where accord = false and idActivite = ? and idMembre = ?;";	
+                    + " where accord = false and idActivite = ? and idMembre = ? and typeIns = 0;";	
                 prepStat = AccessDB.getInstance().prepareStatement(request);	
                 prepStat.setInt(1, idActivite);	
                 prepStat.setInt(2, idMembre);	
             }
             else {
                 request = "select montant from paiement "
-                        + " where accord = false and idMembre = ?;";	
+                        + " where accord = false and idMembre = ? and typeIns = 0;";	
                 prepStat = AccessDB.getInstance().prepareStatement(request);	
                 prepStat.setInt(1, idMembre);	            
             }

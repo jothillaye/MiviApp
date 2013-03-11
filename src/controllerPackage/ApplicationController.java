@@ -102,16 +102,16 @@ public class ApplicationController {
         inscriptionManager.newInscription(ins);
     }
     
-    public ArrayList<Membre> listInscription(Integer idActivite) throws DBException, NotIdentified {
-        return inscriptionManager.listInscription(idActivite);
+    public ArrayList<Membre> listInscription(Integer idActivite, Integer typeIns) throws DBException, NotIdentified {
+        return inscriptionManager.listInscription(idActivite, typeIns);
     }    
     
     public Inscription getInscription(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {
         return inscriptionManager.getInscription(idActivite, idMembre);
     }    
     
-    public void deleteInscription(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {
-        inscriptionManager.deleteInscription(idActivite, idMembre);
+    public void deleteInscription(Inscription ins) throws DBException, NotIdentified {
+        inscriptionManager.deleteInscription(ins);
     }
     
     public void modifyInscription(Inscription ins) throws DBException, NotIdentified {
@@ -127,8 +127,8 @@ public class ApplicationController {
         paiementManager.newPaiement(paiement);
     }
     
-    public ArrayList<Paiement> listPaiement(Integer idActivite, Integer idMembre, Boolean accord) throws DBException, NotIdentified {
-        return paiementManager.listPaiement(idActivite, idMembre, accord);
+    public ArrayList<Paiement> listPaiement(Paiement paiement) throws DBException, NotIdentified {
+        return paiementManager.listPaiement(paiement);
     }
 
     public void modifyPaiement(Paiement paiement, GregorianCalendar oldDate) throws DBException, NotIdentified {

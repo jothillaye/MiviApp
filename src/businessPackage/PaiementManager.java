@@ -20,8 +20,8 @@ public class PaiementManager {
         }
     }
 
-    public ArrayList<Paiement> listPaiement(Integer idActivite, Integer idMembre, Boolean accord) throws DBException, NotIdentified {
-        return accessPaiement.listPaiement(idActivite, idMembre, accord);
+    public ArrayList<Paiement> listPaiement(Paiement paiement) throws DBException, NotIdentified {
+        return accessPaiement.listPaiement(paiement);
     }
     
     public void modifyPaiement(Paiement paiement, GregorianCalendar oldDate) throws DBException, NotIdentified {

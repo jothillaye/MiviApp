@@ -6,7 +6,7 @@ import static java.util.Calendar.YEAR;
 import java.util.GregorianCalendar;
 
 public class Paiement {
-    private Integer idActivite, idMembre, typePaiement;
+    private Integer idPaiement, idActivite, idMembre, typePaiement, typeIns;
     private Boolean accord;
     private Float montant;
     private GregorianCalendar datePaiement, oldDate;
@@ -30,6 +30,8 @@ public class Paiement {
     public Boolean getAccord() {return accord;}
     public Integer getTypePaiement() {return typePaiement;}
     public GregorianCalendar getOldDate() {return oldDate;}
+    public Integer getIdPaiement() {return idPaiement;}
+    public Integer getTypeIns() {return typeIns;}
     
     public String getDatePaiementFormated() {    
         if(datePaiement.get(DAY_OF_MONTH)<10) {
@@ -54,4 +56,8 @@ public class Paiement {
     public void setAccord(Boolean accord) {this.accord = accord;}
     public void setTypePaiement(Integer typePaiement) {this.typePaiement = typePaiement;}
     public void setOldDate(GregorianCalendar oldDate) {this.oldDate = oldDate;}
+    public void setIdPaiement(Integer idPaiement) {this.idPaiement = idPaiement;}
+    public void setTypeIns(Integer typeIns) {this.typeIns = typeIns;}
+
+    
 }

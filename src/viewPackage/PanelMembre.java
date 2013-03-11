@@ -21,7 +21,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -47,18 +46,17 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
  */
 public class PanelMembre extends JPanel {
     // Panels & Layout
-    private JPanel panelListMembre, panelRight, panelStatus, panelButtons, panelFicheMembre, panelHistory;
+    private JPanel panelListMembre, panelRight, panelButtons, panelFicheMembre, panelHistory;
     private JTabbedPane tabbedPane;
-    private FlowLayout flowStatus, flowButtons;
+    private FlowLayout flowButtons;
     private GridBagConstraints c;
         
     // Champs & Labels
     private JList listMembre;
     private JScrollPane scrollPaneMembre, scrollPaneHistory;
     private DefaultListModel listModelMembre;
-	private JTextField fieldId, fieldNom, fieldPrenom, fieldRue, fieldNumero, fieldCodePostal, fieldVille, fieldEmail, fieldFilter, fieldSolde;
+	private JTextField fieldId, fieldNom, fieldPrenom, fieldRue, fieldNumero, fieldCodePostal, fieldVille, fieldEmail, fieldFilter, fieldSolde, fieldPays;
     private JFormattedTextField fieldDate, fieldFixe, fieldGSM;
-    private JCheckBox checkBoxClientME, checkBoxAssistant, checkBoxAnimateur;
     private JComboBox comboBoxProvenance, comboBoxContact;
     private JButton buttonInsert, buttonNewMembre, buttonModify, buttonDelete;	
     private JTable tableHistory;
@@ -138,7 +136,7 @@ public class PanelMembre extends JPanel {
 	}
     
     private class PanelFicheMembre extends JPanel {
-        private JLabel labelNom, labelPrenom, labelRue, labelNumero, labelCodePostal, labelVille, labelFixe, labelGSM, labelEmail, labelDateNaiss, labelProvenance, labelContact;
+        private JLabel labelNom, labelPrenom, labelRue, labelNumero, labelCodePostal, labelVille, labelFixe, labelGSM, labelEmail, labelDateNaiss, labelProvenance, labelContact, labelPays;
 	
         public PanelFicheMembre() {            
             this.setLayout(new GridBagLayout());
@@ -225,6 +223,15 @@ public class PanelMembre extends JPanel {
             fieldVille = new JTextField(12);                
             c.gridx = 3;
             this.add(fieldVille, c);
+            
+            // Pays (ComboBox)
+            labelPays = new JLabel("Pays : ");
+            c.gridx = 0; c.gridy++;
+            this.add(labelPays, c);
+            
+            fieldPays = new JTextField("Belgique", 10);
+            c.gridx++;
+            this.add(fieldPays, c);            
 
             // Fixe (Field)
             labelFixe = new JLabel("Téléphone Fixe : ");
@@ -301,29 +308,7 @@ public class PanelMembre extends JPanel {
             catch (NotIdentified ex) {
                 JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
             }
-            AutoCompleteDecorator.decorate(comboBoxContact);
-
-            panelStatus = new JPanel();
-            flowStatus = new FlowLayout();
-            flowStatus.setAlignment(FlowLayout.CENTER);
-            flowStatus.setHgap(50);
-            panelStatus.setLayout(flowStatus);            
-
-                // Client Maison de l'Ecologie
-                checkBoxClientME = new JCheckBox("Client ME");
-                panelStatus.add(checkBoxClientME);
-
-                // Assistant
-                checkBoxAssistant = new JCheckBox("Assistant");
-                panelStatus.add(checkBoxAssistant);        
-
-                // Animateur
-                checkBoxAnimateur = new JCheckBox("Animateur");
-                panelStatus.add(checkBoxAnimateur); 
-
-            c.gridx = 0; c.gridy++; c.gridwidth = 4;
-            c.insets = new Insets(15,20,0,0);
-            this.add(panelStatus, c);           
+            AutoCompleteDecorator.decorate(comboBoxContact);    
 
             panelButtons = new JPanel();
             flowButtons = new FlowLayout();
@@ -378,6 +363,7 @@ public class PanelMembre extends JPanel {
                 } 
                 
             c.gridy++; c.gridx = 0; 
+            c.gridwidth = 4;
             this.add(panelButtons, c);   
         }
     }
@@ -453,6 +439,7 @@ public class PanelMembre extends JPanel {
             fieldCodePostal.setText("");
         }
         fieldVille.setText(me.getVille());
+        fieldPays.setText(me.getPays());
      
         if(me.getFixe() != null && me.getFixe().length() >= 9) {
             String mask = "### ## ## ##", fixeString = me.getFixe();
@@ -495,9 +482,6 @@ public class PanelMembre extends JPanel {
         else {
             comboBoxContact.setSelectedIndex(0);
         }
-        checkBoxAnimateur.setSelected(me.getAnimateur());
-        checkBoxAssistant.setSelected(me.getAssistant());
-        checkBoxClientME.setSelected(me.getClientME());
         
         // Show buttons modify, delete, emptyField on existing membre
         if(buttonDelete.isVisible() == false) {
@@ -531,7 +515,7 @@ public class PanelMembre extends JPanel {
     
 	private class ActionManager implements ActionListener { 
         // Variables temporaires
-        String prenom, nom, rue, numero, ville, email, filter, fixe, gsm, dateString;	
+        String prenom, nom, rue, numero, ville, pays, email, filter, fixe, gsm, dateString;	
         Integer idMembre, idContact, codePostal = 0, provenance, idMembreList, reply, testGsm, testFixe;    
         Boolean clientME, assistant, animateur, supprime;
         GregorianCalendar dateNaiss;
@@ -550,13 +534,10 @@ public class PanelMembre extends JPanel {
                 rue         = fieldRue.getText();
                 numero      = fieldNumero.getText();
                 ville       = fieldVille.getText();
+                pays        = fieldPays.getText();
                 email       = fieldEmail.getText();
                 provenance  = comboBoxProvenance.getSelectedIndex();
                 idContact   = ((QueryResult)comboBoxContact.getSelectedItem()).id;
-                clientME    = checkBoxClientME.isSelected();
-                assistant   = checkBoxAssistant.isSelected();
-                animateur   = checkBoxAnimateur.isSelected();
-                supprime    = false;
                 dateNaiss   = new GregorianCalendar();
                 try {
                     // Test Code Postal
@@ -565,7 +546,7 @@ public class PanelMembre extends JPanel {
                     }
                     // Test GSM
                     if(fieldGSM.getValue() != null) {
-                        gsm = fieldGSM.getText().replaceAll("\\s","");;
+                        gsm = fieldGSM.getText().replaceAll("\\s","");
                         testGsm = Integer.parseInt(gsm);
                     }
                     else {
@@ -585,7 +566,7 @@ public class PanelMembre extends JPanel {
                         dateNaiss.set(Integer.parseInt(dateString.substring(6, 10)), Integer.parseInt(dateString.substring(3, 5))-1, Integer.parseInt(dateString.substring(0, 2)));
                     }
                     
-                    Membre membre = new Membre(nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, provenance, idContact, assistant, animateur, clientME, supprime);
+                    Membre membre = new Membre(nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, pays, provenance, idContact);
                     // Nouveau membre
                     if(e.getSource() == buttonInsert) {
                         idMembre = null;

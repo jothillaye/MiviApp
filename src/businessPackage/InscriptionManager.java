@@ -25,8 +25,8 @@ public class InscriptionManager {
         }
     }
 
-    public ArrayList<Membre> listInscription(Integer idActivite) throws DBException, NotIdentified {
-        return accessIns.listInscription(idActivite);
+    public ArrayList<Membre> listInscription(Integer idActivite, Integer typeIns) throws DBException, NotIdentified {
+        return accessIns.listInscription(idActivite, typeIns);
     }
     
     public Inscription getInscription(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {
@@ -37,8 +37,8 @@ public class InscriptionManager {
         accessIns.modifyInscription(ins);
     }
     
-    public void deleteInscription(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {
-        accessIns.deleteInscription(idActivite, idMembre);
+    public void deleteInscription(Inscription ins) throws DBException, NotIdentified {
+        accessIns.deleteInscription(ins);
     }
     
     public ArrayList<ArrayList<Object>> listInsMembre(Integer idMembre) throws DBException, NotIdentified {

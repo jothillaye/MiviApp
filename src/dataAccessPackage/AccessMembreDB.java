@@ -18,8 +18,8 @@ public class AccessMembreDB {
 	// Ajour d'un membre
 	public Integer newMembre(Membre membre) throws DBException, NotIdentified {
 		try {
-			request = "insert into membre (nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, provenance, idContact, assistant, animateur, clientME, supprime) "
-                    + " values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+			request = "insert into membre (nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, pays, provenance, idContact, supprime) "
+                    + " values (?,?,?,?,?,?,?,?,?,?,?,?,?,false);";
 			prepStat = AccessDB.getInstance().prepareStatement(request);
 			prepStat.setString(1, membre.getNom());
 			prepStat.setString(2, membre.getPrenom());			
@@ -31,12 +31,9 @@ public class AccessMembreDB {
             prepStat.setString(8, membre.getNumero());
             prepStat.setInt(9, membre.getCodePostal());
             prepStat.setString(10, membre.getVille());
-            prepStat.setInt(11, membre.getProvenance());
-            prepStat.setInt(12, membre.getIdContact());
-            prepStat.setBoolean(13, membre.getAssistant());
-            prepStat.setBoolean(14, membre.getAnimateur());
-            prepStat.setBoolean(15, membre.getClientME());
-            prepStat.setBoolean(16, false);
+            prepStat.setString(11, membre.getPays());
+            prepStat.setInt(12, membre.getProvenance());
+            prepStat.setInt(13, membre.getIdContact());
 			
             prepStat.executeUpdate();    
             
@@ -130,11 +127,10 @@ public class AccessMembreDB {
                 membre.setNumero(data.getString(9));
                 membre.setCodePostal(data.getInt(10));
                 membre.setVille(data.getString(11));
-                membre.setProvenance(data.getInt(12));
-                membre.setIdContact(data.getInt(13));
-                membre.setAssistant(data.getBoolean(14));
-                membre.setAnimateur(data.getBoolean(15)); 
-                membre.setClientME(data.getBoolean(16));
+                membre.setPays(data.getString(12));
+                membre.setProvenance(data.getInt(13));
+                membre.setIdContact(data.getInt(14));
+                membre.setSupprime(data.getBoolean(15));
 			}
 			return membre;
 		} 
@@ -149,7 +145,7 @@ public class AccessMembreDB {
 
     public void modifyMembre(Membre membre) throws DBException, NotIdentified {
         try {
-            request = "update membre set nom = ?, prenom = ?, email = ?, dateNaiss = ?, gsm = ?, fixe = ?, rue = ?, numero = ?, codePostal = ?, ville = ?, provenance = ?, idContact = ?, assistant = ?, animateur = ?, clientME = ?"
+            request = "update membre set nom = ?, prenom = ?, email = ?, dateNaiss = ?, gsm = ?, fixe = ?, rue = ?, numero = ?, codePostal = ?, ville = ?, pays = ?, provenance = ?, idContact = ?"
                     + " where idMembre = ?;";
             prepStat = AccessDB.getInstance().prepareStatement(request);
 			prepStat.setString(1, membre.getNom());
@@ -162,12 +158,10 @@ public class AccessMembreDB {
             prepStat.setString(8, membre.getNumero());
             prepStat.setInt(9, membre.getCodePostal());
             prepStat.setString(10, membre.getVille());
-            prepStat.setInt(11, membre.getProvenance());
-            prepStat.setInt(12, membre.getIdContact());
-            prepStat.setBoolean(13, membre.getAssistant());
-            prepStat.setBoolean(14, membre.getAnimateur());
-            prepStat.setBoolean(15, membre.getClientME());
-            prepStat.setInt(16, membre.getIdMembre());
+            prepStat.setString(11, membre.getPays());
+            prepStat.setInt(12, membre.getProvenance());
+            prepStat.setInt(13, membre.getIdContact());
+            prepStat.setInt(14, membre.getIdMembre());
             
 			prepStat.executeUpdate();
         }	 

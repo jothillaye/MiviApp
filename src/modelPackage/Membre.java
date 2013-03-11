@@ -7,11 +7,11 @@ import java.util.GregorianCalendar;
 
 public class Membre {
     private Integer idMembre, codePostal, idContact, provenance;
-	private String nom, prenom, email, rue, numero, ville, dayOfMonth, month, gsm, fixe;
+	private String nom, prenom, email, rue, numero, ville, pays, gsm, fixe, dayOfMonth, month;
 	private GregorianCalendar dateNaiss;
-    private Boolean assistant, animateur, clientME, supprimer;
+    private Boolean assistant, animateur, supprime;
 
-	public Membre(String nom, String prenom, String email, GregorianCalendar dateNaiss, String gsm, String fixe, String rue, String numero, Integer codePostal, String ville, Integer provenance, Integer idContact, Boolean assistant, Boolean animateur, Boolean clientME, Boolean supprimer) {
+	public Membre(String nom, String prenom, String email, GregorianCalendar dateNaiss, String gsm, String fixe, String rue, String numero, Integer codePostal, String ville, String pays, Integer provenance, Integer idContact) {
 		this.nom = nom;
 		this.prenom = prenom;
         this.email = email;
@@ -22,12 +22,9 @@ public class Membre {
         this.numero = numero;
         this.codePostal = codePostal;
         this.ville = ville;
+        this.pays = pays;
         this.provenance = provenance;
         this.idContact = idContact;
-        this.assistant = assistant;
-        this.animateur = animateur;
-        this.clientME = clientME;
-        this.supprimer = supprimer;
 	}
 	
 	// Constructeur pour lister les clients lors d'une requete sql
@@ -52,12 +49,12 @@ public class Membre {
     public String getRue() { return rue;}
     public Integer getCodePostal() { return codePostal;}
     public String getVille() { return ville;}
+    public String getPays() {return pays;}
     public Integer getProvenance() { return provenance;}
     public Integer getIdContact() { return idContact;}
     public Boolean getAssistant() { return assistant;}
     public Boolean getAnimateur() { return animateur;}
-    public Boolean getClientME() { return clientME;}
-    public Boolean getSupprimer() { return supprimer;}
+    public Boolean getSupprime() { return supprime;}
     
     public String getFormatedDateNaiss() {    
         if(dateNaiss.get(DAY_OF_MONTH)<10) {
@@ -87,10 +84,10 @@ public class Membre {
     public void setNumero(String numero) { this.numero = numero;}
     public void setCodePostal(Integer codePostal) { this.codePostal = codePostal;}
     public void setVille(String ville) { this.ville = ville;}
+    public void setPays(String pays) {this.pays = pays;}
     public void setProvenance(Integer provenance) { this.provenance = provenance;}
     public void setIdContact(Integer idContact) { this.idContact = idContact;}
     public void setAssistant(Boolean assistant) { this.assistant = assistant;}
     public void setAnimateur(Boolean animateur) { this.animateur = animateur;}
-    public void setClientME(Boolean clientME) { this.clientME = clientME;}
-    public void setSupprimer(Boolean supprimer) { this.supprimer = supprimer;}    
+    public void setSupprime(Boolean supprime) { this.supprime = supprime;}        
 }

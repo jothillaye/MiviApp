@@ -66,7 +66,7 @@ public class ExportToExcel {
         }
         out.write("\t\t\t\tPrix de la formation: " + act.getPrix() + "€");
         
-        ArrayList<Membre> arrayIns = app.listInscription(idActivite);
+        ArrayList<Membre> arrayIns = app.listInscription(idActivite, 0);
         for(Membre me : arrayIns) {
             out.write("\n\n" + me.getPrenom() + " " + me.getNom() + "\n");            
             if(me.getGsm() != null && me.getGsm().isEmpty() == false) {

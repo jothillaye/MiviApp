@@ -18,16 +18,14 @@ public class AccessInscriptionDB {
 	private PreparedStatement prepStat;
 	private ResultSet data;
 	
-	public void newInscription(Inscription inscription) throws DBException, NotIdentified {
+	public void newInscription(Inscription ins) throws DBException, NotIdentified {
 		try {
-			request = "insert into inscription (idActivite, idMembre, tarifSpecial, abandonne, certifie) "
-                    + " values (?,?,?,?,?);";
+			request = "insert into inscription (idActivite, idMembre, tarifSpecial, abandonne, certifie, typeins) "
+                    + " values (?,?,?,false, false, 0);";
 			prepStat = AccessDB.getInstance().prepareStatement(request);
-            prepStat.setInt(1, inscription.getIdActivite());
-            prepStat.setInt(2, inscription.getIdMembre());
-            prepStat.setFloat(3, inscription.getTarifSpecial());
-            prepStat.setBoolean(4, inscription.getAbandonne());
-            prepStat.setBoolean(5, inscription.getCertifie());
+            prepStat.setInt(1, ins.getIdActivite());
+            prepStat.setInt(2, ins.getIdMembre());
+            prepStat.setFloat(3, ins.getTarifSpecial());
 			
             prepStat.executeUpdate();    
 		} 
@@ -39,24 +37,25 @@ public class AccessInscriptionDB {
 		}
 	}
 	
-	public ArrayList<Membre> listInscription(Integer idActivite) throws DBException, NotIdentified {
+	public ArrayList<Membre> listInscription(Integer idActivite, Integer typeIns) throws DBException, NotIdentified {
 		try {
 			request = "select me.idMembre, nom, prenom, gsm from inscription ins, membre me "
-                    + " where ins.idActivite = ? and ins.idMembre = me.idMembre order by upper(nom);";	
+                    + " where ins.idActivite = ? and ins.idMembre = me.idMembre and ins.typeins = ? order by upper(nom);";	
 			prepStat = AccessDB.getInstance().prepareStatement(request);	
-            prepStat.setInt(1, idActivite);			
+            prepStat.setInt(1, idActivite);	
+            prepStat.setInt(2, typeIns);
 					
 			data = prepStat.executeQuery();
 			
 			ArrayList<Membre> arrayInscription = new ArrayList<Membre>();
 			
 			while (data.next()) { 
-                Membre membre = new Membre();
-                membre.setIdMembre(data.getInt(1));
-                membre.setNom(data.getString(2));
-                membre.setPrenom(data.getString(3));
-                membre.setGsm(data.getString(4));
-				arrayInscription.add(membre);	
+                Membre me = new Membre();
+                me.setIdMembre(data.getInt(1));
+                me.setNom(data.getString(2));
+                me.setPrenom(data.getString(3));
+                me.setGsm(data.getString(4));   
+				arrayInscription.add(me);	
 			}
 			return arrayInscription;
 		} 
@@ -70,7 +69,7 @@ public class AccessInscriptionDB {
    
     public Inscription getInscription(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {
         try {
-			request = "select ins.idActivite, ins.idMembre, tarifSpecial, abandonne, certifie from inscription ins, membre me"
+			request = "select ins.idActivite, ins.idMembre, tarifSpecial, abandonne, certifie, typeins from inscription ins, membre me"
                     + " where ins.idActivite = ? and ins.idMembre = ? and me.idMembre = ins.idMembre;";	
             prepStat = AccessDB.getInstance().prepareStatement(request);				
             prepStat.setInt(1,idActivite);
@@ -78,17 +77,18 @@ public class AccessInscriptionDB {
 					
 			data = prepStat.executeQuery();	
 			
-            Inscription inscription = new Inscription();
+            Inscription ins = new Inscription();
 			
 			if(data.next()) { 
-                inscription.setIdActivite(data.getInt(1));
-                inscription.setIdMembre(data.getInt(2));  
-                inscription.setTarifSpecial(data.getFloat(3));
-                inscription.setAbandonne(data.getBoolean(4));
-                inscription.setCertifie(data.getBoolean(5));
+                ins.setIdActivite(data.getInt(1));
+                ins.setIdMembre(data.getInt(2));  
+                ins.setTarifSpecial(data.getFloat(3));
+                ins.setAbandonne(data.getBoolean(4));
+                ins.setCertifie(data.getBoolean(5));
+                ins.setTypeIns(data.getInt(6));
             }
             
-			return inscription;
+			return ins;
 		} 
 		catch (SQLException e) {
 			throw new DBException(e.getMessage());
@@ -99,16 +99,18 @@ public class AccessInscriptionDB {
         
     }
 
-    public void modifyInscription(Inscription inscription) throws DBException, NotIdentified {
+    public void modifyInscription(Inscription ins) throws DBException, NotIdentified {
         try {
-            request = "update inscription set tarifSpecial = ?, abandonne = ?, certifie = ?"
-                    + " where idActivite = ? and idMembre = ?;";
+            request = "update inscription set tarifSpecial = ?, abandonne = ?, certifie = ?, typeins = ?"
+                    + " where idActivite = ? and idMembre = ? and typeins = ?;";
             prepStat = AccessDB.getInstance().prepareStatement(request);
-            prepStat.setFloat(1, inscription.getTarifSpecial());
-            prepStat.setBoolean(2, inscription.getAbandonne());
-            prepStat.setBoolean(3, inscription.getCertifie());
-            prepStat.setInt(4, inscription.getIdActivite());
-            prepStat.setInt(5, inscription.getIdMembre());
+            prepStat.setFloat(1, ins.getTarifSpecial());
+            prepStat.setBoolean(2, ins.getAbandonne());
+            prepStat.setBoolean(3, ins.getCertifie());
+            prepStat.setInt(4, ins.getTypeIns());
+            prepStat.setInt(5, ins.getIdActivite());
+            prepStat.setInt(6, ins.getIdMembre());            
+            prepStat.setInt(7, ins.getOldTypeIns());
             
 			prepStat.executeUpdate();
         }	 
@@ -120,22 +122,24 @@ public class AccessInscriptionDB {
 		}
     }
 
-    public void deleteInscription(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {
+    public void deleteInscription(Inscription ins) throws DBException, NotIdentified {
         try {
-            request = "select idActivite from paiement where idActivite = ? and idMembre = ?;";
+            request = "select idActivite from paiement where idActivite = ? and idMembre = ? and typeins = ?;";
             prepStat = AccessDB.getInstance().prepareStatement(request);
-			prepStat.setInt(1, idActivite);
-            prepStat.setInt(2, idMembre);
+			prepStat.setInt(1, ins.getIdActivite());
+            prepStat.setInt(2, ins.getIdMembre());            
+            prepStat.setInt(3, ins.getTypeIns());
 			data = prepStat.executeQuery();
             
             if(data.next()){
                 throw new DBException("Cette inscription possède des paiements, elle est donc impossible à supprimer.");
             }
             else {
-                request = "delete from inscription where idActivite = ? and idMembre = ?;";
+                request = "delete from inscription where idActivite = ? and idMembre = ? and typeins = ?;";
                 prepStat = AccessDB.getInstance().prepareStatement(request);
-                prepStat.setInt(1, idActivite);
-                prepStat.setInt(2, idMembre);
+                prepStat.setInt(1, ins.getIdActivite());
+                prepStat.setInt(2, ins.getIdMembre());
+                prepStat.setInt(3, ins.getTypeIns());
                 prepStat.executeUpdate();
             }
         }	 

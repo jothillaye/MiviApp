@@ -65,12 +65,12 @@ public class PanelInscription extends JPanel {
     private JList listFormation, listActivite, listInscription;
     private JScrollPane scrollPaneFormation, scrollPaneActivite, scrollPaneMembre, scrollPaneTablePaiement, scrollPaneTableAccordPaiement;
     private DefaultListModel listModelFormation, listModelActivite, listModelInscription;
-    private JLabel labelTarifSpecial, labelTotalInscris, labelPaiement, labelAccordPaiement;
+    private JLabel labelTarifSpecial, labelTotalInscris, labelPaiement, labelAccordPaiement, labelTypeIns;
     private JTextField fieldTarifSpecial;
     private JCheckBox checkAbandonne, checkCertifie;
     private JTable tablePaiement, tableAccordPaiement;
     private TableCellListener tclP, tclA;
-    private JComboBox comboBoxType, comboBoxMembre;
+    private JComboBox comboBoxType, comboBoxMembre, comboBoxTypeIns;
     private JButton buttonAddPaiement, buttonDelPaiement, buttonAddAccord, buttonDelAccord, buttonModIns, buttonNewIns, buttonDelIns, buttonExportIns, buttonExportPaiement, buttonExportAccord;
     private JFormattedTextField fieldDate;
     
@@ -89,6 +89,7 @@ public class PanelInscription extends JPanel {
     private URL iconURL; 
     private Dimension dimButton;
     private Float solde, prix, prixSpecial;
+    String tabHeader[] = {"_______Clients_______", "______Assistants______", "______Animateurs______", };
     
     private ApplicationController app = new ApplicationController();
     private ExportToExcel export = new ExportToExcel();
@@ -269,26 +270,42 @@ public class PanelInscription extends JPanel {
             this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         
             panelInfoInscription = new JPanel();
-            panelInfoInscription.setPreferredSize(new Dimension(450, (Fenetre.getCont().getHeight())*1/14));
-            flowIns = new FlowLayout();
-            panelInfoInscription.setLayout(flowIns);
-            flowIns.setHgap(12);
+            panelInfoInscription.setPreferredSize(new Dimension(450, 70));
+            panelInfoInscription.setLayout(new GridBagLayout());            
+            c.insets = new Insets(0, 12, 5, 0);
+            c.gridx = 0; c.gridy = 0;
+            c.gridwidth = 1;
             
             labelTarifSpecial = new JLabel("Tarif special : ");
-            panelInfoInscription.add(labelTarifSpecial);
+            panelInfoInscription.add(labelTarifSpecial, c);
             
             fieldTarifSpecial = new JTextField(5);
-            panelInfoInscription.add(fieldTarifSpecial);
+            c.gridx++;
+            panelInfoInscription.add(fieldTarifSpecial, c);
             
             checkAbandonne = new JCheckBox("Abandonné");
-            panelInfoInscription.add(checkAbandonne);
+            c.gridx++;
+            panelInfoInscription.add(checkAbandonne, c);
             
             checkCertifie = new JCheckBox("Certifié");
-            panelInfoInscription.add(checkCertifie);
+            c.gridx++;
+            panelInfoInscription.add(checkCertifie, c);
             
             buttonModIns = new JButton("Modifier");
+            c.gridx++;
             buttonModIns.setContentAreaFilled(false);
-            panelInfoInscription.add(buttonModIns);
+            panelInfoInscription.add(buttonModIns, c);
+            
+            labelTypeIns = new JLabel("Type d'inscription : ");
+            c.gridx = 0; c.gridy++; c.gridwidth = 2;
+            panelInfoInscription.add(labelTypeIns, c);
+            
+            comboBoxTypeIns = new JComboBox();
+            comboBoxTypeIns.addItem("Client");
+            comboBoxTypeIns.addItem("Assistant");
+            comboBoxTypeIns.addItem("Animateur");
+            c.gridx+=2;
+            panelInfoInscription.add(comboBoxTypeIns, c);
             
             this.add(panelInfoInscription);
         
@@ -308,7 +325,7 @@ public class PanelInscription extends JPanel {
                 tablePaiement.getTableHeader().setReorderingAllowed(false);
                 tablePaiement.setModel(new PaiementList(arrayPaiement)); 
                 scrollPaneTablePaiement = new JScrollPane(tablePaiement);
-                scrollPaneTablePaiement.setPreferredSize(new Dimension(451, 180));                                
+                scrollPaneTablePaiement.setPreferredSize(new Dimension(451, 165));                                
                 c.gridy++;
                 panelPaiement.add(scrollPaneTablePaiement, c);
                 
@@ -347,7 +364,7 @@ public class PanelInscription extends JPanel {
                 tableAccordPaiement.setName("tableAccordPaiement");
                 tableAccordPaiement.setModel(new AccordPaiementList(arrayAccordPaiement));  
                 scrollPaneTableAccordPaiement = new JScrollPane(tableAccordPaiement);
-                scrollPaneTableAccordPaiement.setPreferredSize(new Dimension(451, 180));   
+                scrollPaneTableAccordPaiement.setPreferredSize(new Dimension(451, 165));   
                 c.gridy++;
                 panelAccordPaiement.add(scrollPaneTableAccordPaiement, c);
             
@@ -384,7 +401,8 @@ public class PanelInscription extends JPanel {
             TableCellListener tcl = (TableCellListener)e.getSource();            
             paiement = new Paiement();
             paiement.setIdActivite(((QueryResult)listActivite.getSelectedValue()).id);
-            paiement.setIdMembre(((QueryResult)listInscription.getSelectedValue()).id);
+            paiement.setIdMembre(((InsListItem)listInscription.getSelectedValue()).id);
+            paiement.setTypeIns(((InsListItem)listInscription.getSelectedValue()).type);
             if(tcl.getTable() == tablePaiement) {
                 paiement.setAccord(false);
                 oldDate = arrayPaiement.get(tcl.getRow()).getOldDate();
@@ -425,6 +443,9 @@ public class PanelInscription extends JPanel {
                 else if(choice.equals("Note de Crédit") == true) {
                     paiement.setTypePaiement(4);
                 }
+                else if(choice.equals("Rémunération") == true) {
+                    paiement.setTypePaiement(5);
+                }
                 else {
                     paiement.setTypePaiement(0);
                 }  
@@ -448,7 +469,7 @@ public class PanelInscription extends JPanel {
     
     private class ActionManager implements ActionListener {
         private Inscription ins;
-        private Integer idFormation = -1, idActivite = -1, idMembre = -1, idComboMembre, indexIns;
+        private Integer idFormation = -1, idActivite = -1, idMembre = -1, idComboMembre, indexIns, typeIns;
         private Object src;
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -460,26 +481,27 @@ public class PanelInscription extends JPanel {
                 idActivite = ((QueryResult)listActivite.getSelectedValue()).id;
             }
             if(listInscription.getSelectedIndex() != -1) {
-                idMembre = ((QueryResult)listInscription.getSelectedValue()).id;            
+                idMembre = ((InsListItem)listInscription.getSelectedValue()).id;            
+                typeIns = ((InsListItem)listInscription.getSelectedValue()).type;            
             }
             if(idFormation != -1 && idActivite != -1){
+                ins = new Inscription();
+                ins.setIdActivite(idActivite);                
                 // Nouvelle Inscription
                 if(src == buttonNewIns){
                     idComboMembre = ((QueryResult)comboBoxMembre.getSelectedItem()).id;
-                    if(idComboMembre != -1) {
-                        ins = new Inscription();
-                        ins.setIdActivite(idActivite);
-                        ins.setIdMembre(idComboMembre);                        
+                    if(idComboMembre != -1) {                        
+                        ins.setIdMembre(idComboMembre);    
                         try {
                             app.newInscription(ins);
                             UpdateListInscription(idActivite);
                             
                             for(Object o : listModelInscription.toArray()){      
-                                if(((QueryResult)o).id == idComboMembre){
+                                if(((InsListItem)o).id == idComboMembre && ((InsListItem)o).type == 0){
                                     listInscription.setSelectedValue(o, true);
                                 }
                             }
-                            UpdateInfoInscription(idActivite, idComboMembre);
+                            UpdateInfoInscription(idActivite, idComboMembre, typeIns);
                         } 
                         catch (DBException ex) {
                             JOptionPane.showMessageDialog(null, ex, "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
@@ -512,7 +534,9 @@ public class PanelInscription extends JPanel {
                         try {
                             Integer reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment supprimer cette inscription ?", "Modification Membre", JOptionPane.YES_NO_OPTION);
                             if (reply == JOptionPane.YES_OPTION) {       
-                                app.deleteInscription(idActivite, idMembre);
+                                ins.setIdMembre(idMembre);
+                                ins.setTypeIns(typeIns);
+                                app.deleteInscription(ins);
                                 UpdateListInscription(idActivite);
                             }
                         } 
@@ -525,8 +549,6 @@ public class PanelInscription extends JPanel {
                     }                
                     // Modifier Inscription
                     else if(src == buttonModIns) {
-                        ins = new Inscription();
-                        ins.setIdActivite(idActivite);
                         ins.setIdMembre(idMembre); 
                         String tarifString = fieldTarifSpecial.getText();
                         if(tarifString.isEmpty() == false){                        
@@ -537,13 +559,20 @@ public class PanelInscription extends JPanel {
                         }
                         ins.setCertifie(checkCertifie.isSelected());
                         ins.setAbandonne(checkAbandonne.isSelected());
+                        Integer newTypeIns = comboBoxTypeIns.getSelectedIndex();
+                        ins.setTypeIns(newTypeIns);
+                        ins.setOldTypeIns(typeIns);
                         try {
                             app.modifyInscription(ins);
-                            JOptionPane.showMessageDialog(null, "Inscription modifiée", "Modification inscription", JOptionPane.INFORMATION_MESSAGE);
-                            UpdateInfoInscription(idActivite, idMembre);                            
-                            indexIns = listInscription.getSelectedIndex();
+                            JOptionPane.showMessageDialog(null, "Inscription modifiée.", "Modification inscription", JOptionPane.INFORMATION_MESSAGE);
+                            UpdateInfoInscription(idActivite, idMembre, typeIns);                                                        
                             UpdateListInscription(((QueryResult)listActivite.getSelectedValue()).id);
-                            listInscription.setSelectedIndex(indexIns);
+                            
+                            for(Object o : listModelInscription.toArray()){      
+                                if(((InsListItem)o).id == idMembre && ((InsListItem)o).type == newTypeIns){
+                                    listInscription.setSelectedValue(o, true);
+                                }
+                            }
                         } 
                         catch (DBException ex) {
                             JOptionPane.showMessageDialog(null, ex, "Erreur Modification", JOptionPane.ERROR_MESSAGE);
@@ -581,30 +610,31 @@ public class PanelInscription extends JPanel {
                     }
                     // Traitement des accords ou paiements
                     else{                               
-                        TrtPaiement(src, idActivite, idMembre);                        
+                        TrtPaiement(src, idActivite, idMembre, typeIns);                        
                     }
                 }
             }
         }
     }
     
-    private void TrtPaiement(Object src, Integer idActivite, Integer idMembre){
-        Paiement newPaiement = new Paiement();
-        newPaiement.setIdActivite(idActivite);
-        newPaiement.setIdMembre(idMembre);
-        newPaiement.setMontant(new Float(0));
-        newPaiement.setAccord(false);
-        newPaiement.setDatePaiement(new GregorianCalendar(2015,0,tablePaiement.getRowCount()));
-        newPaiement.setTypePaiement(0);
+    private void TrtPaiement(Object src, Integer idActivite, Integer idMembre, Integer typeIns){
+        Paiement paiement = new Paiement();
+        paiement.setIdActivite(idActivite);
+        paiement.setIdMembre(idMembre);
+        paiement.setMontant(new Float(0));
+        paiement.setAccord(false);
+        paiement.setDatePaiement(new GregorianCalendar(2015,0,tablePaiement.getRowCount()));
+        paiement.setTypePaiement(0);
+        paiement.setTypeIns(typeIns);
         
         if(src == buttonAddAccord || src == buttonDelAccord) {
-            newPaiement.setAccord(true);
-            newPaiement.setDatePaiement(new GregorianCalendar(2015,0,tableAccordPaiement.getRowCount()));
+            paiement.setAccord(true);
+            paiement.setDatePaiement(new GregorianCalendar(2015,0,tableAccordPaiement.getRowCount()));
         }
         
         if(src == buttonAddAccord || src == buttonAddPaiement) {
             try {
-                app.newPaiement(newPaiement);
+                app.newPaiement(paiement);
             }
             catch (DBException ex) {
                 JOptionPane.showMessageDialog(null, "Paiement déjà existant. Modifier la date pour en ajouter un supplémentaire.", "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
@@ -620,14 +650,14 @@ public class PanelInscription extends JPanel {
                     if(src == buttonDelPaiement) { 
                         date = (String)tablePaiement.getValueAt(tablePaiement.getSelectedRow(), 0);
                         datePaiement = new GregorianCalendar(Integer.parseInt(date.substring(6, 10)), Integer.parseInt(date.substring(3, 5))-1, Integer.parseInt(date.substring(0, 2)));
-                        newPaiement.setDatePaiement(datePaiement);
-                        app.deletePaiement(newPaiement);
+                        paiement.setDatePaiement(datePaiement);
+                        app.deletePaiement(paiement);
                     }
                     else {
                         date = (String)tableAccordPaiement.getValueAt(tableAccordPaiement.getSelectedRow(), 0);
                         datePaiement = new GregorianCalendar(Integer.parseInt(date.substring(6, 10)), Integer.parseInt(date.substring(3, 5))-1, Integer.parseInt(date.substring(0, 2)));
-                        newPaiement.setDatePaiement(datePaiement);
-                        app.deletePaiement(newPaiement);
+                        paiement.setDatePaiement(datePaiement);
+                        app.deletePaiement(paiement);
                     }
                 }
             }                
@@ -638,11 +668,11 @@ public class PanelInscription extends JPanel {
                 JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
             }
         }
-        UpdateInfoInscription(idActivite, idMembre);
+        UpdateInfoInscription(idActivite, idMembre, typeIns);
         UpdateListInscription(idActivite);
         
         for(Object o : listModelInscription.toArray()) {
-            if(((QueryResult)o).id == idMembre) {
+            if(((InsListItem)o).id == idMembre) {
                 listInscription.setSelectedValue(o, true);
             }
         }        
@@ -652,20 +682,28 @@ public class PanelInscription extends JPanel {
         @Override
         public void valueChanged(ListSelectionEvent lse) {              
             if(!lse.getValueIsAdjusting() && ((JList)lse.getSource()).getSelectedIndex() != -1){                
-                queryResult = (QueryResult)((JList)lse.getSource()).getSelectedValue();
-                if(queryResult.id != -1) {
-                    if(lse.getSource() == listFormation) {
-                        UpdateListActivite(queryResult.id);
-                        UpdateListInscription(-1);
-                        UpdateInfoInscription(-1, -1);
+                if(lse.getSource() == listFormation || lse.getSource() == listActivite){
+                    queryResult = (QueryResult)((JList)lse.getSource()).getSelectedValue();
+                    if(queryResult.id != -1) {
+                        if(lse.getSource() == listFormation) {
+                            UpdateListActivite(queryResult.id);
+                            UpdateListInscription(-1);
+                            UpdateInfoInscription(-1, -1, null);
+                        }
+                        else if(lse.getSource() == listActivite) {
+                            UpdateListInscription(queryResult.id);
+                            UpdateInfoInscription(-1, -1, null);
+                        }
                     }
-                    else if(lse.getSource() == listActivite) {
-                        UpdateListInscription(queryResult.id);
-                        UpdateInfoInscription(-1, -1);
+                }
+                else {
+                    InsListItem insItem = (InsListItem)((JList)lse.getSource()).getSelectedValue();
+                    if(insItem.id == -1){
+                        UpdateInfoInscription(-1, -1, null);
                     }
-                    else if(lse.getSource() == listInscription) {
+                    else {
                         QueryResult structAct = (QueryResult)listActivite.getSelectedValue();
-                        UpdateInfoInscription(structAct.id, queryResult.id);
+                        UpdateInfoInscription(structAct.id, insItem.id, insItem.type);
                     }
                 }
             }
@@ -700,54 +738,61 @@ public class PanelInscription extends JPanel {
     }
     
     private void UpdateListInscription(Integer idActivite) {
-        try {            
-            if(idActivite != -1) {
-                arrayInscription = app.listInscription(idActivite);
-            }
-            listModelInscription.clear();
-            if(idActivite == -1) {
-                listModelInscription.addElement(new QueryResult(-1,"-- Aucune activité sélectionnée --"));
-                labelTotalInscris.setText("Aucun inscris");
-            }
-            else if(arrayInscription.isEmpty() == true){            
-                listModelInscription.addElement(new QueryResult(-1,"-- Aucune inscription --"));
-                labelTotalInscris.setText("Aucun inscris");
-            }
-            else {         
-                labelTotalInscris.setText("Nombre d'inscris : "+arrayInscription.size());
-                prix = (app.getActivite(idActivite).getPrix())*-1;
-                
-                for(Membre me : arrayInscription) {                    
-                    desc =  me.getNom() + ", " + me.getPrenom();
-                    prixSpecial = app.getInscription(idActivite, me.getIdMembre()).getTarifSpecial();
-                    if(prixSpecial != 0){
-                        solde = app.getSolde(idActivite, me.getIdMembre()) + (prixSpecial*-1);
+        listModelInscription.clear();
+        if(idActivite != -1) {
+            try {                 
+                for(int i=0;i<3;i++){
+                    arrayInscription = app.listInscription(idActivite,i);
+                    if(arrayInscription.isEmpty() == true && i == 0) {            
+                        listModelInscription.addElement(new InsListItem(-1,i,"-- Aucune inscription --"));
+                        labelTotalInscris.setText("Aucun inscris");
                     }
-                    else {
-                        solde = app.getSolde(idActivite, me.getIdMembre()) + prix;
+                    else if(arrayInscription.isEmpty() == false) {    
+                        if(i == 0){
+                            labelTotalInscris.setText("Nombre d'inscris : "+arrayInscription.size());
+                            prix = (app.getActivite(idActivite).getPrix())*-1;
+                        }    
+                        listModelInscription.addElement(new InsListItem(-1,i,tabHeader[i]));
+                        
+                        for(Membre me : arrayInscription) {                    
+                            desc =  me.getNom() + ", " + me.getPrenom();                            
+                            if(i == 0){
+                                prixSpecial = app.getInscription(idActivite, me.getIdMembre()).getTarifSpecial();
+                                if(prixSpecial != 0){
+                                    solde = app.getSolde(idActivite, me.getIdMembre()) + (prixSpecial*-1);
+                                }
+                                else {
+                                    solde = app.getSolde(idActivite, me.getIdMembre()) + prix;
+                                }
+                                if(solde != 0) {
+                                    desc += " ("+solde+"€)";
+                                }
+                            }
+                            listModelInscription.addElement(new InsListItem(me.getIdMembre(),i,desc));
+                        }                        
                     }
-                    if(solde != 0) {
-                        desc += " ("+solde+"€)";
-                    }
-                    listModelInscription.addElement(new QueryResult(me.getIdMembre(),desc));
                 }
-                listInscription.setCellRenderer(new MyCellRenderer());
-            }          
-        } 
-        catch (DBException ex) {
-            JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
-        } 
-        catch (NotIdentified ex) {
-            JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
-        }    
+                listInscription.setCellRenderer(new MyCellRenderer());                
+            }
+            catch (DBException ex) {
+                JOptionPane.showMessageDialog(null, ex, "Erreur listing inscription", JOptionPane.ERROR_MESSAGE);
+            } 
+            catch (NotIdentified ex) {
+                JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+            }    
+        }
+        else {
+            listModelInscription.addElement(new InsListItem(-1,0,"-- Aucune activité sélectionnée --"));
+        }
     }
     
-    private void UpdateInfoInscription(int idActivite, int idMembre) {
+    private void UpdateInfoInscription(Integer idActivite, Integer idMembre, Integer typeIns) {
         try {
             if(idActivite == -1) {              
                 fieldTarifSpecial.setText("");
                 checkAbandonne.setSelected(false);
-                checkCertifie.setSelected(false);                
+                checkCertifie.setSelected(false);  
+                comboBoxTypeIns.setSelectedIndex(0);
                 
                 arrayPaiement.clear();
                 arrayAccordPaiement.clear();
@@ -760,9 +805,16 @@ public class PanelInscription extends JPanel {
                 fieldTarifSpecial.setText(ins.getTarifSpecial().toString());
                 checkAbandonne.setSelected(ins.getAbandonne());
                 checkCertifie.setSelected(ins.getCertifie());
+                comboBoxTypeIns.setSelectedIndex(typeIns);
                 
-                arrayPaiement = app.listPaiement(idActivite, idMembre, false);
-                arrayAccordPaiement = app.listPaiement(idActivite, idMembre, true);
+                Paiement paie = new Paiement();
+                paie.setIdActivite(idActivite);
+                paie.setIdMembre(idMembre);
+                paie.setTypeIns(typeIns);
+                paie.setAccord(false);                
+                arrayPaiement = app.listPaiement(paie);
+                paie.setAccord(true);
+                arrayAccordPaiement = app.listPaiement(paie);
                 
                 tablePaiement.setModel(new PaiementList(arrayPaiement));
                 tableAccordPaiement.setModel(new AccordPaiementList(arrayAccordPaiement)); // true pour obtenir accordPaiement            
@@ -773,6 +825,7 @@ public class PanelInscription extends JPanel {
                 comboBoxType.addItem("Virement");      
                 comboBoxType.addItem("Echange");   
                 comboBoxType.addItem("Note de Crédit");   
+                comboBoxType.addItem("Rémunération");
                 tablePaiement.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(comboBoxType));    
                 
                 fieldDate = new JFormattedTextField(new MaskFormatter("##'/##'/####")); 
@@ -815,4 +868,17 @@ public class PanelInscription extends JPanel {
             return this;
         }    
     }
+   
+    public class InsListItem{
+        int id, type;  
+        String desc;  
+        public InsListItem(Integer id, Integer type, String desc) {  
+            this.id = id;
+            this.type = type;
+            this.desc = desc;  
+        }          
+        @Override
+        public String toString(){return desc;}  
+    }
+
 }
