@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
+import viewPackage.QueryResult;
 
 public class PaiementList extends AbstractTableModel {
 	private ArrayList<String> listCol = new ArrayList<String>();
 	private ArrayList<Paiement> content = new ArrayList<Paiement>();
-    private String[] typePaiement = {"-- Choisir --", "Liquide", "Virement", "Echange", "Note de Crédit"};
+    private String[] typePaiement = {"-- Choisir --", "Liquide", "Virement", "Echange", "Note de Crédit", "Rémunération"};
     
 	private Paiement paiement;
 	
@@ -38,7 +39,7 @@ public class PaiementList extends AbstractTableModel {
         switch(col)	{ 	
             case 0: return paiement.getDatePaiementFormated();
             case 1: return paiement.getMontant();
-            case 2: return typePaiement[paiement.getTypePaiement()];
+            case 2: return new QueryResult(paiement.getTypePaiement(), typePaiement[paiement.getTypePaiement()]);
 
             default: return null;
         }    
@@ -69,21 +70,11 @@ public class PaiementList extends AbstractTableModel {
             paiement.setMontant(Float.parseFloat(o.toString()));                
         }
         else if(col == 2) {
-            if(o.toString().equals("Liquide") == true){
-                paiement.setTypePaiement(1);
+            Integer typePaiement = ((QueryResult)o).getId();
+            if(typePaiement < 1 || typePaiement > 5){
+                typePaiement = 0;
             }
-            else if(o.toString().equals("Virement") == true) {
-                paiement.setTypePaiement(2);
-            }
-            else if(o.toString().equals("Echange") == true) {
-                paiement.setTypePaiement(3);
-            }
-            else if(o.toString().equals("Note de Crédit") == true) {
-                paiement.setTypePaiement(4);
-            }
-            else {
-                paiement.setTypePaiement(0);
-            }            
+            paiement.setTypePaiement(typePaiement);        
         }       
         fireTableCellUpdated(row, col);
     }

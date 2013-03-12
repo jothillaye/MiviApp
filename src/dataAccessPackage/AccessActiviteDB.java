@@ -52,7 +52,7 @@ public class AccessActiviteDB {
             return idActivite;
 		} 
 		catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors de l'insertion de l'activité.");
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -100,7 +100,7 @@ public class AccessActiviteDB {
 			return activite;
 		} 
 		catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors de la récupération de l'activité.");
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -140,7 +140,7 @@ public class AccessActiviteDB {
 			return arrayActivite;
 		} 
 		catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors du listing des activités.");
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -172,7 +172,7 @@ public class AccessActiviteDB {
 			prepStat.executeUpdate();
         }	 
         catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors de la modification de l'activité.");
 		}
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -197,7 +197,7 @@ public class AccessActiviteDB {
             }
         }	 
         catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors de la suppression de l'activité.");
 		}
 		catch (NotIdentified e) {
 			throw new NotIdentified();

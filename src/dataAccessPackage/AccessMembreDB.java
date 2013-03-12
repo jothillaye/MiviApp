@@ -49,7 +49,7 @@ public class AccessMembreDB {
             return idMembre;
 		} 
 		catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors de l'insertion du client.");
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -90,7 +90,7 @@ public class AccessMembreDB {
 			return arrayMembre;
 		} 
 		catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors du listing des membres.");
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -135,7 +135,7 @@ public class AccessMembreDB {
 			return membre;
 		} 
 		catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors de la récupération du membre.");
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -166,7 +166,7 @@ public class AccessMembreDB {
 			prepStat.executeUpdate();
         }	 
         catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors de la modification du membre.");
 		}
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -182,7 +182,7 @@ public class AccessMembreDB {
             prepStat.executeUpdate();
 		} 
 		catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors de la suppression du membre.");
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();

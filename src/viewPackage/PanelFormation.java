@@ -67,10 +67,10 @@ public class PanelFormation extends JPanel {
             }
         } 
         catch (DBException ex) {
-            JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, ex, "Erreur Listing", JOptionPane.ERROR_MESSAGE);
         } 
         catch (NotIdentified ex) {
-            JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
         }
         
         c.gridy++;
@@ -192,10 +192,10 @@ public class PanelFormation extends JPanel {
                     reset();
                 } 
                 catch (DBException ex) {
-                    JOptionPane.showMessageDialog(null, ex, "Erreur insertion", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, ex, "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
                 } 
                 catch (NotIdentified ex) {
-                    JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
                 }
             }
             else if(e.getSource() == buttonModify) {
@@ -213,10 +213,10 @@ public class PanelFormation extends JPanel {
                     }
                 } 
                 catch (DBException ex) {
-                    JOptionPane.showMessageDialog(null, ex, "Erreur modification", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, ex, "Erreur Modification", JOptionPane.ERROR_MESSAGE);
                 } 
                 catch (NotIdentified ex) {
-                    JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
                 }
             }
             else if(e.getSource() == buttonDelete) {
@@ -229,10 +229,10 @@ public class PanelFormation extends JPanel {
                     }                        
                 } 
                 catch (DBException ex) {
-                    JOptionPane.showMessageDialog(null, ex, "Erreur suppression", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, ex, "Erreur Suppression", JOptionPane.ERROR_MESSAGE);
                 } 
                 catch (NotIdentified ex) {
-                    JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
                 }
             }
         }

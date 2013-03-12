@@ -24,12 +24,12 @@ public class PaiementManager {
         return accessPaiement.listPaiement(paiement);
     }
     
-    public void modifyPaiement(Paiement paiement, GregorianCalendar oldDate) throws DBException, NotIdentified {
-        accessPaiement.modifyPaiement(paiement, oldDate);
+    public void modifyPaiement(Paiement paiement) throws DBException, NotIdentified {
+        accessPaiement.modifyPaiement(paiement);
     }
     
-    public void deletePaiement(Paiement paiement) throws DBException, NotIdentified {
-        accessPaiement.deletePaiement(paiement);
+    public void deletePaiement(Integer idPaiement) throws DBException, NotIdentified {
+        accessPaiement.deletePaiement(idPaiement);
     }
     
     public Float getSolde(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {

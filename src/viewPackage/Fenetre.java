@@ -32,6 +32,7 @@ public class Fenetre extends JFrame	{
     private JButton buttonAccueil, buttonMembre, buttonInscription;
 	private JMenu menuActivite;
 	private JMenuItem itemActivite, itemFormation;
+    private JLabel labelVer;
     
     private URL iconURL;
     
@@ -102,6 +103,13 @@ public class Fenetre extends JFrame	{
         buttonInscription.setContentAreaFilled(false);
         buttonInscription.addActionListener(AM);        
 		barre.add(buttonInscription);
+        
+        barre.add(Box.createHorizontalGlue());
+        
+        labelVer = new JLabel("ver 1.01 ");
+        labelVer.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+        
+        barre.add(labelVer);
             
         try {
             iconURL = this.getClass().getResource("/viewPackage/resources/images/home.png");
@@ -127,6 +135,7 @@ public class Fenetre extends JFrame	{
         buttonInscription.addMouseListener(HB);
         
         Login();
+        setResizable(false);
 	}
 	
 	
@@ -253,15 +262,15 @@ public class Fenetre extends JFrame	{
             ChangeLockStatus(true);
         }  
         catch (FileNotFoundException e) {
-            JOptionPane.showMessageDialog(null, "Fichier contenant le mot de passe introuvable.", "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Fichier contenant le mot de passe introuvable.", "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
             ChangeLockStatus(false);
         }
         catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Lecture du mot de passe impossible.", "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Lecture du mot de passe impossible.", "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
             ChangeLockStatus(false);
         }
         catch(IdentificationError idE) {
-            JOptionPane.showMessageDialog(null, idE, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, idE, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
             ChangeLockStatus(false);
         }
     }

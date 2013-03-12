@@ -21,16 +21,16 @@ public class AccessInscriptionDB {
 	public void newInscription(Inscription ins) throws DBException, NotIdentified {
 		try {
 			request = "insert into inscription (idActivite, idMembre, tarifSpecial, abandonne, certifie, typeins) "
-                    + " values (?,?,?,false, false, 0);";
+                    + " values (?,?,?,false, false, ?);";
 			prepStat = AccessDB.getInstance().prepareStatement(request);
             prepStat.setInt(1, ins.getIdActivite());
             prepStat.setInt(2, ins.getIdMembre());
             prepStat.setFloat(3, ins.getTarifSpecial());
-			
+			prepStat.setInt(4, ins.getTypeIns());
             prepStat.executeUpdate();    
 		} 
 		catch (SQLException e) {
-			throw new DBException("Membre déjà inscris.");
+			throw new DBException("Erreur lors de l'insertion de l'inscription. Vérifiez que le membre n'est pas déjà inscris.");
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -60,7 +60,7 @@ public class AccessInscriptionDB {
 			return arrayInscription;
 		} 
 		catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors du listing des inscriptions.");
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -91,7 +91,7 @@ public class AccessInscriptionDB {
 			return ins;
 		} 
 		catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors de la récupération de l'inscription.");
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -101,21 +101,20 @@ public class AccessInscriptionDB {
 
     public void modifyInscription(Inscription ins) throws DBException, NotIdentified {
         try {
-            request = "update inscription set tarifSpecial = ?, abandonne = ?, certifie = ?, typeins = ?"
+            request = "update inscription set tarifSpecial = ?, abandonne = ?, certifie = ?"
                     + " where idActivite = ? and idMembre = ? and typeins = ?;";
             prepStat = AccessDB.getInstance().prepareStatement(request);
             prepStat.setFloat(1, ins.getTarifSpecial());
             prepStat.setBoolean(2, ins.getAbandonne());
             prepStat.setBoolean(3, ins.getCertifie());
-            prepStat.setInt(4, ins.getTypeIns());
-            prepStat.setInt(5, ins.getIdActivite());
-            prepStat.setInt(6, ins.getIdMembre());            
-            prepStat.setInt(7, ins.getOldTypeIns());
+            prepStat.setInt(4, ins.getIdActivite());
+            prepStat.setInt(5, ins.getIdMembre());            
+            prepStat.setInt(6, ins.getTypeIns());
             
 			prepStat.executeUpdate();
         }	 
         catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors de la modification de l'inscription.");
 		}
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -144,7 +143,7 @@ public class AccessInscriptionDB {
             }
         }	 
 		catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors de la suppression de l'inscription.");
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -207,7 +206,7 @@ public class AccessInscriptionDB {
 			return arrayInscription;
 		} 
 		catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors de la récupération de l'historique des inscriptions du client.");
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();

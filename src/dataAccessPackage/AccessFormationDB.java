@@ -22,7 +22,7 @@ public class AccessFormationDB {
 			prepStat.executeUpdate();
 		} 
 		catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors de l'insertion de la formation.");
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -31,7 +31,7 @@ public class AccessFormationDB {
 	
 	public ArrayList<Formation> listFormation() throws DBException, NotIdentified {
 		try {
-			request = "select idFormation, intitule from formation";	
+			request = "select form.idFormation, form.intitule, (select count(act.idActivite) from activite act where act.idFormation = form.idFormation) as countIns from formation form order by countIns desc;";	
             prepStat = AccessDB.getInstance().prepareStatement(request);					
 			data = prepStat.executeQuery();
 			
@@ -46,7 +46,7 @@ public class AccessFormationDB {
 			return arrayFormation;
 		} 
 		catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors du listing des formations.");
 		}	 
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -63,7 +63,7 @@ public class AccessFormationDB {
 			prepStat.executeUpdate();
         }	 
         catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors de la modification de la formation.");
 		}
 		catch (NotIdentified e) {
 			throw new NotIdentified();
@@ -88,7 +88,7 @@ public class AccessFormationDB {
             }
         }	 
         catch (SQLException e) {
-			throw new DBException(e.getMessage());
+			throw new DBException("Erreur lors de la suppression de la formation.");
 		}
 		catch (NotIdentified e) {
 			throw new NotIdentified();

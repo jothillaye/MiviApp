@@ -99,14 +99,14 @@ public class PanelActivite extends JPanel {
                 listFormation.validate();
             } 
             catch (DBException ex) {
-                JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, ex, "Erreur Listing", JOptionPane.ERROR_MESSAGE);
             } 
             catch (NotIdentified ex) {
-                JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
             }
             
             scrollPaneFormation = new JScrollPane(listFormation);
-            scrollPaneFormation.setPreferredSize(new Dimension(210, (Fenetre.getCont().getHeight())/2));                        
+            scrollPaneFormation.setPreferredSize(new Dimension(240, (Fenetre.getCont().getHeight())/2));                        
             
             listActivite = new JList();
             listActivite.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -116,10 +116,10 @@ public class PanelActivite extends JPanel {
             listModelActivite.addElement(new QueryResult(-1,"-- Aucune formation sélectionnée --"));
             
             scrollPaneActivite = new JScrollPane(listActivite);
-            scrollPaneActivite.setPreferredSize(new Dimension(210, (Fenetre.getCont().getHeight())/2));
+            scrollPaneActivite.setPreferredSize(new Dimension(240, (Fenetre.getCont().getHeight())/2));
             
             splitFormAct = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollPaneFormation, scrollPaneActivite);
-            splitFormAct.setDividerLocation(Fenetre.getCont().getHeight()/2);
+            splitFormAct.setDividerLocation((Fenetre.getCont().getHeight()/3)*2);
             splitFormAct.setDividerSize(2);
             this.add(splitFormAct, BorderLayout.CENTER);
         }
@@ -282,7 +282,7 @@ public class PanelActivite extends JPanel {
                             newAct.setDateDeb(date);
                         }
                         catch(ArrayIndexOutOfBoundsException ex) {
-                            JOptionPane.showMessageDialog(null, "Erreur lors de l'insertion veuillez vérifier le contenu des dates et si le problème persiste contacter l'administrateur.", "Erreur insertion", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, "Erreur lors de l'insertion veuillez vérifier le contenu des dates et si le problème persiste contacter l'administrateur.", "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                     if(fieldDateFin.getValue() != null) {
@@ -292,7 +292,7 @@ public class PanelActivite extends JPanel {
                             newAct.setDateFin(date);
                         }
                         catch(ArrayIndexOutOfBoundsException ex) {
-                            JOptionPane.showMessageDialog(null, "Erreur lors de l'insertion veuillez vérifier le contenu des dates et si le problème persiste contacter l'administrateur.", "Erreur insertion", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, "Erreur lors de l'insertion veuillez vérifier le contenu des dates et si le problème persiste contacter l'administrateur.", "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                     newAct.setPromotion((Integer)spinPromo.getValue());
@@ -307,10 +307,10 @@ public class PanelActivite extends JPanel {
                             JOptionPane.showMessageDialog(null, "Activité ajoutée.", "Insertion Activité", JOptionPane.INFORMATION_MESSAGE);
                         } 
                         catch (DBException ex) {
-                            JOptionPane.showMessageDialog(null, ex, "Erreur ajout", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, ex, "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
                         } 
                         catch (NotIdentified ex) {
-                            JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                     // Modification Activité
@@ -324,10 +324,10 @@ public class PanelActivite extends JPanel {
                                 JOptionPane.showMessageDialog(null, "Activité modifiée.", "Modification Activité", JOptionPane.INFORMATION_MESSAGE);
                             } 
                             catch (DBException ex) {
-                                JOptionPane.showMessageDialog(null, ex, "Erreur modification", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(null, ex, "Erreur Modification", JOptionPane.ERROR_MESSAGE);
                             } 
                             catch (NotIdentified ex) {
-                                JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
                             }                    
                         }       
                     }
@@ -350,10 +350,10 @@ public class PanelActivite extends JPanel {
                             JOptionPane.showMessageDialog(null, "Activité supprimée.", "Suppression activité", JOptionPane.INFORMATION_MESSAGE);                            
                         } 
                         catch (DBException ex) {
-                            JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, ex, "Erreur Listing", JOptionPane.ERROR_MESSAGE);
                         } 
                         catch (NotIdentified ex) {
-                            JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
                         }
                         UpdateListActivite(idFormation);
                         UpdateInfoActivite(-1);
@@ -426,10 +426,10 @@ public class PanelActivite extends JPanel {
             }          
         } 
         catch (DBException ex) {
-            JOptionPane.showMessageDialog(null, ex, "Erreur listing activité", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, ex, "Erreur Listing", JOptionPane.ERROR_MESSAGE);
         } 
         catch (NotIdentified ex) {
-            JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -497,22 +497,11 @@ public class PanelActivite extends JPanel {
                 }
             } 
             catch (DBException ex) {
-                JOptionPane.showMessageDialog(null, ex, "Erreur récupération d'une activité", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, ex, "Erreur Récupération", JOptionPane.ERROR_MESSAGE);
             } 
             catch (NotIdentified ex) {
-                JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
-    
-    private class QueryResult {  
-        int id;  
-        String desc;  
-        public QueryResult(int i, String d) {  
-            id = i;
-            desc = d;  
-        }          
-        @Override
-        public String toString(){return desc;}  
-    } 
 }

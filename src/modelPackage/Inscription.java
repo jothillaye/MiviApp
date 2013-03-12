@@ -1,7 +1,7 @@
 package modelPackage;
 
 public class Inscription {
-    private Integer idActivite, idMembre, typeIns, oldTypeIns;
+    private Integer idActivite, idMembre, typeIns;
     private Boolean abandonne, certifie;
     private Float tarifSpecial;
     private Membre membre;
@@ -24,7 +24,6 @@ public class Inscription {
     public Float getTarifSpecial() {return tarifSpecial;}
     public Membre getMembre() {return membre;}
     public Integer getTypeIns() {return typeIns;}
-    public Integer getOldTypeIns() {return oldTypeIns;}
     
     public void setIdActivite(Integer idActivite) {this.idActivite = idActivite;}
     public void setIdMembre(Integer idMembre) {this.idMembre = idMembre;}
@@ -33,7 +32,6 @@ public class Inscription {
     public void setTarifSpecial(Float tarifSpecial) {this.tarifSpecial = tarifSpecial;}    
     public void setMembre(Membre membre) {this.membre = membre;}
     public void setTypeIns(Integer typeIns) {this.typeIns = typeIns;}
-    public void setOldTypeIns(Integer oldTypeIns) {this.oldTypeIns = oldTypeIns;}   
     
 
     

@@ -131,12 +131,12 @@ public class ApplicationController {
         return paiementManager.listPaiement(paiement);
     }
 
-    public void modifyPaiement(Paiement paiement, GregorianCalendar oldDate) throws DBException, NotIdentified {
-        paiementManager.modifyPaiement(paiement, oldDate);
+    public void modifyPaiement(Paiement paiement) throws DBException, NotIdentified {
+        paiementManager.modifyPaiement(paiement);
     }
     
-    public void deletePaiement(Paiement paiement) throws DBException, NotIdentified {
-        paiementManager.deletePaiement(paiement);
+    public void deletePaiement(Integer idPaiement) throws DBException, NotIdentified {
+        paiementManager.deletePaiement(idPaiement);
     }
     
     public Float getSolde(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {

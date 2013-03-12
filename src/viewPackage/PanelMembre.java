@@ -95,7 +95,7 @@ public class PanelMembre extends JPanel {
             listMembre.setModel(listModelMembre);                           
             UpdateListMembre(null);      
             scrollPaneMembre = new JScrollPane(listMembre);                           
-            scrollPaneMembre.setPreferredSize(new Dimension(200, this.getHeight()));
+            scrollPaneMembre.setPreferredSize(new Dimension(220, this.getHeight()));
             panelListMembre.add(scrollPaneMembre, BorderLayout.LINE_START);             
             
             fieldFilter = new JTextField();
@@ -241,7 +241,8 @@ public class PanelMembre extends JPanel {
             
             try {
                 fieldFixe = new JFormattedTextField(new MaskFormatter("### ## ## ##"));
-            } catch (ParseException ex) {
+            } 
+            catch (ParseException ex) {
                 JOptionPane.showMessageDialog(null, "Erreur lors du parsing du numéro de téléphone, veuillez contacter l'administrateur.", "Erreur parsing", JOptionPane.ERROR_MESSAGE);
             }
             fieldFixe.setColumns(9);
@@ -254,7 +255,8 @@ public class PanelMembre extends JPanel {
             this.add(labelGSM, c);
             try {
                 fieldGSM = new JFormattedTextField(new MaskFormatter("#### ## ## ##"));
-            } catch (ParseException ex) {
+            } 
+            catch (ParseException ex) {
                 JOptionPane.showMessageDialog(null, "Erreur lors du parsing du numéro de gsm, veuillez contacter l'administrateur.", "Erreur parsing", JOptionPane.ERROR_MESSAGE);
             }
             fieldGSM.setColumns(10);
@@ -267,13 +269,13 @@ public class PanelMembre extends JPanel {
             c.insets = new Insets(10,20,0,0);
             this.add(labelEmail, c);
 
-            fieldEmail = new JTextField(16);
-            c.gridx = 1;
+            fieldEmail = new JTextField(18);
+            c.gridx = 1; c.gridwidth = 3;
             this.add(fieldEmail, c);	 
 
             // Provenance (ComboBox)
             labelProvenance = new JLabel("Provenance : ");
-            c.gridx = 0; c.gridy++; 
+            c.gridx = 0; c.gridy++; c.gridwidth = 1;
             c.insets = new Insets(40,20,0,0);
             this.add(labelProvenance, c);
 
@@ -303,10 +305,10 @@ public class PanelMembre extends JPanel {
                 comboBoxContact.setModel(modelContact);
             } 
             catch (DBException ex) {
-                JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, ex, "Erreur Listing", JOptionPane.ERROR_MESSAGE);
             } 
             catch (NotIdentified ex) {
-                JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
             }
             AutoCompleteDecorator.decorate(comboBoxContact);    
 
@@ -359,7 +361,7 @@ public class PanelMembre extends JPanel {
                     buttonInsert.setIcon(new ImageIcon(iconURL));
                 }
                 catch(NullPointerException ex) {
-                    JOptionPane.showMessageDialog(null, "Erreur lors de la récupération des icônes.\nVeuillez contacter l'administrateur", "Erreur de récupération des icônes", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Erreur lors de la récupération des icônes.\nVeuillez contacter l'administrateur.", "Erreur de récupération des icônes", JOptionPane.ERROR_MESSAGE);
                 } 
                 
             c.gridy++; c.gridx = 0; 
@@ -401,10 +403,10 @@ public class PanelMembre extends JPanel {
             }        
         } 
         catch (DBException ex) {
-            JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, ex, "Erreur Listing", JOptionPane.ERROR_MESSAGE);
         } 
         catch (NotIdentified ex) {
-            JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
         }   
     }  
     
@@ -418,10 +420,10 @@ public class PanelMembre extends JPanel {
                 UpdateHistoryMembre(me);
             }    
             catch (DBException ex) {
-                JOptionPane.showMessageDialog(null, ex, "Erreur listing", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, ex, "Erreur Listing", JOptionPane.ERROR_MESSAGE);
             } 
             catch (NotIdentified ex) {
-                JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
             }    
         }
     }
@@ -506,10 +508,10 @@ public class PanelMembre extends JPanel {
             tableHistory.getColumnModel().getColumn(0).setMinWidth(250);
         }
         catch (DBException ex) {
-            JOptionPane.showMessageDialog(null, ex, "Erreur ajout", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, ex, "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
         }
         catch (NotIdentified ex) {
-            JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -604,7 +606,7 @@ public class PanelMembre extends JPanel {
                     
                     // Actualisation après modification, erreur possible ?
                     if(idMembre != null && idMembre == -1) {
-                        JOptionPane.showMessageDialog(null, "Erreur lors de l'ajout veuillez contacter l'administrateur.\nRécuperation de l'identifiant du membre impossible.", "Erreur lors de l'ajout", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Erreur lors de l'ajout veuillez contacter l'administrateur.\nRécuperation de l'identifiant du membre impossible.", "Erreur Insertion", JOptionPane.INFORMATION_MESSAGE);
                         reset();
                     }    
                     else if (idMembre != null){                               
@@ -621,10 +623,10 @@ public class PanelMembre extends JPanel {
                     JOptionPane.showMessageDialog(null, "Erreur : n'inclure que des chiffres dans les champs suivants :\nCode Postal, GSM, Téléphone Fixe", "Erreur champs numérique", JOptionPane.ERROR_MESSAGE);                    
                 }
 				catch (DBException ex) {
-					JOptionPane.showMessageDialog(null, ex, "Erreur ajout", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, ex, "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
 				}
 				catch (NotIdentified ex) {
-					JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
 				}
 			}
             else if(e.getSource() == buttonDelete) {
@@ -638,10 +640,10 @@ public class PanelMembre extends JPanel {
                     }
                 } 
                 catch (DBException ex) {
-					JOptionPane.showMessageDialog(null, ex, "Erreur suppression", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, ex, "Erreur Suppression", JOptionPane.ERROR_MESSAGE);
 				} 
 				catch (NotIdentified ex) {
-					JOptionPane.showMessageDialog(null, ex, "Erreur connexion", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
 				}               
             }
 		}			
