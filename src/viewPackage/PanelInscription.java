@@ -614,10 +614,29 @@ public class PanelInscription extends JPanel {
                 }
                 // Exportation liste des inscriptions
                 else if(src == buttonExportIns) {
+                    Object[] options = {"Liste complète", "Email"};
+                    String s = (String)JOptionPane.showInputDialog(
+                        null,
+                        "Type d'exportation : ",
+                        "Exportation Inscription",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        options,
+                        options[0]
+                    );
+                    Integer typeExport = 0;
+                    if(s != null) {
+                        for(int i=0; i<options.length; i++){
+                            if(s.equals(options[i]) == true) {
+                                typeExport = i;
+                            }
+                        }
+                    }
+                    
                     String formInt = ((QueryResult)listFormation.getSelectedValue()).desc;
                     Integer idActiviteExport = ((QueryResult)listActivite.getSelectedValue()).id;
                     try {
-                        export.ExportListToExcel(formInt, idActiviteExport);
+                        export.ExportListToExcel(formInt, idActiviteExport, typeExport);
                     } 
                     catch (IOException ex) {
                         JOptionPane.showMessageDialog(null, "Erreur lors de l'exportion de la liste.", "Erreur Exportation", JOptionPane.ERROR_MESSAGE);

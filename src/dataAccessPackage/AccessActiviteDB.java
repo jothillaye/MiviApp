@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import modelPackage.Activite;
+import modelPackage.Formation;
 
 public class AccessActiviteDB {
 	private String request;
@@ -203,4 +204,49 @@ public class AccessActiviteDB {
 			throw new NotIdentified();
 		}
     }
+    
+    public ArrayList<Object[]> listFuturAct() throws DBException, NotIdentified {
+        Date dateSQL;
+        GregorianCalendar dateDeb;
+        
+        try {
+			request = "select idActivite, idFormation, promotion, dateDeb, intitule from activite act, formation form where form.idFormation = act.idFormation and datedeb > now() limit 5";
+            prepStat = AccessDB.getInstance().prepareStatement(request);	
+			data = prepStat.executeQuery();
+			
+			ArrayList<Object[]> arrayActivite = new ArrayList<Object[]>();
+			
+			while (data.next()) { 
+                
+                Activite act = new Activite();
+                act.setIdActivite(data.getInt(1));
+                act.setIdFormation(data.getInt(2));
+                act.setPromotion(data.getInt(3));
+                
+                dateDeb = new GregorianCalendar();
+                dateSQL = data.getDate(4);
+                if(dateSQL != null) {
+                    dateDeb.setTimeInMillis(dateSQL.getTime());
+                }
+                else {
+                    dateDeb = null;
+                }
+                act.setDateDeb(dateDeb);
+                                
+                Formation form = new Formation(data.getString(5));
+				
+                Object[] tabAct = {act, form};
+                arrayActivite.add(tabAct);
+            }
+			return arrayActivite;
+		} 
+		catch (SQLException e) {
+			throw new DBException("Erreur lors du listing des activités.");
+		}	 
+		catch (NotIdentified e) {
+			throw new NotIdentified();
+		}        
+    }
+
+    
 }

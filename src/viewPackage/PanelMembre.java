@@ -444,20 +444,11 @@ public class PanelMembre extends JPanel {
         fieldPays.setText(me.getPays());
      
         if(me.getFixe() != null && me.getFixe().length() >= 9) {
-            String mask = "### ## ## ##", fixeString = me.getFixe();
+            String fixeString = me.getFixe();
             if(me.getFixe().subSequence(0, 2).equals("32")) {
                 fixeString = "0" + fixeString.substring(2, fixeString.length());
-            }                
-            if(arrayPrefix.contains(fixeString.substring(0, 2))){
-                mask = "## ### ## ##";                           
-            }
-                
-            try {
-                fieldFixe.setFormatterFactory(new DefaultFormatterFactory(new MaskFormatter(mask)));        
-            } 
-            catch (ParseException ex) {
-                JOptionPane.showMessageDialog(null, "Erreur lors du parsing du numéro fixe. Veuillez contacter l'administrateur.", "Erreur Parsing", JOptionPane.ERROR_MESSAGE);
-            }
+            }    
+            
             fieldFixe.setText(fixeString);
         }
         else {
@@ -543,21 +534,22 @@ public class PanelMembre extends JPanel {
                 dateNaiss   = new GregorianCalendar();
                 try {
                     // Test Code Postal
-                    if(fieldCodePostal.getText().isEmpty() == false) {
+                    if(fieldCodePostal.getText() != null && fieldCodePostal.getText().isEmpty() == false) {
                         codePostal = Integer.parseInt(fieldCodePostal.getText());
                     }
+                    else {
+                        codePostal = null;
+                    }
                     // Test GSM
-                    if(fieldGSM.getValue() != null) {
+                    if(fieldGSM.getText() != null && fieldGSM.getText().isEmpty() == false) {
                         gsm = fieldGSM.getText().replaceAll("\\s","");
-                        testGsm = Integer.parseInt(gsm);
                     }
                     else {
                         gsm = null;
                     }
                     // Test Fixe
-                    if(fieldFixe.getValue() != null) {
+                    if(fieldFixe.getText() != null && fieldFixe.getText().isEmpty() == false) {
                         fixe = fieldFixe.getText().replaceAll("\\s","");
-                        testFixe = Integer.parseInt(fixe);
                     }
                     else {
                         fixe = null;

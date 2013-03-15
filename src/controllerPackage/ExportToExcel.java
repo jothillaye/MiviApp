@@ -51,52 +51,65 @@ public class ExportToExcel {
         runtime.exec("cmd /C start excel " + file);
     }
     
-    public void ExportListToExcel(String formInt, Integer idActivite) throws IOException, NotIdentified, DBException {        
+    public void ExportListToExcel(String formInt, Integer idActivite, Integer typeExport) throws IOException, NotIdentified, DBException {        
         File file = File.createTempFile("ListIns", ".xls");        
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file),"windows-1252"));        
         
-        out.write(formInt + "\n");
-        
-        Activite act = app.getActivite(idActivite);
-        if(act.getPromotion() != null) {            
-            out.write("Promotion : " + act.getPromotion());
-        }
-        if(act.getDateDeb() != null) {
-            out.write("\nDate : " + act.getFormatedDateDeb());
-        }
-        out.write("\t\t\t\tPrix de la formation: " + act.getPrix() + "€");
-        
         ArrayList<Membre> arrayIns = app.listInscription(idActivite, 0);
-        for(Membre me : arrayIns) {
-            out.write("\n\n" + me.getPrenom() + " " + me.getNom() + "\n");            
-            
-            if(me.getGsm() != null && me.getGsm().isEmpty() == false) {
-                out.write("GSM : " + me.getGsm());
+        
+        if(typeExport == 0){
+            out.write(formInt + "\n");
+
+            Activite act = app.getActivite(idActivite);
+            if(act.getPromotion() != null) {            
+                out.write("Promotion : " + act.getPromotion());
             }
-            
-            Float solde = app.getSolde(idActivite, me.getIdMembre());
-            Float prixSpecial = app.getInscription(idActivite, me.getIdMembre()).getTarifSpecial();
-            if(prixSpecial != null && prixSpecial != 0) {
-                solde -= prixSpecial;
+            if(act.getDateDeb() != null) {
+                out.write("\nDate : " + act.getFormatedDateDeb());
             }
-            else {
-                solde -= act.getPrix();
+            out.write("\t\t\t\tPrix de la formation: " + act.getPrix() + "€");
+
+            for(Membre me : arrayIns) {
+                if(typeExport == 0){            
+                    out.write("\n\n" + me.getPrenom() + " " + me.getNom() + "\n");            
+
+                    if(me.getGsm() != null && me.getGsm().isEmpty() == false) {
+                        out.write("GSM : " + me.getGsm());
+                    }
+
+                    Float solde = app.getSolde(idActivite, me.getIdMembre());
+                    Float prixSpecial = app.getInscription(idActivite, me.getIdMembre()).getTarifSpecial();
+                    if(prixSpecial != null && prixSpecial != 0) {
+                        solde -= prixSpecial;
+                    }
+                    else {
+                        solde -= act.getPrix();
+                    }
+                    String soldeExcel;            
+                    if(solde > 0){
+                        soldeExcel = "Trop payé de : " + solde.toString() + "€";
+                    }
+                    else if(solde < 0){
+                        solde *= -1;
+                        soldeExcel = "A Payer : " + solde.toString() + "€";
+                        solde *= -1;
+                    }
+                    else {                
+                        soldeExcel = "Payé";
+                    }
+                    out.write("\t\t\t\t" + soldeExcel);
+                }
             }
-            String soldeExcel;            
-            if(solde > 0){
-                soldeExcel = "Trop payé de : " + solde.toString() + "€";
-            }
-            else if(solde < 0){
-                solde *= -1;
-                soldeExcel = "A Payer : " + solde.toString() + "€";
-                solde *= -1;
-            }
-            else {                
-                soldeExcel = "Payé";
-            }
-            out.write("\t\t\t\t" + soldeExcel);
-            
         }
+        else {
+            for(Membre me : arrayIns) {
+                out.write("\n" + me.getPrenom() + " " + me.getNom());
+                if(me.getEmail() != null){
+                    out.write("\t\t" + me.getEmail());
+                }
+            }            
+        }
+        
         out.close();
         
         Runtime runtime = Runtime.getRuntime();

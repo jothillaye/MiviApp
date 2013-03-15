@@ -39,7 +39,7 @@ public class AccessInscriptionDB {
 	
 	public ArrayList<Membre> listInscription(Integer idActivite, Integer typeIns) throws DBException, NotIdentified {
 		try {
-			request = "select me.idMembre, nom, prenom, gsm from inscription ins, membre me "
+			request = "select me.idMembre, nom, prenom, gsm, email from inscription ins, membre me "
                     + " where ins.idActivite = ? and ins.idMembre = me.idMembre and ins.typeins = ? order by upper(nom);";	
 			prepStat = AccessDB.getInstance().prepareStatement(request);	
             prepStat.setInt(1, idActivite);	
@@ -55,6 +55,7 @@ public class AccessInscriptionDB {
                 me.setNom(data.getString(2));
                 me.setPrenom(data.getString(3));
                 me.setGsm(data.getString(4));   
+                me.setEmail(data.getString(5));   
 				arrayInscription.add(me);	
 			}
 			return arrayInscription;
