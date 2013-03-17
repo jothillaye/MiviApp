@@ -57,22 +57,31 @@ public class AccessMembreDB {
 	}
 	
 	// Obtention d'une liste de membre (sur base du nom et/ou prenom)
-	public ArrayList<Membre> listMembre(String nom, String prenom) throws DBException, NotIdentified {
+	public ArrayList<Membre> listMembre(String nomNum, String prenom) throws DBException, NotIdentified {
 		try {
-			request = "select idMembre, nom, prenom from membre ";	
-			if(nom != null && prenom != null){
-				request += " where supprime <> true and (upper(nom) like ? or upper(prenom) like ?) order by upper(nom)";
-				prepStat = AccessDB.getInstance().prepareStatement(request);		
-				prepStat.setString(1, "%" + nom.toUpperCase() + "%");
-				prepStat.setString(2, "%" + prenom.toUpperCase() + "%");
+			request = "select idMembre, nom, prenom from membre where supprime <> true ";	
+			if(nomNum != null && prenom != null){
+				try {
+                    Integer.parseInt(nomNum);
+                    request += " and gsm like ? or fixe like ? order by upper(nom)";
+                    prepStat = AccessDB.getInstance().prepareStatement(request);		
+                    prepStat.setString(1, "%" + nomNum + "%");            
+                    prepStat.setString(2, "%" + nomNum + "%");   
+                }
+                catch(NumberFormatException nfe){
+                    request += " and (upper(nom) like ? or upper(prenom) like ?) order by upper(nom)";
+                    prepStat = AccessDB.getInstance().prepareStatement(request);		
+                    prepStat.setString(1, "%" + nomNum.toUpperCase() + "%");            
+                    prepStat.setString(2, "%" + prenom.toUpperCase() + "%");
+                }
 			}	
-            else if(nom != null){
-				request += " where supprime <> true and upper(nom) like ? order by upper(nom)";
-				prepStat = AccessDB.getInstance().prepareStatement(request);		
-				prepStat.setString(1, "%" + nom.toUpperCase() + "%");            
+            else if(nomNum != null && prenom == null){
+                request += " and upper(nom) like ? order by upper(nom)";
+                prepStat = AccessDB.getInstance().prepareStatement(request);		
+                prepStat.setString(1, "%" + nomNum.toUpperCase() + "%");                            
             }
 			else {
-                request += " where supprime <> true order by upper(nom)";
+                request += " order by upper(nom)";
                 prepStat = AccessDB.getInstance().prepareStatement(request);
             }
 					

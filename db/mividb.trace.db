@@ -238,3 +238,9 @@ select idActivite from paiement where idActivite = ? and idMembre = ? and typein
 	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:169)
 	at java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:161)
 	at java.awt.EventDispatchThread.run(EventDispatchThread.java:122)
+03-17 11:28:22 jdbc[2]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "SELECT IDMEMBRE, NOM, PRENOM FROM MEMBRE WHERE SUPPRIME <> TRUE  WHERE[*] SUPPRIME <> TRUE ORDER BY UPPER(NOM) "; SQL statement:
+select idMembre, nom, prenom from membre where supprime <> true  where supprime <> true order by upper(nom) [42000-170]
+03-17 11:28:24 jdbc[2]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "SELECT IDMEMBRE, NOM, PRENOM FROM MEMBRE WHERE SUPPRIME <> TRUE  WHERE[*] SUPPRIME <> TRUE ORDER BY UPPER(NOM) "; SQL statement:
+select idMembre, nom, prenom from membre where supprime <> true  where supprime <> true order by upper(nom) [42000-170]

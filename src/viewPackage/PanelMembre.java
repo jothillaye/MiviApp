@@ -396,7 +396,7 @@ public class PanelMembre extends JPanel {
         
     private void UpdateListMembre(String filter){
         listModelMembre.removeAllElements();
-        try {        
+        try {   
             arrayMembre = app.listMembre(filter, filter);
             for(Membre me : arrayMembre){
                 listModelMembre.addElement(new QueryResult(me.getIdMembre(),me.getNom()+", "+me.getPrenom()));
