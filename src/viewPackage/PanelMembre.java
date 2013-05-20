@@ -34,7 +34,6 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.MaskFormatter;
 import modelPackage.HistoryMembreList;
 import modelPackage.Membre;
@@ -46,7 +45,7 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
  */
 public class PanelMembre extends JPanel {
     // Panels & Layout
-    private JPanel panelListMembre, panelRight, panelButtons, panelFicheMembre, panelHistory;
+    private JPanel panelListMembre, panelRight, panelButtons, panelFicheMembre, panelHistory, panelNumFixe;
     private JTabbedPane tabbedPane;
     private FlowLayout flowButtons;
     private GridBagConstraints c;
@@ -55,9 +54,9 @@ public class PanelMembre extends JPanel {
     private JList listMembre;
     private JScrollPane scrollPaneMembre, scrollPaneHistory;
     private DefaultListModel listModelMembre;
-	private JTextField fieldId, fieldNom, fieldPrenom, fieldRue, fieldNumero, fieldCodePostal, fieldVille, fieldEmail, fieldFilter, fieldSolde, fieldPays;
+	private JTextField fieldId, fieldNom, fieldPrenom, fieldRue, fieldPrefixe, fieldNumero, fieldCodePostal, fieldVille, fieldEmail, fieldFilter, fieldSolde;
     private JFormattedTextField fieldDate, fieldFixe, fieldGSM;
-    private JComboBox comboBoxProvenance, comboBoxContact;
+    private JComboBox comboBoxPays, comboBoxProvenance, comboBoxContact;
     private JButton buttonInsert, buttonNewMembre, buttonModify, buttonDelete;	
     private JTable tableHistory;
     private DefaultComboBoxModel modelContact = new DefaultComboBoxModel();
@@ -65,12 +64,14 @@ public class PanelMembre extends JPanel {
     private QueryResult structMembre;	
     private ArrayList<Membre> arrayMembre, arrayMembreComboBox;
     private URL iconURL;
-    private ArrayList<String> arrayPrefix;
+    private ArrayList<String> arrayPays, arrayNum;
 	
 	private PanelMembre panelMembre;	    
     private ApplicationController app = new ApplicationController();
 	
 	public PanelMembre() {	
+        initListPrefixe();
+        
         this.setLayout(new BorderLayout());
         
         c = new GridBagConstraints();
@@ -127,13 +128,28 @@ public class PanelMembre extends JPanel {
 
             panelRight.add(tabbedPane, BorderLayout.CENTER); 
         
-        this.add(panelRight, BorderLayout.CENTER);	
-        
-        arrayPrefix = new ArrayList<String>(); 
-        arrayPrefix.add("02");
-        arrayPrefix.add("03");
-        arrayPrefix.add("04");
+        this.add(panelRight, BorderLayout.CENTER);	              
 	}
+    
+    private void initListPrefixe() {
+        arrayPays = new ArrayList<String>();
+        arrayPays.add("Belgique");
+        arrayPays.add("France");
+        arrayPays.add("Luxembourg");
+        arrayPays.add("Suisse");
+        arrayPays.add("Espagne");
+        arrayPays.add("Pays-Bas");
+        arrayPays.add("Autre");
+        
+        arrayNum = new ArrayList<String>();
+        arrayNum.add("0032");
+        arrayNum.add("0033");
+        arrayNum.add("00352");
+        arrayNum.add("0041");
+        arrayNum.add("0034");
+        arrayNum.add("0031");
+        arrayNum.add("");  
+    }
     
     private class PanelFicheMembre extends JPanel {
         private JLabel labelNom, labelPrenom, labelRue, labelNumero, labelCodePostal, labelVille, labelFixe, labelGSM, labelEmail, labelDateNaiss, labelProvenance, labelContact, labelPays;
@@ -228,16 +244,30 @@ public class PanelMembre extends JPanel {
             labelPays = new JLabel("Pays : ");
             c.gridx = 0; c.gridy++;
             this.add(labelPays, c);
-            
-            fieldPays = new JTextField("Belgique", 10);
+                        
+            comboBoxPays = new JComboBox();
             c.gridx++;
-            this.add(fieldPays, c);            
-
+            this.add(comboBoxPays, c);   
+            
+            for(String pays : arrayPays){
+                comboBoxPays.addItem(pays);
+            }            
+            comboBoxPays.setSelectedIndex(0);
+            
             // Fixe (Field)
             labelFixe = new JLabel("Téléphone Fixe : ");
             c.gridx = 0; c.gridy++; 
             c.insets = new Insets(40,20,0,0);
             this.add(labelFixe, c);
+            
+            panelNumFixe = new JPanel();
+            panelNumFixe.setLayout(new BorderLayout());
+            
+            fieldPrefixe = new JTextField("0032");
+            fieldPrefixe.setColumns(5);
+            fieldPrefixe.setEditable(false);
+            panelNumFixe.add(fieldPrefixe, BorderLayout.WEST);
+            
             
             try {
                 fieldFixe = new JFormattedTextField(new MaskFormatter("### ## ## ##"));
@@ -245,13 +275,15 @@ public class PanelMembre extends JPanel {
             catch (ParseException ex) {
                 JOptionPane.showMessageDialog(null, "Erreur lors du parsing du numéro de téléphone, veuillez contacter l'administrateur.", "Erreur parsing", JOptionPane.ERROR_MESSAGE);
             }
-            fieldFixe.setColumns(9);
+            fieldFixe.setColumns(9);            
+            panelNumFixe.add(fieldFixe, BorderLayout.EAST); 
+            
             c.gridx = 1;
-            this.add(fieldFixe, c); 
+            this.add(panelNumFixe, c);
 
             // GSM (Field)
             labelGSM = new JLabel("GSM : ");
-            c.gridx = 2; 
+            c.gridx ++; 
             this.add(labelGSM, c);
             try {
                 fieldGSM = new JFormattedTextField(new MaskFormatter("#### ## ## ##"));
@@ -346,6 +378,7 @@ public class PanelMembre extends JPanel {
                 buttonNewMembre.addActionListener(AM);	
                 buttonModify.addActionListener(AM);	
                 buttonDelete.addActionListener(AM);	
+                comboBoxPays.addActionListener(AM);
             
                 try {
                     iconURL = this.getClass().getResource("/viewPackage/resources/images/validate.png");
@@ -441,7 +474,13 @@ public class PanelMembre extends JPanel {
             fieldCodePostal.setText("");
         }
         fieldVille.setText(me.getVille());
-        fieldPays.setText(me.getPays());
+        
+        for(String pays : arrayPays) {
+            if(pays.equals(me.getPays()) == true) {
+                comboBoxPays.setSelectedIndex(arrayPays.indexOf(pays));
+                fieldPrefixe.setText(arrayNum.get(arrayPays.indexOf(pays)));
+            }
+        }
      
         if(me.getFixe() != null && me.getFixe().length() >= 9) {
             String fixeString = me.getFixe();
@@ -516,127 +555,137 @@ public class PanelMembre extends JPanel {
         
         @Override
 		public void actionPerformed(ActionEvent e) {
-            idMembreList = listMembre.getSelectedIndex();
-			if(e.getSource() == buttonNewMembre){		
-                reset();
-			}
-            else if(e.getSource() == buttonInsert || e.getSource() == buttonModify){
-                // Récupération des informations d'inscriptions
-                prenom      = fieldPrenom.getText();				
-                nom         = fieldNom.getText();
-                rue         = fieldRue.getText();
-                numero      = fieldNumero.getText();
-                ville       = fieldVille.getText();
-                pays        = fieldPays.getText();
-                email       = fieldEmail.getText();
-                provenance  = comboBoxProvenance.getSelectedIndex();
-                idContact   = ((QueryResult)comboBoxContact.getSelectedItem()).id;
-                dateNaiss   = new GregorianCalendar();
-                try {
-                    // Test Code Postal
-                    if(fieldCodePostal.getText() != null && fieldCodePostal.getText().isEmpty() == false) {
-                        codePostal = Integer.parseInt(fieldCodePostal.getText());
+            if(e.getSource() == comboBoxPays){
+                for(String iteratorPays : arrayPays) {
+                    if(iteratorPays.equals(((JComboBox)e.getSource()).getSelectedItem().toString()) == true) {
+                        comboBoxPays.setSelectedIndex(arrayPays.indexOf(iteratorPays));
+                        fieldPrefixe.setText(arrayNum.get(arrayPays.indexOf(iteratorPays)));
                     }
-                    else {
-                        codePostal = null;
-                    }
-                    // Test GSM
-                    if(fieldGSM.getText() != null && fieldGSM.getText().isEmpty() == false) {
-                        gsm = fieldGSM.getText().replaceAll("\\s","");
-                    }
-                    else {
-                        gsm = null;
-                    }
-                    // Test Fixe
-                    if(fieldFixe.getText() != null && fieldFixe.getText().isEmpty() == false) {
-                        fixe = fieldFixe.getText().replaceAll("\\s","");
-                    }
-                    else {
-                        fixe = null;
-                    }
-                    
-                    if(fieldDate.getValue() != null){
-                        dateString = (String)fieldDate.getValue();
-                        dateNaiss.set(Integer.parseInt(dateString.substring(6, 10)), Integer.parseInt(dateString.substring(3, 5))-1, Integer.parseInt(dateString.substring(0, 2)));
-                    }
-                    
-                    Membre membre = new Membre(nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, pays, provenance, idContact);
-                    // Nouveau membre
-                    if(e.getSource() == buttonInsert) {
-                        idMembre = null;
-                        ArrayList<Membre> arrayExistingMembre = app.listMembre(membre.getNom(), null);
-                        if(arrayExistingMembre.isEmpty() == true) {
-                            idMembre = app.newMembre(membre);     
-                            membre.setIdMembre(idMembre);
+                }                
+            }
+            else{
+                idMembreList = listMembre.getSelectedIndex();
+                if(e.getSource() == buttonNewMembre){		
+                    reset();
+                }
+                else if(e.getSource() == buttonInsert || e.getSource() == buttonModify){
+                    // Récupération des informations d'inscriptions
+                    prenom      = fieldPrenom.getText();				
+                    nom         = fieldNom.getText();
+                    rue         = fieldRue.getText();
+                    numero      = fieldNumero.getText();
+                    ville       = fieldVille.getText();
+                    pays        = comboBoxPays.getSelectedItem().toString();
+                    email       = fieldEmail.getText();
+                    provenance  = comboBoxProvenance.getSelectedIndex();
+                    idContact   = ((QueryResult)comboBoxContact.getSelectedItem()).id;
+                    dateNaiss   = new GregorianCalendar();
+                    try {
+                        // Test Code Postal
+                        if(fieldCodePostal.getText() != null && fieldCodePostal.getText().isEmpty() == false) {
+                            codePostal = Integer.parseInt(fieldCodePostal.getText());
                         }
                         else {
-                            reply = JOptionPane.showConfirmDialog(null, "Il existe déjà "+arrayExistingMembre.size()+" membre(s) avec ce nom, êtes-vous sûr qu'il n'est pas déjà inscrit ?", "Insertion Membre", JOptionPane.YES_NO_OPTION);
-                            if (reply == JOptionPane.YES_OPTION) {
+                            codePostal = 0;
+                        }
+                        // Test GSM
+                        if(fieldGSM.getText() != null && fieldGSM.getText().isEmpty() == false) {
+                            gsm = fieldGSM.getText().replaceAll("\\s","");
+                        }
+                        else {
+                            gsm = null;
+                        }
+                        // Test Fixe
+                        if(fieldFixe.getText() != null && fieldFixe.getText().isEmpty() == false) {
+                            fixe = fieldFixe.getText().replaceAll("\\s","");
+                        }
+                        else {
+                            fixe = null;
+                        }
+
+                        if(fieldDate.getValue() != null){
+                            dateString = (String)fieldDate.getValue();
+                            dateNaiss.set(Integer.parseInt(dateString.substring(6, 10)), Integer.parseInt(dateString.substring(3, 5))-1, Integer.parseInt(dateString.substring(0, 2)));
+                        }
+
+                        Membre membre = new Membre(nom, prenom, email, dateNaiss, gsm, fixe, rue, numero, codePostal, ville, pays, provenance, idContact);
+                        // Nouveau membre
+                        if(e.getSource() == buttonInsert) {
+                            idMembre = null;
+                            ArrayList<Membre> arrayExistingMembre = app.listMembre(membre.getNom(), null);
+                            if(arrayExistingMembre.isEmpty() == true) {
                                 idMembre = app.newMembre(membre);     
                                 membre.setIdMembre(idMembre);
-                                JOptionPane.showMessageDialog(null, "Ajout de "+prenom+" "+nom+" réussi.", "Ajout Membre", JOptionPane.INFORMATION_MESSAGE);
-                            }     
+                            }
+                            else {
+                                reply = JOptionPane.showConfirmDialog(null, "Il existe déjà "+arrayExistingMembre.size()+" membre(s) avec ce nom, êtes-vous sûr qu'il n'est pas déjà inscrit ?", "Insertion Membre", JOptionPane.YES_NO_OPTION);
+                                if (reply == JOptionPane.YES_OPTION) {
+                                    idMembre = app.newMembre(membre);     
+                                    membre.setIdMembre(idMembre);
+                                    JOptionPane.showMessageDialog(null, "Ajout de "+prenom+" "+nom+" réussi.", "Ajout Membre", JOptionPane.INFORMATION_MESSAGE);
+                                }     
+                            }
                         }
-                    }
-                    // Modification membre
-                    else if(e.getSource() == buttonModify) {
-                        idMembre = Integer.parseInt(fieldId.getText()); 
-                        membre.setIdMembre(idMembre);
-                        
-                        reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment modifier ce membre ?", "Modification Membre", JOptionPane.YES_NO_OPTION);
-						if (reply == JOptionPane.YES_OPTION) {
-                            app.modifyMembre(membre);
-                            JOptionPane.showMessageDialog(null, "Modification de "+prenom+" "+nom+" réussie.", "Ajout Membre", JOptionPane.INFORMATION_MESSAGE);
+                        // Modification membre
+                        else if(e.getSource() == buttonModify) {
+                            idMembre = Integer.parseInt(fieldId.getText()); 
+                            membre.setIdMembre(idMembre);
+
+                            reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment modifier ce membre ?", "Modification Membre", JOptionPane.YES_NO_OPTION);
+                            if (reply == JOptionPane.YES_OPTION) {
+                                app.modifyMembre(membre);
+                                JOptionPane.showMessageDialog(null, "Modification de "+prenom+" "+nom+" réussie.", "Ajout Membre", JOptionPane.INFORMATION_MESSAGE);
+                            }
                         }
-					}
-                    
-                    // Récupération du filtre pour l'actualisation
-                    filter = fieldFilter.getText();
-                    if(filter.isEmpty()) {
-                        filter = null;
-                    }
-                    
-                    // Actualisation après modification, erreur possible ?
-                    if(idMembre != null && idMembre == -1) {
-                        JOptionPane.showMessageDialog(null, "Erreur lors de l'ajout veuillez contacter l'administrateur.\nRécuperation de l'identifiant du membre impossible.", "Erreur Insertion", JOptionPane.INFORMATION_MESSAGE);
-                        reset();
-                    }    
-                    else if (idMembre != null){                               
-                        UpdateListMembre(filter);
-                        UpdateInfoMembre(membre);  
-                        for(Object o : listModelMembre.toArray()){      
-                            if(((QueryResult)o).id == idMembre){
-                                listMembre.setSelectedValue(o, true);
+
+                        // Récupération du filtre pour l'actualisation
+                        filter = fieldFilter.getText();
+                        if(filter.isEmpty()) {
+                            filter = null;
+                        }
+
+                        // Actualisation après modification, erreur possible ?
+                        if(idMembre != null && idMembre == -1) {
+                            JOptionPane.showMessageDialog(null, "Erreur lors de l'ajout veuillez contacter l'administrateur.\nRécuperation de l'identifiant du membre impossible.", "Erreur Insertion", JOptionPane.INFORMATION_MESSAGE);
+                            reset();
+                        }    
+                        else if (idMembre != null){                               
+                            UpdateListMembre(filter);
+                            UpdateInfoMembre(membre);  
+                            for(Object o : listModelMembre.toArray()){      
+                                if(((QueryResult)o).id == idMembre){
+                                    listMembre.setSelectedValue(o, true);
+                                }
                             }
                         }
                     }
-                }
-                catch(NumberFormatException nfe) {
-                    JOptionPane.showMessageDialog(null, "Erreur : n'inclure que des chiffres dans les champs suivants :\nCode Postal, GSM, Téléphone Fixe", "Erreur champs numérique", JOptionPane.ERROR_MESSAGE);                    
-                }
-				catch (DBException ex) {
-					JOptionPane.showMessageDialog(null, ex, "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
-				}
-				catch (NotIdentified ex) {
-					JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
-				}
-			}
-            else if(e.getSource() == buttonDelete) {
-                idMembre = Integer.parseInt(fieldId.getText());
-                try {
-                    reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment supprimer ce membre ?", "Suppresion Membre", JOptionPane.YES_NO_OPTION);
-                    if (reply == JOptionPane.YES_OPTION) {                        
-                        app.deleteMembre(idMembre);
-                        JOptionPane.showMessageDialog(null, "Suppression réussie.", "Suppression Membre", JOptionPane.INFORMATION_MESSAGE);
-                        reset();
+                    catch(NumberFormatException nfe) {
+                        JOptionPane.showMessageDialog(null, "Erreur : n'inclure que des chiffres dans les champs suivants :\nCode Postal, GSM, Téléphone Fixe", "Erreur champs numérique", JOptionPane.ERROR_MESSAGE);                    
                     }
-                } 
-                catch (DBException ex) {
-					JOptionPane.showMessageDialog(null, ex, "Erreur Suppression", JOptionPane.ERROR_MESSAGE);
-				} 
-				catch (NotIdentified ex) {
-					JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
-				}               
+                    catch (DBException ex) {
+                        JOptionPane.showMessageDialog(null, ex, "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
+                    }
+                    catch (NotIdentified ex) {
+                        JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+                else if(e.getSource() == buttonDelete) {
+                    idMembre = Integer.parseInt(fieldId.getText());
+                    try {
+                        reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment supprimer ce membre ?", "Suppresion Membre", JOptionPane.YES_NO_OPTION);
+                        if (reply == JOptionPane.YES_OPTION) {                        
+                            app.deleteMembre(idMembre);
+                            JOptionPane.showMessageDialog(null, "Suppression réussie.", "Suppression Membre", JOptionPane.INFORMATION_MESSAGE);
+                            reset();
+                        }
+                    } 
+                    catch (DBException ex) {
+                        JOptionPane.showMessageDialog(null, ex, "Erreur Suppression", JOptionPane.ERROR_MESSAGE);
+                    } 
+                    catch (NotIdentified ex) {
+                        JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
+                    }               
+                }
             }
 		}			
 	}

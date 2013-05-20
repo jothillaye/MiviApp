@@ -198,4 +198,30 @@ public class AccessMembreDB {
 		}
     }
         
+	public ArrayList<Membre> listMembreSupprime() throws DBException, NotIdentified {
+		try {
+			request = "select idMembre, nom, prenom from membre where supprime = true order by upper(nom)";
+            prepStat = AccessDB.getInstance().prepareStatement(request);
+            				
+			data = prepStat.executeQuery();
+			
+			ArrayList<Membre> arrayMembre = new ArrayList<Membre>();
+			
+			while (data.next()) { 
+                Membre membre = new Membre();
+                membre.setIdMembre(data.getInt(1));
+                membre.setNom(data.getString(2));
+                membre.setPrenom(data.getString(3));                
+				arrayMembre.add(membre);	
+			}
+			return arrayMembre;
+		} 
+		catch (SQLException e) {
+			throw new DBException("Erreur lors du listing des membres supprimés.");
+		}	 
+		catch (NotIdentified e) {
+			throw new NotIdentified();
+		}
+	}
+
 }

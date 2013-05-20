@@ -3,7 +3,6 @@ package controllerPackage;
 import businessPackage.*;
 import exceptionPackage.*;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import modelPackage.*;
 
 
@@ -58,6 +57,10 @@ public class ApplicationController {
     public void deleteMembre(Integer idMembre) throws DBException, NotIdentified {
         membreManager.deleteMembre(idMembre);
     }
+    
+    public ArrayList<Membre> listMembreSupprime() throws DBException, NotIdentified {
+        return membreManager.listMembreSupprime();
+	}
 
     // Formation Manager
     public ArrayList<Formation> listForm() throws DBException, NotIdentified {

@@ -15,8 +15,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -53,7 +56,7 @@ public class PanelActivite extends JPanel {
     private DefaultListModel listModelFormation, listModelActivite;
     private JLabel labelForm, labelDate, labelPromo, labelPrix, labelDateFin, labelAccompte, labelTVA; 
     private JFormattedTextField fieldDateDeb, fieldDateFin;
-    private JCheckBox checkPromo, checkDateFin;
+    private JCheckBox checkPromo, checkDateDeb, checkDateFin;
     private JButton buttonInsert, buttonModify, buttonDelete;
     private JSpinner spinPromo, spinPrix, spinAccompte, spinTVA;
     private JSplitPane splitFormAct;
@@ -135,43 +138,48 @@ public class PanelActivite extends JPanel {
             labelForm = new JLabel("Gestion des Activités");
             labelForm.setFont(new Font("Arial", Font.BOLD, 21));
             c.gridx = 0; c.gridy = 0;
-            c.gridwidth = 5;
+            c.gridwidth = 6;
             this.add(labelForm, c);
             
             labelDate = new JLabel("Date : ");
             c.gridy++; c.gridwidth = 1;
-            this.add(labelDate, c);
+            this.add(labelDate, c);       
             
-            try {
-                fieldDateDeb = new JFormattedTextField(new MaskFormatter("##'/##'/####"));
-                fieldDateDeb.setColumns(6);
+            checkDateDeb = new JCheckBox();
+            checkDateDeb.addItemListener(new CheckBoxListener());
+            c.gridx++;
+            this.add(checkDateDeb, c);
+            
+            try{
+                fieldDateDeb = new JFormattedTextField(new MaskFormatter("##/##/####"));            
             } 
             catch (ParseException ex) {
                 JOptionPane.showMessageDialog(null, "Erreur dans la date. Veuillez contacter l'administrateur.", "Erreur date", JOptionPane.ERROR_MESSAGE);
             }
+            fieldDateDeb.setColumns(10);
+            fieldDateDeb.setEditable(false);
             c.gridx++;
             this.add(fieldDateDeb, c);
+            
+            labelDateFin = new JLabel("Date Fin : ");
+            c.gridx++;
+            this.add(labelDateFin, c);
             
             checkDateFin = new JCheckBox();
             checkDateFin.addItemListener(new CheckBoxListener());
             c.gridx++;
-            c.insets = new Insets(10, 20, 10, 0);
             this.add(checkDateFin, c);
             
-            labelDateFin = new JLabel("Date Fin : ");
-            c.gridx++;
-            c.insets = new Insets(10, 0, 10, 10);
-            this.add(labelDateFin, c);
-            
-            try {
-                fieldDateFin = new JFormattedTextField(new MaskFormatter("##'/##'/####"));
-                fieldDateFin.setColumns(6);
-                c.insets = new Insets(10, 20, 10, 10);
-                fieldDateFin.setEditable(false);
+            try{
+                fieldDateFin = new JFormattedTextField(new MaskFormatter("##/##/####"));            
             } 
             catch (ParseException ex) {
-                JOptionPane.showMessageDialog(null, "Erreur dans la date. Veuillez contacter l'administrateur.", "Erreur date", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, 
+                        "Erreur dans la date. Veuillez contacter l'administrateur.", 
+                        "Erreur date", JOptionPane.ERROR_MESSAGE);
             }
+            fieldDateFin.setColumns(10);
+            fieldDateFin.setEditable(false);
             c.gridx++;
             this.add(fieldDateFin, c);
             
@@ -180,45 +188,41 @@ public class PanelActivite extends JPanel {
             c.gridy++;
             this.add(spinPromo, c);
             
-            labelPromo = new JLabel("Promotion : ");
-            c.gridx--;
-            c.insets = new Insets(10, 0, 10, 10);
-            this.add(labelPromo, c);
-            
             checkPromo = new JCheckBox();
             checkPromo.addItemListener(new CheckBoxListener());
             c.gridx--;
-            c.insets = new Insets(10, 20, 10, 0);
             this.add(checkPromo, c);
+            
+            labelPromo = new JLabel("Promotion : ");
+            c.gridx--;
+            this.add(labelPromo, c);
             
             labelPrix = new JLabel("Prix : ");
             c.gridx = 0; c.gridy++;
-            c.insets = new Insets(50, 20, 10, 10);
             this.add(labelPrix, c);       
             
             spinPrix = new JSpinner(new SpinnerNumberModel(0, 0, 10000, 0.01));
             spinPrix.setEditor(new JSpinner.NumberEditor(spinPrix, "0.00€"));
-            c.gridx++; 
+            c.gridx+=2; 
             
             this.add(spinPrix, c);            
             
             labelAccompte = new JLabel("Accompte : ");
             c.gridy++; c.gridx = 0;
-            c.insets = new Insets(10, 20, 10, 10);
             this.add(labelAccompte, c);
             
             spinAccompte = new JSpinner(new SpinnerNumberModel(0, 0, 100, 0.01));
             spinAccompte.setEditor(new JSpinner.NumberEditor(spinAccompte, "0.00%"));
-            c.gridx++;
+            c.gridx+=2;
             this.add(spinAccompte, c);
             
             labelTVA = new JLabel("TVA : ");
-            c.gridx+=2;
+            c.gridx++;
             this.add(labelTVA, c);
             
             spinTVA = new JSpinner(new SpinnerNumberModel(0, 0, 100, 0.01));
             spinTVA.setEditor(new JSpinner.NumberEditor(spinTVA, "0.00%"));
-            c.gridx++;
+            c.gridx+=2;
             this.add(spinTVA, c);
             
             panelButtons = new JPanel(flowButtons);
@@ -237,7 +241,7 @@ public class PanelActivite extends JPanel {
                 buttonDelete.setVisible(false);
                 panelButtons.add(buttonDelete);
                 
-            c.gridwidth = 5; 
+            c.gridwidth = 6; 
             c.gridx = 0; c.gridy++;
             this.add(panelButtons, c);            
             
@@ -257,15 +261,17 @@ public class PanelActivite extends JPanel {
                 buttonDelete.setIcon(new ImageIcon(iconURL));
             }
             catch(NullPointerException ex) {
-                JOptionPane.showMessageDialog(null, "Erreur lors de la récupération des icônes.\nVeuillez contacter l'administrateur", "Erreur de récupération des icônes", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, 
+                        "Erreur lors de la récupération des icônes.\nVeuillez contacter l'administrateur", 
+                        "Erreur de récupération des icônes", JOptionPane.ERROR_MESSAGE);
             }            
         }      
     }
     
     private class ActionManager implements ActionListener {
         private Activite newAct;
-        private GregorianCalendar date;
-        private String dateString;
+        private Date dateDeb, dateFin;
+        private GregorianCalendar dateGC = new GregorianCalendar();
         private Integer idFormation, idActivite, reply;
         
         @Override
@@ -275,71 +281,86 @@ public class PanelActivite extends JPanel {
                 if(e.getSource() == buttonInsert || e.getSource() == buttonModify) {
                     newAct = new Activite();
                     newAct.setIdFormation(idFormation);                    
-                    if(fieldDateDeb.getValue() != null) {
-                        dateString = (String)fieldDateDeb.getValue();
-                        try {
-                            date = new GregorianCalendar(Integer.parseInt(dateString.substring(6, 10)), Integer.parseInt(dateString.substring(3, 5))-1, Integer.parseInt(dateString.substring(0, 2)));                        
-                            newAct.setDateDeb(date);
+                    
+                    try {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                        if(checkDateDeb.isSelected() == true) {
+                            dateDeb = dateFormat.parse(fieldDateDeb.getText());
+                            dateGC.setTime(dateDeb);
+                            newAct.setDateDeb(dateGC);
+                        }                        
+                        else {
+                            newAct.setDateDeb(null);                            
                         }
-                        catch(ArrayIndexOutOfBoundsException ex) {
-                            JOptionPane.showMessageDialog(null, "Erreur lors de l'insertion veuillez vérifier le contenu des dates et si le problème persiste contacter l'administrateur.", "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
+                        if(checkDateFin.isSelected() == true) {
+                            dateFin = dateFormat.parse(fieldDateFin.getText());
+                            dateGC.setTime(dateFin);
+                            newAct.setDateFin(dateGC);
+                        }
+                        else {
+                            newAct.setDateFin(null);                            
                         }
                     }
-                    if(fieldDateFin.getValue() != null) {
-                        dateString = (String)fieldDateFin.getValue();
-                        try {
-                            date = new GregorianCalendar(Integer.parseInt(dateString.substring(6, 10)), Integer.parseInt(dateString.substring(3, 5))-1, Integer.parseInt(dateString.substring(0, 2)));                        
-                            newAct.setDateFin(date);
-                        }
-                        catch(ArrayIndexOutOfBoundsException ex) {
-                            JOptionPane.showMessageDialog(null, "Erreur lors de l'insertion veuillez vérifier le contenu des dates et si le problème persiste contacter l'administrateur.", "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
-                        }
+                    catch(Exception ex) {
+                        JOptionPane.showMessageDialog(null, 
+                                "Les dates doivent être sous la forme 'jj/mm/aaaa'.", 
+                                "Erreur champs date", JOptionPane.ERROR_MESSAGE);
                     }
+                    
                     newAct.setPromotion((Integer)spinPromo.getValue());
                     newAct.setPrix(Float.parseFloat(spinPrix.getValue().toString()));                    
                     newAct.setAccompte(Float.parseFloat(spinAccompte.getValue().toString())*100);
                     newAct.setTva(Float.parseFloat(spinTVA.getValue().toString())*100);
                     
-                    // Nouvelle activitée
-                    if(e.getSource() == buttonInsert) {
-                        try {
-                            idActivite = app.newActivite(newAct);
-                            JOptionPane.showMessageDialog(null, "Activité ajoutée.", "Insertion Activité", JOptionPane.INFORMATION_MESSAGE);
-                        } 
-                        catch (DBException ex) {
-                            JOptionPane.showMessageDialog(null, ex, "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
-                        } 
-                        catch (NotIdentified ex) {
-                            JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
-                        }
+                    if(newAct.getDateDeb() == null && (newAct.getPromotion() == null || newAct.getPromotion() == 0)){
+                        JOptionPane.showMessageDialog(null, 
+                                "Attention, l'activité ne comporte ni date ni promotion, veuillez compléter au minimum l'un des deux.", 
+                                "Insertion Activité", JOptionPane.INFORMATION_MESSAGE);
                     }
-                    // Modification Activité
-                    else {
-                        idActivite = ((QueryResult)listActivite.getSelectedValue()).id;
-                        newAct.setIdActivite(idActivite);
-                        reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment modifier cette activtée ?", "Modification Activité", JOptionPane.YES_NO_OPTION);
-                        if (reply == JOptionPane.YES_OPTION) {       
-                            try {                                                   
-                                app.modifyActivite(newAct);
-                                JOptionPane.showMessageDialog(null, "Activité modifiée.", "Modification Activité", JOptionPane.INFORMATION_MESSAGE);
+                    else{                    
+                        // Nouvelle activitée
+                        if(e.getSource() == buttonInsert) {
+                            try {
+                                idActivite = app.newActivite(newAct);
+                                JOptionPane.showMessageDialog(null, "Activité ajoutée.", "Insertion Activité", JOptionPane.INFORMATION_MESSAGE);
                             } 
                             catch (DBException ex) {
-                                JOptionPane.showMessageDialog(null, ex, "Erreur Modification", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(null, ex, "Erreur Insertion", JOptionPane.ERROR_MESSAGE);
                             } 
                             catch (NotIdentified ex) {
                                 JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
-                            }                    
-                        }       
-                    }
-                    UpdateListActivite(idFormation);
-                    UpdateInfoActivite(idActivite);
-                    
-                    for(Object o : listModelActivite.toArray()){      
-                        if(((QueryResult)o).id == idActivite){
-                            listActivite.setSelectedValue(o, true);
+                            }
                         }
-                    }                    
+
+                        // Modification Activité
+                        else {
+                            idActivite = ((QueryResult)listActivite.getSelectedValue()).id;
+                            newAct.setIdActivite(idActivite);
+                            reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment modifier cette activtée ?", "Modification Activité", JOptionPane.YES_NO_OPTION);
+                            if (reply == JOptionPane.YES_OPTION) {       
+                                try {                                                   
+                                    app.modifyActivite(newAct);
+                                    JOptionPane.showMessageDialog(null, "Activité modifiée.", "Modification Activité", JOptionPane.INFORMATION_MESSAGE);
+                                } 
+                                catch (DBException ex) {
+                                    JOptionPane.showMessageDialog(null, ex, "Erreur Modification", JOptionPane.ERROR_MESSAGE);
+                                } 
+                                catch (NotIdentified ex) {
+                                    JOptionPane.showMessageDialog(null, ex, "Erreur Connexion", JOptionPane.ERROR_MESSAGE);
+                                }                    
+                            }       
+                        }
+                        UpdateListActivite(idFormation);
+                        UpdateInfoActivite(idActivite);
+
+                        for(Object o : listModelActivite.toArray()){      
+                            if(((QueryResult)o).id == idActivite){
+                                listActivite.setSelectedValue(o, true);
+                            }
+                        }  
+                    }
                 }
+                
                 // Suppression activité
                 else if(e.getSource() == buttonDelete) {
                     idActivite = ((QueryResult)listActivite.getSelectedValue()).id;
@@ -383,7 +404,15 @@ public class PanelActivite extends JPanel {
     private class CheckBoxListener implements ItemListener {
         @Override
         public void itemStateChanged(ItemEvent e) {
-            if(e.getItem() == checkDateFin) {
+            if(e.getItem() == checkDateDeb) {
+                if(fieldDateDeb.isEditable() == true) {
+                    fieldDateDeb.setEditable(false);
+                }
+                else {
+                    fieldDateDeb.setEditable(true);
+                }                
+            }
+            else if(e.getItem() == checkDateFin) {
                 if(fieldDateFin.isEditable() == true) {
                     fieldDateFin.setEditable(false);
                 }
@@ -434,8 +463,10 @@ public class PanelActivite extends JPanel {
     }
     
     private void UpdateInfoActivite(Integer idActivite) {
+        Date nDate = new Date();
         // New Activity
         if(idActivite == -1) {
+            checkDateDeb.setSelected(false);
             fieldDateDeb.setValue(null);
             checkDateFin.setSelected(false);
             fieldDateFin.setValue(null);
@@ -460,18 +491,21 @@ public class PanelActivite extends JPanel {
         else {
             try {
                 act = app.getActivite(idActivite);
-                if(act.getDateDeb() != null) { 
-                    fieldDateDeb.setText(act.getFormatedDateDeb());
+                if(act.getDateDeb() != null) {
+                    checkDateDeb.setSelected(true);
+                    fieldDateDeb.setValue(act.getFormatedDateDeb());
                 }
                 else {
-                    fieldDateDeb.setText("");
+                    checkDateDeb.setSelected(false);
+                    fieldDateDeb.setValue(null);
                 }
                 if(act.getDateFin() != null) {
                     checkDateFin.setSelected(true);
-                    fieldDateFin.setText(act.getFormatedDateFin());
+                    fieldDateFin.setValue(act.getFormatedDateFin());
                 }
                 else {
-                    fieldDateFin.setText("");
+                    checkDateFin.setSelected(false);
+                    fieldDateFin.setValue(null);
                 }
                 if(act.getPromotion() != 0) {
                     checkPromo.setSelected(true);

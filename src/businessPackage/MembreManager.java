@@ -40,4 +40,8 @@ public class MembreManager {
     public void deleteMembre(Integer idMembre) throws DBException, NotIdentified {
         accessMembre.deleteMembre(idMembre);
     }
+
+	public ArrayList<Membre> listMembreSupprime() throws DBException, NotIdentified {
+		return accessMembre.listMembreSupprime();
+	}
 }

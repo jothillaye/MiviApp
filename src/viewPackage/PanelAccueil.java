@@ -18,8 +18,8 @@ public class PanelAccueil extends JPanel{
     public PanelAccueil() {
         setLayout(new GridBagLayout());
 		c = new GridBagConstraints();		
-		c.anchor = GridBagConstraints.LINE_START; // aligner � gauche
-		c.insets = new Insets(20,0,0,0);  // top padding		
+		c.anchor = GridBagConstraints.LINE_START; 
+		c.insets = new Insets(20,0,0,0);
 		
 			// Titre 
 			titleAccueil = new JLabel("Bienvenue");

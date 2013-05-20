@@ -26,12 +26,13 @@ public class Fenetre extends JFrame	{
     private PanelFormation panelFormation;
     private PanelActivite panelActivite;
 	private PanelInscription panelInscription;
+    private PanelMembreSupprime panelMembreSupprime;
     
 	// Menu
 	private JMenuBar barre;
     private JButton buttonAccueil, buttonMembre, buttonInscription;
-	private JMenu menuActivite;
-	private JMenuItem itemActivite, itemFormation;
+	private JMenu menuActivite, menuDivers;
+	private JMenuItem itemActivite, itemFormation, itemMembresSupprimes;
     private JLabel labelVer;
     
     private URL iconURL;
@@ -103,6 +104,15 @@ public class Fenetre extends JFrame	{
         buttonInscription.setContentAreaFilled(false);
         buttonInscription.addActionListener(AM);        
 		barre.add(buttonInscription);
+        
+        // Activités - Inscription
+		menuDivers = new JMenu("Divers");               
+		barre.add(menuDivers);
+        
+			// Activite Management
+			itemMembresSupprimes = new JMenuItem("Membres Supprimes");
+			itemMembresSupprimes.addActionListener(AM);
+			menuDivers.add(itemMembresSupprimes);		
         
         barre.add(Box.createHorizontalGlue());
         
@@ -190,6 +200,11 @@ public class Fenetre extends JFrame	{
             else if(e.getSource() == buttonInscription){
                 panelInscription = new PanelInscription();
                 getCont().add(panelInscription, BorderLayout.CENTER);			   						
+            }
+            // Gestion des Inscriptions
+            else if(e.getSource() == itemMembresSupprimes){
+                panelMembreSupprime = new PanelMembreSupprime();
+                getCont().add(panelMembreSupprime, BorderLayout.CENTER);			   						
             }
             getCont().validate();	// refresh la fenêtre		   				
 		}
