@@ -116,7 +116,7 @@ public class Fenetre extends JFrame	{
         
         barre.add(Box.createHorizontalGlue());
         
-        labelVer = new JLabel("ver 1.01 ");
+        labelVer = new JLabel("ver 1.02 ");
         labelVer.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         
         barre.add(labelVer);
