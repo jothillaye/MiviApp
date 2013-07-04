@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import modelPackage.Activite;
 import modelPackage.Formation;
 import modelPackage.Inscription;
-import modelPackage.Membre;
 
 public class InscriptionManager {
     private AccessInscriptionDB accessIns = new AccessInscriptionDB();
@@ -25,12 +24,12 @@ public class InscriptionManager {
         }
     }
 
-    public ArrayList<Membre> listInscription(Integer idActivite, Integer typeIns) throws DBException, NotIdentified {
+    public ArrayList<Inscription> listInscription(Integer idActivite, Integer typeIns) throws DBException, NotIdentified {
         return accessIns.listInscription(idActivite, typeIns);
     }
     
-    public Inscription getInscription(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {
-        return accessIns.getInscription(idActivite, idMembre);
+    public Inscription getInscription(Integer idInscription) throws DBException, NotIdentified {
+        return accessIns.getInscription(idInscription);
     }
     
     public void modifyInscription(Inscription ins) throws DBException, NotIdentified {
@@ -46,14 +45,18 @@ public class InscriptionManager {
         
         if(arrayIns.isEmpty() == false) {        
             Float prixTotal = new Float(0), payeTotal = new Float(0);
+            
             for(ArrayList<Object> array : arrayIns){
-                if(((Inscription)array.get(2)).getTarifSpecial() != null && ((Inscription)array.get(2)).getTarifSpecial() != 0) {
-                    prixTotal += ((Inscription)array.get(2)).getTarifSpecial();
+                Activite act = (Activite) array.get(1);
+                Inscription ins = (Inscription) array.get(2);
+                
+                if(ins.getTarifSpecial() != null && ins.getTarifSpecial() != 0) {
+                    prixTotal += ins.getTarifSpecial();
                 }
                 else {
-                    prixTotal += ((Activite)array.get(1)).getPrix();
+                    prixTotal += act.getPrix();
                 }            
-                payeTotal += ((Float)array.get(3));
+                payeTotal += ins.getSolde();
             }
             ArrayList<Object> newArray = new ArrayList<Object>();
 
@@ -67,9 +70,9 @@ public class InscriptionManager {
 
             Inscription ins = new Inscription();
             ins.setTarifSpecial(new Float(0));
+            ins.setSolde(payeTotal);
             newArray.add(ins);
-
-            newArray.add(payeTotal);        
+      
             arrayIns.add(newArray);        
         }
         

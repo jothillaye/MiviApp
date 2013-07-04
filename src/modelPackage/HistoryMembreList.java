@@ -10,14 +10,13 @@ public class HistoryMembreList extends AbstractTableModel {
 	private Formation form;
     private Activite act;
     private Inscription ins;
-    private Float paye;
 	
 	public HistoryMembreList(ArrayList<ArrayList<Object>> arrayIns) {
 		this.content = arrayIns;	
 		listCol.add("Intitulé");
 		listCol.add("Promotion");
         listCol.add("Date Début");
-        listCol.add("Prix");
+        listCol.add("À Payer");
         listCol.add("Payé");
         listCol.add("Certifié");
 	}
@@ -40,7 +39,6 @@ public class HistoryMembreList extends AbstractTableModel {
 		form = (Formation)content.get(row).get(0);
         act = (Activite)content.get(row).get(1);
         ins = (Inscription)content.get(row).get(2);
-        paye = (Float)content.get(row).get(3);
         
         switch(col)	{ 	
 			case 0: return form.getIntitule();
@@ -50,7 +48,7 @@ public class HistoryMembreList extends AbstractTableModel {
                     else { return "";}
             case 3: if(ins.getTarifSpecial() != null && ins.getTarifSpecial() != 0) { return ins.getTarifSpecial() + "€";}
                     else { return act.getPrix() + "€";}
-            case 4: return paye + "€";
+            case 4: return ins.getSolde() + "€";
             case 5: return ins.getCertifie();
 			
 			default: return null;

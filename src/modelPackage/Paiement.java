@@ -6,15 +6,14 @@ import static java.util.Calendar.YEAR;
 import java.util.GregorianCalendar;
 
 public class Paiement {
-    private Integer idPaiement, idActivite, idMembre, typePaiement, typeIns;
+    private Integer idPaiement, idInscription, typePaiement;
     private Boolean accord;
     private Float montant;
     private GregorianCalendar datePaiement, oldDate;
     private String dayOfMonth, month;
 
-	public Paiement(Integer idActivite, Integer idMembre, Float montant, GregorianCalendar datePaiement, Integer typePaiement, Boolean accord) {
-        this.idActivite = idActivite;
-        this.idMembre = idMembre;
+	public Paiement(Integer idInscription, Float montant, GregorianCalendar datePaiement, Integer typePaiement, Boolean accord) {
+        this.idInscription = idInscription;
         this.montant = montant;
         this.datePaiement = datePaiement;
         this.typePaiement = typePaiement;
@@ -23,15 +22,14 @@ public class Paiement {
 	
 	public Paiement() {}
 
-    public Integer getIdActivite() {return idActivite;}
-    public Integer getIdMembre() {return idMembre;}
+    public Integer getIdPaiement() {return idPaiement;}
+    public Integer getIdInscription() {return idInscription;}
     public Float getMontant() {return montant;}
     public GregorianCalendar getDatePaiement() {return datePaiement;}
     public Boolean getAccord() {return accord;}
     public Integer getTypePaiement() {return typePaiement;}
     public GregorianCalendar getOldDate() {return oldDate;}
-    public Integer getIdPaiement() {return idPaiement;}
-    public Integer getTypeIns() {return typeIns;}
+    
     
     public String getDatePaiementFormated() {    
         if(datePaiement.get(DAY_OF_MONTH)<10) {
@@ -49,15 +47,11 @@ public class Paiement {
         return dayOfMonth+"/"+month+"/"+String.valueOf(datePaiement.get(YEAR));
     }
     
-    public void setIdActivite(Integer idActivite) {this.idActivite = idActivite;}
-    public void setIdMembre(Integer idMembre) {this.idMembre = idMembre;}
+    public void setIdPaiement(Integer idPaiement) {this.idPaiement = idPaiement;}
+    public void setIdInscription(Integer idInscription) {this.idInscription = idInscription;}
     public void setMontant(Float montant) {this.montant = montant;}
     public void setDatePaiement(GregorianCalendar datePaiement) {this.datePaiement = datePaiement;}
     public void setAccord(Boolean accord) {this.accord = accord;}
     public void setTypePaiement(Integer typePaiement) {this.typePaiement = typePaiement;}
-    public void setOldDate(GregorianCalendar oldDate) {this.oldDate = oldDate;}
-    public void setIdPaiement(Integer idPaiement) {this.idPaiement = idPaiement;}
-    public void setTypeIns(Integer typeIns) {this.typeIns = typeIns;}
-
-    
+    public void setOldDate(GregorianCalendar oldDate) {this.oldDate = oldDate;}   
 }

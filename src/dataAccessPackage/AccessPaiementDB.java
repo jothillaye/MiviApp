@@ -17,13 +17,11 @@ public class AccessPaiementDB {
 	
 	public Integer newPaiement(Paiement paiement) throws DBException, NotIdentified {
 		try {
-			request = "insert into paiement (idActivite, idMembre, datePaiement, accord, montant, typePaiement, typeIns) "
-                    + " values (?,?,Now(),?,0,0,?);";
+			request = "insert into paiement (idInscription, datePaiement, accord, montant, typePaiement) "
+                    + " values (?,Now(),?,0,0);";
 			prepStat = AccessDB.getInstance().prepareStatement(request);
-            prepStat.setInt(1, paiement.getIdActivite());
-            prepStat.setInt(2, paiement.getIdMembre());            
-            prepStat.setBoolean(3, paiement.getAccord());
-            prepStat.setInt(4, paiement.getTypeIns());
+            prepStat.setInt(1, paiement.getIdInscription());           
+            prepStat.setBoolean(2, paiement.getAccord());
 			
             prepStat.executeUpdate();    
             
@@ -49,12 +47,10 @@ public class AccessPaiementDB {
 	public ArrayList<Paiement> listPaiement(Paiement paiement) throws DBException, NotIdentified {
 		try {
 			request = "select idpaiement, montant, datePaiement, typePaiement from paiement "
-                    + " where idActivite = ? and idMembre = ? and accord = ? and typeIns = ? order by datePaiement;";	
+                    + " where idInscription = ? and accord = ? order by datePaiement;";	
 			prepStat = AccessDB.getInstance().prepareStatement(request);	
-            prepStat.setInt(1, paiement.getIdActivite());	
-            prepStat.setInt(2, paiement.getIdMembre());	
-            prepStat.setBoolean(3, paiement.getAccord());		
-            prepStat.setInt(4, paiement.getTypeIns());
+            prepStat.setInt(1, paiement.getIdInscription());
+            prepStat.setBoolean(2, paiement.getAccord());	
 					
 			data = prepStat.executeQuery();
 			
@@ -124,21 +120,12 @@ public class AccessPaiementDB {
 		}
     }
     
-    public Float getSolde(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {
+    public Float getSolde(Integer idInscription) throws DBException, NotIdentified {
 		try {
-            if(idActivite != null){
-                request = "select montant from paiement "
-                    + " where accord = false and idActivite = ? and idMembre = ? and typeIns = 0;";	
-                prepStat = AccessDB.getInstance().prepareStatement(request);	
-                prepStat.setInt(1, idActivite);	
-                prepStat.setInt(2, idMembre);	
-            }
-            else {
-                request = "select montant from paiement "
-                        + " where accord = false and idMembre = ? and typeIns = 0;";	
-                prepStat = AccessDB.getInstance().prepareStatement(request);	
-                prepStat.setInt(1, idMembre);	            
-            }
+            request = "select montant from paiement "
+                + " where idInscription = ? and accord = false;";	
+            prepStat = AccessDB.getInstance().prepareStatement(request);	
+            prepStat.setInt(1, idInscription);
             
 			data = prepStat.executeQuery();
 			

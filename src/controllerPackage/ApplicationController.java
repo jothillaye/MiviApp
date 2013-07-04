@@ -105,12 +105,12 @@ public class ApplicationController {
         inscriptionManager.newInscription(ins);
     }
     
-    public ArrayList<Membre> listInscription(Integer idActivite, Integer typeIns) throws DBException, NotIdentified {
+    public ArrayList<Inscription> listInscription(Integer idActivite, Integer typeIns) throws DBException, NotIdentified {
         return inscriptionManager.listInscription(idActivite, typeIns);
     }    
     
-    public Inscription getInscription(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {
-        return inscriptionManager.getInscription(idActivite, idMembre);
+    public Inscription getInscription(Integer idInscription) throws DBException, NotIdentified {
+        return inscriptionManager.getInscription(idInscription);
     }    
     
     public void deleteInscription(Inscription ins) throws DBException, NotIdentified {
@@ -142,7 +142,7 @@ public class ApplicationController {
         paiementManager.deletePaiement(idPaiement);
     }
     
-    public Float getSolde(Integer idActivite, Integer idMembre) throws DBException, NotIdentified {
-        return paiementManager.getSolde(idActivite, idMembre);
+    public Float getSolde(Integer idInscription) throws DBException, NotIdentified {
+        return paiementManager.getSolde(idInscription);
     }    
 }

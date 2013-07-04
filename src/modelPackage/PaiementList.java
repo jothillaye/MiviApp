@@ -9,7 +9,7 @@ import viewPackage.QueryResult;
 public class PaiementList extends AbstractTableModel {
 	private ArrayList<String> listCol = new ArrayList<String>();
 	private ArrayList<Paiement> content = new ArrayList<Paiement>();
-    private String[] typePaiement = {"-- Choisir --", "Liquide", "Virement", "Echange", "Note de Crédit", "Rémunération"};
+    private String[] typePaiement = {"-- Choisir --", "Liquide", "Virement", "Echange", "Remboursement", "Rémunération"};
     
 	private Paiement paiement;
 	

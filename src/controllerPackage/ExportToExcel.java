@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import javax.swing.JTable;
 import javax.swing.table.TableModel;
 import modelPackage.Activite;
+import modelPackage.Inscription;
 import modelPackage.Membre;
 /**
  *
@@ -19,7 +20,7 @@ import modelPackage.Membre;
 public class ExportToExcel {
     private ApplicationController app = new ApplicationController();
     
-    public void ExportTableToExcel(JTable table, String fileName, String formInt, Integer idMembre) throws IOException, NotIdentified, DBException {        
+    public void ExportTableToExcel(JTable table, String fileName, String formInt, Integer idInscription) throws IOException, NotIdentified, DBException {        
         TableModel model = table.getModel();
         File file = File.createTempFile(fileName, ".xls"); 
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file),"iso-8859-1"));
@@ -31,7 +32,8 @@ public class ExportToExcel {
             out.write("Accords de Paiement de la formation : " + formInt + "\n");
         }
         
-        Membre me = app.getMembre(idMembre);
+        Inscription ins = app.getInscription(idInscription);
+        Membre me = app.getMembre(ins.getIdMembre());
         out.write(me.getPrenom().toUpperCase() + " " + me.getNom().toUpperCase() + "\n");
             
         for(int i=0; i < model.getColumnCount(); i++) {
@@ -55,7 +57,7 @@ public class ExportToExcel {
         File file = File.createTempFile("ListIns", ".xls");        
         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file),"windows-1252"));        
         
-        ArrayList<Membre> arrayIns = app.listInscription(idActivite, 0);
+        ArrayList<Inscription> arrayIns = app.listInscription(idActivite, 0);
         
         if(typeExport == 0){
             out.write(formInt + "\n");
@@ -69,7 +71,8 @@ public class ExportToExcel {
             }
             out.write("\t\t\t\tPrix de la formation: " + act.getPrix() + "€");
 
-            for(Membre me : arrayIns) {
+            for(Inscription ins : arrayIns) {
+                Membre me = ins.getMembre();
                 if(typeExport == 0){            
                     out.write("\n\n" + me.getPrenom() + " " + me.getNom() + "\n");            
 
@@ -77,8 +80,8 @@ public class ExportToExcel {
                         out.write("GSM : " + me.getGsm());
                     }
 
-                    Float solde = app.getSolde(idActivite, me.getIdMembre());
-                    Float prixSpecial = app.getInscription(idActivite, me.getIdMembre()).getTarifSpecial();
+                    Float solde = app.getSolde(ins.getIdInscription());
+                    Float prixSpecial = app.getInscription(ins.getIdInscription()).getTarifSpecial();
                     if(prixSpecial != null && prixSpecial != 0) {
                         solde -= prixSpecial;
                     }
@@ -102,7 +105,8 @@ public class ExportToExcel {
             }
         }
         else {
-            for(Membre me : arrayIns) {
+            for(Inscription ins : arrayIns) {
+                Membre me = ins.getMembre();
                 out.write("\n" + me.getPrenom() + " " + me.getNom());
                 if(me.getEmail() != null){
                     out.write("\t\t" + me.getEmail());

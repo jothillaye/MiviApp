@@ -106,17 +106,17 @@ public class Fenetre extends JFrame	{
 		barre.add(buttonInscription);
         
         // Activités - Inscription
-		menuDivers = new JMenu("Divers");               
-		barre.add(menuDivers);
-        
-			// Activite Management
-			itemMembresSupprimes = new JMenuItem("Membres Supprimes");
-			itemMembresSupprimes.addActionListener(AM);
-			menuDivers.add(itemMembresSupprimes);		
+//		menuDivers = new JMenu("Divers");               
+//		barre.add(menuDivers);
+//        
+//			// Activite Management
+//			itemMembresSupprimes = new JMenuItem("Membres Supprimes");
+//			itemMembresSupprimes.addActionListener(AM);
+//			menuDivers.add(itemMembresSupprimes);		
         
         barre.add(Box.createHorizontalGlue());
         
-        labelVer = new JLabel("ver 1.02 ");
+        labelVer = new JLabel("ver 1.03 ");
         labelVer.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         
         barre.add(labelVer);

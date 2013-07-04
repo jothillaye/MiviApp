@@ -6,6 +6,9 @@ package viewPackage;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.font.TextAttribute;
+import java.util.Map;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
@@ -17,9 +20,19 @@ import javax.swing.ListCellRenderer;
 public  class MyCellRenderer extends JLabel implements ListCellRenderer {
     @Override
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        String s = value.toString();
-        setText(s);
-        if(s.isEmpty() == false && s.contains("(-") == true){
+        String str = value.toString();
+        setText(str);
+        
+        Map attributes = getFont().getAttributes();
+        
+        //AttributedString str_attribut = new AttributedString(str);
+        
+        if(str.isEmpty() == false && str.contains("(Abandonné)") == true){            
+            attributes.put(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON);
+        }
+        setFont(new Font(attributes));
+        
+        if(str.isEmpty() == false && str.contains("(-") == true){
             setForeground(Color.RED);
         }
         else {
