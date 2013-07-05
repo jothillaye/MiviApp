@@ -106,17 +106,17 @@ public class Fenetre extends JFrame	{
 		barre.add(buttonInscription);
         
         // Activités - Inscription
-//		menuDivers = new JMenu("Divers");               
-//		barre.add(menuDivers);
-//        
-//			// Activite Management
-//			itemMembresSupprimes = new JMenuItem("Membres Supprimes");
-//			itemMembresSupprimes.addActionListener(AM);
-//			menuDivers.add(itemMembresSupprimes);		
+		menuDivers = new JMenu("Divers");               
+		barre.add(menuDivers);
+        
+			// Activite Management
+			itemMembresSupprimes = new JMenuItem("Membres Supprimes");
+			itemMembresSupprimes.addActionListener(AM);
+			menuDivers.add(itemMembresSupprimes);		
         
         barre.add(Box.createHorizontalGlue());
         
-        labelVer = new JLabel("ver 1.03 ");
+        labelVer = new JLabel("ver 1.04 ");
         labelVer.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
         
         barre.add(labelVer);
@@ -133,6 +133,9 @@ public class Fenetre extends JFrame	{
             
             iconURL = this.getClass().getResource("/viewPackage/resources/images/inscription.png");
             buttonInscription.setIcon(new ImageIcon(iconURL));
+            
+            iconURL = this.getClass().getResource("/viewPackage/resources/images/misc.png");
+            menuDivers.setIcon(new ImageIcon(iconURL));
         }
         catch(NullPointerException ex) {
             JOptionPane.showMessageDialog(null, "Erreur lors de la récupération des icônes.\nVeuillez contacter l'administrateur", "Erreur de récupération des icônes", JOptionPane.ERROR_MESSAGE);
@@ -295,6 +298,7 @@ public class Fenetre extends JFrame	{
         buttonMembre.setEnabled(b);
         menuActivite.setEnabled(b);
         buttonInscription.setEnabled(b);
+        menuDivers.setEnabled(b);
 
         if(b == true) {
             Fenetre.getCont().removeAll();

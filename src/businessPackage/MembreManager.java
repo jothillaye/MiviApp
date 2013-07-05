@@ -44,4 +44,12 @@ public class MembreManager {
 	public ArrayList<Membre> listMembreSupprime() throws DBException, NotIdentified {
 		return accessMembre.listMembreSupprime();
 	}
+    
+    public void restoreMembre(Integer idMembre) throws DBException, NotIdentified {
+        accessMembre.restoreMembre(idMembre);
+    }
+    
+    public void definitivelyDeleteMembre(Integer idMembre) throws DBException, NotIdentified {
+        accessMembre.definitivelyDeleteMembre(idMembre);
+    }
 }

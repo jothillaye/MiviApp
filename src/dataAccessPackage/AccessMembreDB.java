@@ -223,5 +223,37 @@ public class AccessMembreDB {
 			throw new NotIdentified();
 		}
 	}
+    
+        public void restoreMembre(Integer idMembre) throws DBException, NotIdentified {
+        try {
+			request = "update membre set supprime = false where idMembre = ?";	
+            prepStat = AccessDB.getInstance().prepareStatement(request);
+            prepStat.setInt(1, idMembre);
+            
+            prepStat.executeUpdate();
+		} 
+		catch (SQLException e) {
+			throw new DBException("Erreur lors de la restauration du membre.");
+		}	 
+		catch (NotIdentified e) {
+			throw new NotIdentified();
+		}
+    }
+        
+    public void definitivelyDeleteMembre(Integer idMembre) throws DBException, NotIdentified {
+        try {
+			request = "delete from membre where idMembre = ?";	
+            prepStat = AccessDB.getInstance().prepareStatement(request);
+            prepStat.setInt(1, idMembre);
+            
+            prepStat.executeUpdate();
+		} 
+		catch (SQLException e) {
+			throw new DBException("Erreur lors de la suppression du membre.");
+		}	 
+		catch (NotIdentified e) {
+			throw new NotIdentified();
+		}
+    }
 
 }

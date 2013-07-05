@@ -9,14 +9,8 @@ package viewPackage;
  * @author Joachim
  */
 public class QueryResult {
-    int id, type;  
+    int id;  
     String desc;  
-    
-    public QueryResult(Integer id, Integer type, String desc) {  
-        this.id = id;
-        this.type = type;
-        this.desc = desc;  
-    }  
         
     public QueryResult(int id, String desc) {  
         this.id = id;

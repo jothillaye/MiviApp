@@ -11,16 +11,15 @@ import modelPackage.Inscription;
 public class InscriptionManager {
     private AccessInscriptionDB accessIns = new AccessInscriptionDB();
     
-    public void newInscription(Inscription ins) throws DBException, NotIdentified {
+    public Integer newInscription(Inscription ins) throws DBException, NotIdentified {
         // TODO : complèter les champs obligatoires
         if(ins.getIdActivite()  == null || ins.getIdMembre() == null) {
             throw new DBException("Il est obligatoire de choisir un membre et une activité");
         }	
 		else {
-            ins.setAbandonne(false);
             ins.setCertifie(false);
             ins.setTarifSpecial(new Float(0));
-            accessIns.newInscription(ins);
+            return accessIns.newInscription(ins);
         }
     }
 

@@ -54,7 +54,7 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
  * @author Joachim
  */
 public class PanelInscription extends JPanel {
-    private JPanel panelFormAct, panelListInscription, panelRight, panelInfoInscription, panelPaiement, panelAccordPaiement;
+    private JPanel panelFormAct, panelListInscription, panelIns, panelInfoInscription, panelPaiement, panelAccordPaiement;
     private GridBagConstraints c, d;
     private JSplitPane splitFormAct;
     
@@ -85,7 +85,9 @@ public class PanelInscription extends JPanel {
     private URL iconURL; 
     private Dimension dimButton;
     private Float solde, prix, prixSpecial;
-    String tabHeader[] = {"_______Clients_______", "______Assistants______", "______Animateurs______", };
+    private String tabHeader[] = {"_______Clients_______", "______Assistants______", "______Animateurs______", "______Abandonnés______"};
+    private ArrayList<JButton> buttonsPaiement = new ArrayList<JButton>();
+    
     
     private ApplicationController app = new ApplicationController();
     private ExportToExcel export = new ExportToExcel();
@@ -106,9 +108,9 @@ public class PanelInscription extends JPanel {
         d.gridx++;
         this.add(panelListInscription,d);
         
-        panelRight = new PanelRight();       
+        panelIns = new PanelIns();       
         d.gridx++;
-        this.add(panelRight,d);
+        this.add(panelIns,d);
         
         ListListener LL = new ListListener();
         listFormation.addListSelectionListener(LL);
@@ -261,8 +263,8 @@ public class PanelInscription extends JPanel {
         }
     }
     
-    private class PanelRight extends JPanel {
-        public PanelRight() {        
+    private class PanelIns extends JPanel {
+        public PanelIns() {        
             this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         
             panelInfoInscription = new JPanel();
@@ -291,6 +293,7 @@ public class PanelInscription extends JPanel {
             c.gridx++;
             buttonModIns.setContentAreaFilled(false);
             panelInfoInscription.add(buttonModIns, c);
+            buttonsPaiement.add(buttonModIns);
             
             this.add(panelInfoInscription);
         
@@ -320,18 +323,21 @@ public class PanelInscription extends JPanel {
                 c.gridy++; c.gridwidth = 1;
                 c.insets = new Insets(0, 1, 0, 0);
                 panelPaiement.add(buttonAddPaiement, c);
+                buttonsPaiement.add(buttonAddPaiement);
                 
                 buttonDelPaiement = new JButton("Supprimer Paiement");
                 buttonDelPaiement.setContentAreaFilled(false);
                 buttonDelPaiement.setPreferredSize(dimButton);
                 c.gridx++;
                 panelPaiement.add(buttonDelPaiement, c);
+                buttonsPaiement.add(buttonDelPaiement);
                 
                 buttonExportPaiement = new JButton("Export Paiements");
                 buttonExportPaiement.setContentAreaFilled(false);
                 buttonExportPaiement.setPreferredSize(dimButton);
                 c.gridx++;
                 panelPaiement.add(buttonExportPaiement, c);
+                buttonsPaiement.add(buttonExportPaiement);
             
             this.add(panelPaiement);
             
@@ -354,6 +360,7 @@ public class PanelInscription extends JPanel {
                 scrollPaneTableAccordPaiement.setPreferredSize(new Dimension(430, 180));   
                 c.gridy++;
                 panelAccordPaiement.add(scrollPaneTableAccordPaiement, c);
+                
             
                 buttonAddAccord = new JButton("Ajout Accord");
                 buttonAddAccord.setContentAreaFilled(false);
@@ -361,19 +368,22 @@ public class PanelInscription extends JPanel {
                 c.gridy++; c.gridwidth = 1;
                 c.insets = new Insets(0, 1, 0, 0);
                 panelAccordPaiement.add(buttonAddAccord, c);
-                
+                buttonsPaiement.add(buttonAddAccord);
+                                
                 buttonDelAccord = new JButton("Supprimer Accord");
                 buttonDelAccord.setContentAreaFilled(false);
                 buttonDelAccord.setPreferredSize(dimButton);
                 c.gridx++;
                 panelAccordPaiement.add(buttonDelAccord, c);
+                buttonsPaiement.add(buttonDelAccord);
                 
                 buttonExportAccord = new JButton("Export Accords");
                 buttonExportAccord.setContentAreaFilled(false);
                 buttonExportAccord.setPreferredSize(dimButton);
                 c.gridx++;
                 panelAccordPaiement.add(buttonExportAccord, c);
-            
+                buttonsPaiement.add(buttonExportAccord);
+                
             this.add(panelAccordPaiement);
 
             Action action = new ModifPaiement();
@@ -439,10 +449,10 @@ public class PanelInscription extends JPanel {
         listModelInscription.clear();
         if(idActivite != -1) {
             try {                 
-                for(int i=0;i<3;i++){
+                for(int i=0;i<4;i++){
                     arrayInscription = app.listInscription(idActivite,i);
-                    if(arrayInscription.isEmpty() == true && i == 0) {            
-                        listModelInscription.addElement(new QueryResult(-1,i,"-- Aucune inscription --"));
+                    if(arrayInscription.isEmpty() == true && i == 0) { // liste vide            
+                        listModelInscription.addElement(new QueryResult(-1,"-- Aucune inscription --"));
                         labelTotalInscris.setText("Aucun inscris");
                     }
                     else if(arrayInscription.isEmpty() == false) {    
@@ -450,7 +460,7 @@ public class PanelInscription extends JPanel {
                             labelTotalInscris.setText("Nombre d'inscris : "+arrayInscription.size());
                             prix = (app.getActivite(idActivite).getPrix())*-1;
                         }    
-                        listModelInscription.addElement(new QueryResult(-1,i,tabHeader[i]));
+                        listModelInscription.addElement(new QueryResult(-1,tabHeader[i]));
                             
                         for(Inscription iIns : arrayInscription) {
                             Membre me = iIns.getMembre();
@@ -463,14 +473,11 @@ public class PanelInscription extends JPanel {
                                 else {
                                     solde += prix;
                                 }
-                                if(iIns.getAbandonne() == true) {
-                                    desc += " (Abandonné)";
-                                }
                                 if(solde != 0) {
                                     desc += " ("+solde+"€)";
                                 }                                                              
                             }
-                            listModelInscription.addElement(new QueryResult(iIns.getIdInscription(),i,desc));
+                            listModelInscription.addElement(new QueryResult(iIns.getIdInscription(),desc));
                         }                        
                     }
                 }
@@ -484,7 +491,7 @@ public class PanelInscription extends JPanel {
             }    
         }
         else {
-            listModelInscription.addElement(new QueryResult(-1,0,"-- Aucune activité sélectionnée --"));
+            listModelInscription.addElement(new QueryResult(-1,"-- Aucune activité sélectionnée --"));
         }
     }
     
@@ -492,19 +499,46 @@ public class PanelInscription extends JPanel {
         try {
             if(idInscription == -1) {              
                 fieldTarifSpecial.setText("");
-                checkAbandonne.setSelected(false);
-                checkCertifie.setSelected(false);  
+                fieldTarifSpecial.setEnabled(false);
+                
+                checkAbandonne.setEnabled(false);
+                checkCertifie.setEnabled(false);  
                 
                 arrayPaiement.clear();
-                arrayAccordPaiement.clear();
-                
+                arrayAccordPaiement.clear();                
                 tablePaiement.setModel(new PaiementList(arrayPaiement));
                 tableAccordPaiement.setModel(new AccordPaiementList(arrayAccordPaiement));
+                
+                for(JButton button : buttonsPaiement){
+                    button.setEnabled(false);
+                }
             }
             else {
                 ins = app.getInscription(idInscription);
+                
+                fieldTarifSpecial.setEnabled(true);
                 fieldTarifSpecial.setText(ins.getTarifSpecial().toString());
-                checkAbandonne.setSelected(ins.getAbandonne());
+                
+                switch(ins.getTypeIns()){
+                    case 0: 
+                        checkAbandonne.setEnabled(true);
+                        checkAbandonne.setSelected(false);
+                        break;
+                    case 1: 
+                    case 2: 
+                        checkAbandonne.setEnabled(false);
+                        checkAbandonne.setSelected(false);   
+                        break;
+                    case 3:
+                        checkAbandonne.setEnabled(true);
+                        checkAbandonne.setSelected(true);
+                        break;
+                    default:
+                        checkAbandonne.setEnabled(true);
+                        checkAbandonne.setSelected(false);
+                }
+                
+                checkCertifie.setEnabled(true);
                 checkCertifie.setSelected(ins.getCertifie());
                 
                 Paiement paie = new Paiement();
@@ -530,6 +564,10 @@ public class PanelInscription extends JPanel {
                 fieldDate = new JFormattedTextField(new MaskFormatter("##'/##'/####")); 
                 tablePaiement.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(fieldDate));
                 tableAccordPaiement.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(fieldDate));
+                
+                for(JButton button : buttonsPaiement){
+                    button.setEnabled(true);
+                }
             }
         }
         catch (DBException ex) {
@@ -588,11 +626,11 @@ public class PanelInscription extends JPanel {
                         ins.setTypeIns(typeIns);
                         ins.setIdMembre(idComboMembre);    
                         try {
-                            app.newInscription(ins);
+                            idInscription = app.newInscription(ins);
                             UpdateListInscription(idActivite);
                             
                             for(Object o : listModelInscription.toArray()){      
-                                if(((QueryResult)o).id == idComboMembre && ((QueryResult)o).type == typeIns){
+                                if(((QueryResult)o).id == idInscription){
                                     listInscription.setSelectedValue(o, true);
                                 }
                             }
@@ -646,11 +684,12 @@ public class PanelInscription extends JPanel {
                 else if(idInscription != -1) {
                     if(src == buttonDelIns) { 
                         try {
-                            Integer reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment supprimer cette inscription ?", "Modification Membre", JOptionPane.YES_NO_OPTION);
+                            Integer reply = JOptionPane.showConfirmDialog(null, "Voulez-vous vraiment supprimer cette inscription ?", "Modification Inscription", JOptionPane.YES_NO_OPTION);
                             if (reply == JOptionPane.YES_OPTION) {       
                                 ins.setIdInscription(idInscription);
                                 app.deleteInscription(ins);
                                 UpdateListInscription(idActivite);
+                                UpdateInfoInscription(-1);
                             }
                         } 
                         catch (DBException ex) {
@@ -671,7 +710,12 @@ public class PanelInscription extends JPanel {
                             ins.setTarifSpecial(new Float(0));
                         }
                         ins.setCertifie(checkCertifie.isSelected());
-                        ins.setAbandonne(checkAbandonne.isSelected());
+                        if(checkAbandonne.isSelected() == true){
+                            ins.setTypeIns(3);
+                        }
+                        else {
+                            ins.setTypeIns(0);
+                        }
                         try {
                             app.modifyInscription(ins);
                             JOptionPane.showMessageDialog(null, "Inscription modifiée.", "Modification Inscription", JOptionPane.INFORMATION_MESSAGE);

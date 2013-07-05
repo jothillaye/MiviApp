@@ -61,6 +61,14 @@ public class ApplicationController {
     public ArrayList<Membre> listMembreSupprime() throws DBException, NotIdentified {
         return membreManager.listMembreSupprime();
 	}
+    
+    public void restoreMembre(Integer idMembre) throws DBException, NotIdentified {
+        membreManager.restoreMembre(idMembre);
+    }
+    
+    public void definitivelyDeleteMembre(Integer idMembre) throws DBException, NotIdentified {
+        membreManager.definitivelyDeleteMembre(idMembre);
+    }
 
     // Formation Manager
     public ArrayList<Formation> listForm() throws DBException, NotIdentified {
@@ -101,8 +109,8 @@ public class ApplicationController {
     }
     
     // Inscription Manager
-    public void newInscription(Inscription ins) throws DBException, NotIdentified {
-        inscriptionManager.newInscription(ins);
+    public Integer  newInscription(Inscription ins) throws DBException, NotIdentified {
+        return inscriptionManager.newInscription(ins);
     }
     
     public ArrayList<Inscription> listInscription(Integer idActivite, Integer typeIns) throws DBException, NotIdentified {
