@@ -36,8 +36,8 @@ public class AccessDB {
                 // Not created yet
                 else if(e.getErrorCode() == 90013){
                     msg = "Création de la base de donnée.";
-                    //CreateDB();
-                    //org.h2.tools.ChangeFileEncryption.execute("D:\\Documents\\NetBeansProjects\\MiviApp\\db", "mividb", "AES", null, pass.toCharArray(), false);                    
+                    //TODO
+                    //CreateDB();               
                 }
                 else {
                     msg = "Mot de passe entré incorrecte.";
